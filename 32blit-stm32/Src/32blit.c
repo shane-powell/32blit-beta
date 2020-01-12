@@ -18,6 +18,7 @@
 #include "32blit.hpp"
 #include "graphics/color.hpp"
 
+#include "stdarg.h"
 using namespace blit;
 
 __attribute__((section(".dac_data"))) uint16_t dac_buffer[DAC_BUFFER_SIZE];
@@ -54,7 +55,14 @@ void DFUBoot(void)
   NVIC_SystemReset();
 }
 
+int blit_debugf(const char * psFormatString, ...)
+{
+	va_list args;
+	va_start(args, psFormatString);
+	return vprintf(psFormatString, args);
+}
 void blit_debug(std::string message) {
+	printf(message.c_str());
     fb.pen(rgba(255, 255, 255));
     fb.text(message, &minimal_font[0][0], point(0, 0));
 }
@@ -245,6 +253,7 @@ void blit_init() {
     bq24295_init(&hi2c4);
     blit::backlight = 1.0f;
     blit::debug = blit_debug;
+    blit::debugf = blit_debugf;
     blit::now = HAL_GetTick;
     blit::random = HAL_GetRandom;
     blit::audio::volume = 0xffff;
@@ -453,7 +462,7 @@ void blit_flip() {
         // wait for next frame if LTDC hardware currently drawing, ensures
         // no tearing
         while (!(LTDC->CDSR & LTDC_CDSR_VSYNCS));
-        
+
         // pixel double the framebuffer to the LTDC buffer
         rgb *src = (rgb *)blit::fb.data;
 

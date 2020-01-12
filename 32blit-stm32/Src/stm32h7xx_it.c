@@ -62,6 +62,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 extern DMA_HandleTypeDef hdma_dac1_ch2;
 extern TIM_HandleTypeDef htim6;
 /* USER CODE BEGIN EV */

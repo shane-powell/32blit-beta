@@ -12,12 +12,15 @@ While the 32blit API is not finalised, this repository represents an overview of
 
 1. Some experience writing/compiling C/C++ software
 2. `gcc` for compiling test builds
-3. `arm-gcc` for compiling STM32 builds
+3. `gcc-arm-none-eabi` for compiling STM32 builds
 4. `cmake` and `make` for building 32blit libraries and examples
-5. A DFU upload tool, on Windows it's easiest to just use "DfuSe Demonstration"
-6. Ubuntu on Windows 10, or a Linux VM if you prefer.
+5. A DFU upload tool, on Windows it's easiest to just use "DfuSe Demonstration" (available from [st.com](https://www.st.com/en/development-tools/stsw-stm32080.html))
+6. Ubuntu on Windows 10 WSL (_Windows Subsystem for Linux_), or a Linux VM if you prefer.
+7. If you intend on building DFU files (for the device itself), on Ubuntu (or in WSL) you will also need _Python3_ installed, along with _pip3_ (`sudo apt install python3 python3-pip`) and install the following Python modules: `pip3 install construct bitstring` 
 
 On Windows 10 you can either build for win32 or use XMing and run your builds in WSL by prefixing with `DISPLAY=:0.0`.
+
+For more information about how to build on the various systems, refer to the platform specific docs in the `docs` folder!
 
 # Overview
 
@@ -33,121 +36,23 @@ You should be careful relying upon it, however, since `32blit-sdl` is *not an em
 
 If you're planning to use the SDL HAL you'll need to make sure you:
 
-```
+``` shell
 sudo apt install libsdl2-dev
 ```
 
 ## 32blit-stm32
 
-The `32blit-stm32` directory contains the STM32 HAL for 32blit, compatible with the STM32H750. Once you're ready to get your project running on a 32blit console you will need to ensure you have the `arm-gcc` toolchain installed and then follow the instructions below for "Building & Running On 32Blit"
+The `32blit-stm32` directory contains the STM32 HAL for 32blit, compatible with the STM32H750. Once you're ready to get your project running on a 32blit console you will need to ensure you have the `gcc-arm-none-eabi` toolchain installed and then follow the instructions below for "Building & Running On 32Blit"
 
 ## Examples / Projects
 
-### Building & Running Locally Using The SDL HAL (Linux / WSL + XMing)
-
-To build your project for testing, go into the relevant example directory. We'll use `palette-cycle` to demonstrate:
-
-```
-cd examples/palette-cycle
-```
-
-prepare the Makefile with CMake:
-
-```
-mkdir build
-cd build
-cmake ..
-```
-
-and compile the example:
-
-```
-make
-```
-
-To run the application on your computer, use the following command (from within the same directory):
-
-```
-./palette-cycle
-```
-
-If you're using WSL and XMing you will need to add a `DISPLAY` variable like so:
-
-```
-DISPLAY=:0.0 ./palette-cycle
-```
-
-### Building & Running on Win32 (WSL + MinGW)
-
-To build your project for Win32 you'll need `g++-mingw-w64` and `g++-mingw-w64`.
-
-```
-sudo apt-get install gcc-mingw-w64 g++-mingw-w64
-```
-
-You'll also need to cross-compile SDL2 and install it wherever you like to keep your cross-compile libraries.
-
-```
-wget https://www.libsdl.org/release/SDL2-2.0.10.zip
-unzip SDL2-2.0.10.zip
-cd SDL2-2.0.10
-mkdir build.mingw
-cd build.mingw
-../configure --target=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --build=x86_64--linux --prefix=/usr/local/cross-tools/x86_64-w64-mingw32/
-make
-sudo make install
-```
-
-Finally, from the root directory of your project:
-
-```
-mkdir build.mingw
-cd build.mingw
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../mingw.toolchain -DSDL2_DIR=/usr/local/cross-tools/x86_64-w64-mingw32/lib/cmake/SDL2
-```
-
-### Building & Running On 32blit
-
-To build your project for 32blit using arm-none-eabi-gcc you should prepare the Makefile with CMake using the provided toolchain file.
-
-From the root of your project:
-
-```
-mkdir build.stm32
-cd build.stm32
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../32blit.toolchain
-```
-
-And then `make` as normal.
-
-The result of your build will be a `.bin`, `.hex` and `.elf` file. You can turn the `.bin` into a DfuSe-compatible DFU file using th provided `dfu` tool:
-
-```
-../../../tools/dfu build --out palette-cycle.dfu palette-cycle.bin
-```
-
-### Video Capture
-
-`32blit-sdl` supports optional FFMPEG video capture, which you can enable by grabbing a FFMPEG snapshot, building it, and turning on `ENABLE_FFMPEG` when building your project.
-
-
-1. `sudo apt install liblzma-dev`
-2. `wget https://github.com/FFmpeg/FFmpeg/archive/n4.1.4.zip`
-3. `unzip n4.1.4.zip`
-4. `cd FFmpeg-n4.1.4`
-5. `./configure --prefix=$(pwd)/build`
-6. `make && make install`
-
-Then configure your 32blit project with:
-
-```
-mkdir build
-cd build
-cmake .. -DVIDEO_CAPTURE=true
-```
-
-When running your game, you can now hit `r` to start and stop recording.
-
-## Examples
 
 The `examples` directory contains example projects, these can be built into both SDL or STM32 binaries and cover a range of techniques from simple concepts to complete games.
+
+Refer to the OS/platform specific documentation files in the `docs/` folder for instructions on how to compile and run these examples.
+
+### Troubleshooting
+
+If you see `cannot create target because another target with the same name already exists` you've probably run `cmake ..` in the wrong directory (the project directory rather than the build directory), you should remove all but your project files and `cmake ..` again from the build directory.
+
+

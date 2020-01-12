@@ -6,13 +6,14 @@
 
 namespace blit {
 
-  void (*init)()                                  = nullptr;
-  void (*update)(uint32_t time)                   = nullptr;
-  void (*render)(uint32_t time)                   = nullptr;
-  void (*set_screen_mode)(screen_mode new_mode)   = nullptr;
-  uint32_t (*now)()                               = nullptr;
-  uint32_t (*random)()                            = nullptr;
-  void (*debug)(std::string message)              = nullptr;
+  void (*init)()                                    = nullptr;
+  void (*update)(uint32_t time)                     = nullptr;
+  void (*render)(uint32_t time)                     = nullptr;
+  void (*set_screen_mode)(screen_mode new_mode)     = nullptr;
+  uint32_t (*now)()                                 = nullptr;
+  uint32_t (*random)()                              = nullptr;
+  void (*debug)(std::string message)                = nullptr;
+  int  (*debugf)(const char * psFormatString, ...) 	= nullptr;
 
   int32_t (*open_file)(std::string file)          = nullptr;
   int32_t (*read_file)(uint32_t fh, uint32_t offset, uint32_t length, char* buffer) = nullptr;

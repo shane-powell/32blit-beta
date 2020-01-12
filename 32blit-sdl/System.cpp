@@ -99,14 +99,19 @@ void System::run() {
 
 	::set_screen_mode(blit::lores);
 
+#ifdef __EMSCRIPTEN__
+	::init();
+#else
 	t_system_loop = SDL_CreateThread(system_loop_thread, "Loop", (void *)this);
 	t_system_timer = SDL_CreateThread(system_timer_thread, "Timer", (void *)this);
+#endif
 }
 
 int System::timer_thread() {
 	// Signal the system loop every 20 msec.
 	int dropped = 0;
-	SDL_Event event = {.type = timer_event};
+	SDL_Event event = {};
+	event.type = timer_event;
 
 	while (SDL_SemWaitTimeout(s_timer_stop, 20)) {
 		if (SDL_SemValue(s_loop_update)) {
@@ -131,28 +136,34 @@ int System::timer_thread() {
 
 int System::update_thread() {
 	// Run the blit user code once every time we are signalled.
-	SDL_Event event = {.type = loop_event};
+	SDL_Event event = {};
+	event.type = loop_event;
 
 	::init(); // Run init here because the user can make it hang.
 
 	while (true) {
 		SDL_SemWait(s_loop_update);
 		if(!running) break;
-		SDL_LockMutex(m_input);
-		blit::buttons = shadow_buttons;
-		blit::tilt.x = shadow_tilt[0];
-		blit::tilt.y = shadow_tilt[1];
-		blit::tilt.z = shadow_tilt[2];
-		blit::joystick.x = shadow_joystick[0];
-		blit::joystick.y = shadow_joystick[1];
-		SDL_UnlockMutex(m_input);
-		blit::tick(::now());
+		loop();
 		if(!running) break;
 		SDL_PushEvent(&event);
 		SDL_SemWait(s_loop_redraw);
 	}
 	SDL_SemPost(s_loop_ended);
 	return 0;
+}
+
+void System::loop()
+{
+	SDL_LockMutex(m_input);
+	blit::buttons = shadow_buttons;
+	blit::tilt.x = shadow_tilt[0];
+	blit::tilt.y = shadow_tilt[1];
+	blit::tilt.z = shadow_tilt[2];
+	blit::joystick.x = shadow_joystick[0];
+	blit::joystick.y = shadow_joystick[1];
+	SDL_UnlockMutex(m_input);
+	blit::tick(::now());
 }
 
 Uint32 System::mode() {
