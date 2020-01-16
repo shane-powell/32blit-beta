@@ -2,6 +2,12 @@
 
 using namespace blit;
 
+rect s_rect = rect(0, 0, 2, 2);
+rect mower = rect(15, 0, 2, 2);
+
+//size screen_size(160, 120);
+
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // init()
@@ -10,6 +16,9 @@ using namespace blit;
 //
 void init() {
     set_screen_mode(screen_mode::hires);
+    
+    fb.sprites = spritesheet::load(packed_data);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -27,10 +36,13 @@ void render(uint32_t time) {
     // draw some text at the top of the screen
     fb.alpha = 255;
     fb.mask = nullptr;
-    fb.pen(rgba(255, 255, 255));
-    fb.rectangle(rect(0, 0, 320, 14));
-    fb.pen(rgba(0, 0, 0));
-    fb.text("Hello 32blit!", &minimal_font[0][0], point(5, 4));
+    //fb.pen(rgba(255, 255, 255));
+    // fb.rectangle(rect(0, 0, 320, 14));
+    //fb.pen(rgba(0, 0, 0));
+    // fb.text("Hello is anybody there?", &minimal_font[0][0], point(5, 4));
+    fb.sprite(s_rect, point(0, 0));
+    //fb.sprite(s_rect, point(32, 0));
+    fb.sprite(mower, point(15, 0));
 }
 
 ///////////////////////////////////////////////////////////////////////////
