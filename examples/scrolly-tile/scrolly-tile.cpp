@@ -627,7 +627,7 @@ void render_summary() {
 
     if(current_random_source == RANDOM_TYPE_PRNG) {
         char buf[9];
-        sprintf(buf, "%08lX", current_random_seed);
+        sprintf_s(buf, "%08lX", current_random_seed);
         text = "Level seed: ";
         text.append(buf);
         blit::fb.text(text, &minimal_font[0][0], blit::point(10, (SCREEN_H / 2) + 30));
