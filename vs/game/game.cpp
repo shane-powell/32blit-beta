@@ -3,10 +3,10 @@
 using namespace blit;
 
 // Vertical resolution
-const int res_y = 240;
+const uint16_t res_y = 240;
 
 // Horizontal resolution
-const int res_x = 320;
+const uint16_t res_x = 320;
 
 const int8_t sprite_size = 16;
 
@@ -25,6 +25,9 @@ enum enum_state {
     game = 1,
     end = 2
 };
+
+uint8_t mower_choice = 0;
+
 enum_state game_state = enum_state::game;
 
 //size screen_size(160, 120);
@@ -50,7 +53,7 @@ void init() {
 	// Load the spritesheet from the packed data
     fb.sprites = spritesheet::load(packed_data);
 
-    new_game();
+	game_state = title;
 	
 }
 
@@ -94,9 +97,90 @@ void render_game()
 
 void render_end()
 {
+	// Set colour to white for text.
 	fb.pen(rgba(255, 255, 255));
+
+	//Write end of game text
 	fb.text("Congratulations you successfully held a button down.", &minimal_font[0][0], point(5, 4));
 	fb.text("Press a to play again", &minimal_font[0][0], point(5, 16));
+
+	// Set colour to green for background
+	fb.pen(rgba(0, 138, 0));
+}
+
+void render_title()
+{
+	// Set colour to black for text.
+	fb.pen(rgba(0, 0, 0));
+
+	//Write title text
+	fb.text("Advanced Lawnmower Simulator", &minimal_font[0][0], point(res_x / 4, 4));
+	fb.text("---------------------------------------", &minimal_font[0][0], point(res_x / 4, 12));
+	//fb.text("A Gardensoft game", &minimal_font[0][0], rect(0, 0, res_x, 12));
+
+	fb.text("A Gardensoft game", &minimal_font[0][0], point(res_x / 4 + 40, 45));
+	fb.text("32Blit conversion by Shane powell", &minimal_font[0][0], point(res_x / 4, 55));
+
+	if(mower_choice == 0)
+	{
+		fb.pen(rgba(255, 255, 255));
+	}
+	else
+	{
+		fb.pen(rgba(0, 0, 0));
+	}
+
+	fb.text("1) Mega-Grass-Thwopper", &minimal_font[0][0], point(res_x / 4 + 20, 70));
+
+	if (mower_choice == 1)
+	{
+		fb.pen(rgba(255, 255, 255));
+	}
+	else
+	{
+		fb.pen(rgba(0, 0, 0));
+	}
+
+	fb.text("2) Speed-Monster Ripper", &minimal_font[0][0], point(res_x / 4 + 20, 80));
+
+	if (mower_choice == 2)
+	{
+		fb.pen(rgba(255, 255, 255));
+	}
+	else
+	{
+		fb.pen(rgba(0, 0, 0));
+	}
+
+	fb.text("3) The Dongster", &minimal_font[0][0], point(res_x / 4 + 40, 90));
+
+	if (mower_choice == 3)
+	{
+		fb.pen(rgba(255, 255, 255));
+	}
+	else
+	{
+		fb.pen(rgba(0, 0, 0));
+	}
+
+	fb.text("4) The Campbell Cutter", &minimal_font[0][0], point(res_x / 4 + 20, 100));
+
+	if (mower_choice == 4)
+	{
+		fb.pen(rgba(255, 255, 255));
+	}
+	else
+	{
+		fb.pen(rgba(0, 0, 0));
+	}
+
+	fb.text("5) The Clivester", &minimal_font[0][0], point(res_x / 4 + 40, 110));
+
+	fb.pen(rgba(0, 0, 0));
+
+	fb.text("?", &minimal_font[0][0], point(res_x / 2, 140));
+
+	// Set colour to green for background
 	fb.pen(rgba(0, 138, 0));
 }
 
@@ -117,6 +201,9 @@ void render(uint32_t time)
 	
 	switch(game_state)
 	{
+	case title:
+		render_title();
+		break;
 	case game:
 		// If game is running then render the action.
 		render_game();
@@ -128,6 +215,37 @@ void render(uint32_t time)
 	default:
 		break;
 	}
+}
+
+void update_title(const uint16_t released)
+{
+	if (released & blit::button::A)
+	{
+		new_game();
+	}
+	else if (released & blit::button::DPAD_UP)
+	{
+		if(mower_choice > 0)
+		{
+			mower_choice--;
+		}
+		else
+		{
+			mower_choice = 5;
+		}
+	}
+	else if (released & blit::button::DPAD_DOWN)
+	{
+		if(mower_choice < 4)
+		{
+			mower_choice++;
+		}
+		else
+		{
+			mower_choice = 0;
+		}
+	}
+
 }
 
 void update_game(const uint16_t pressed)
@@ -155,7 +273,7 @@ void update_end(const uint16_t pressed)
 {
 	if (pressed & blit::button::A)
 	{
-		new_game();
+		game_state = title;
 	}
 }
 
@@ -171,10 +289,12 @@ void update(uint32_t time) {
 	static uint16_t last_buttons = 0;
 	const uint16_t changed = blit::buttons ^ last_buttons;
 	const uint16_t pressed = changed & blit::buttons;
-	uint16_t released = changed & ~blit::buttons;
+	const uint16_t released = changed & ~blit::buttons;
 	
 	switch (game_state)
 	{
+	case title:
+		update_title(released);
 	case game:
 		// If game is running then render the action.
 		update_game(pressed);
@@ -187,7 +307,7 @@ void update(uint32_t time) {
 		break;
 	}
 	
-    
+	last_buttons = blit::buttons;
 
     
 }
