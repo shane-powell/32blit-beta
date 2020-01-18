@@ -33,11 +33,18 @@ uint8_t mower_choice = 0;
 
 enum_state game_state = enum_state::game;
 
+void reset_game()
+{
+	// Set the location of the mower to the bottom right of the screen
+	mower_location = point(res_x - sprite_size, res_y - sprite_size);
+
+	mower_choice = 0;
+}
+
 //size screen_size(160, 120);
 void new_game()
 {
-    // Set the location of the mower to the bottom right of the screen
-    mower_location = point(res_x - sprite_size, res_y - sprite_size);
+	reset_game();
 
     game_state = game;
 }
@@ -56,8 +63,7 @@ void init() {
 	// Load the spritesheet from the packed data
     fb.sprites = spritesheet::load(packed_data);
 
-	// Set the location of the mower to the bottom right of the screen
-	mower_location = point(res_x - sprite_size, res_y - sprite_size);
+	reset_game();
 
 	game_state = title;
 	
@@ -311,12 +317,15 @@ void update_game(const uint16_t pressed, const uint16_t released)
 			game_state = end;
 		}
 	}
+
 }
 
-void update_end(const uint16_t pressed)
+void update_end(const uint16_t released)
 {
-	if (pressed & blit::button::B)
+
+	if (released & blit::button::B)
 	{
+		reset_game();
 		game_state = title;
 	}
 }
@@ -360,7 +369,7 @@ void update(uint32_t time) {
 		break;
 	case end:
 		// If game has ended render the end screen
-		update_end(pressed);
+		update_end(released);
 		break;
 	case mower_selection:
 		update_mower_selection(released);
