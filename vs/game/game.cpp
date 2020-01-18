@@ -19,11 +19,14 @@ const rect sky = rect(6, 0, 2, 2);
 
 point mower_location;
 
+bool mowing = false;
+
 // Keep track of game state
 enum enum_state {
     title = 0,
     game = 1,
-    end = 2
+    end = 2,
+	mower_selection = 3
 };
 
 uint8_t mower_choice = 0;
@@ -52,6 +55,9 @@ void init() {
 
 	// Load the spritesheet from the packed data
     fb.sprites = spritesheet::load(packed_data);
+
+	// Set the location of the mower to the bottom right of the screen
+	mower_location = point(res_x - sprite_size, res_y - sprite_size);
 
 	game_state = title;
 	
@@ -93,6 +99,31 @@ void render_game()
 
 	// draw player
 	fb.sprite(mower, mower_location);
+}
+
+void render_mower_selection()
+{
+	// Set colour to black for text.
+	fb.pen(rgba(0, 0, 0));
+
+	// Process mower selection (Only valid choice is 5)
+	switch (mower_choice)
+	{
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			fb.text("I'm Sorry but that is out of order", &minimal_font[0][0], point(res_x / 4, res_y / 2));
+		break;
+		case 4:
+		default:
+			fb.text("The Clivester", &minimal_font[0][0], point(res_x / 4, res_y / 2));
+			fb.text("is in perfect working order.", &minimal_font[0][0], point(res_x / 4, res_y / 2 + 10));
+		break;
+	}
+
+	// Set colour to green for background
+	fb.pen(rgba(0, 138, 0));
 }
 
 void render_end()
@@ -212,6 +243,8 @@ void render(uint32_t time)
 		// If game has ended render the end screen
 		render_end();
 		break;
+	case mower_selection:
+		render_mower_selection();
 	default:
 		break;
 	}
@@ -219,9 +252,9 @@ void render(uint32_t time)
 
 void update_title(const uint16_t released)
 {
-	if (released & blit::button::A)
+	if (released & blit::button::B)
 	{
-		new_game();
+		game_state = mower_selection;
 	}
 	else if (released & blit::button::DPAD_UP)
 	{
@@ -231,7 +264,7 @@ void update_title(const uint16_t released)
 		}
 		else
 		{
-			mower_choice = 5;
+			mower_choice = 4;
 		}
 	}
 	else if (released & blit::button::DPAD_DOWN)
@@ -248,11 +281,23 @@ void update_title(const uint16_t released)
 
 }
 
-void update_game(const uint16_t pressed)
+void update_game(const uint16_t pressed, const uint16_t released)
 {
+	
+
 	if (pressed & blit::button::B)
 	{
-		if(mower_location.x > 0)
+		mowing = true;
+	}
+	else if(released & blit::button::B)
+	{
+		mowing = false;
+	}
+
+
+	if (mowing)
+	{
+		if (mower_location.x > 0)
 		{
 			mower_location.x -= 2;
 		}
@@ -265,15 +310,29 @@ void update_game(const uint16_t pressed)
 		{
 			game_state = end;
 		}
-        
 	}
 }
 
 void update_end(const uint16_t pressed)
 {
-	if (pressed & blit::button::A)
+	if (pressed & blit::button::B)
 	{
 		game_state = title;
+	}
+}
+
+void update_mower_selection(const uint16_t released)
+{
+	if (released & blit::button::B)
+	{
+		if(mower_choice == 4)
+		{
+			new_game();
+		}
+		else
+		{
+			game_state = title;
+		}
 	}
 }
 
@@ -297,11 +356,14 @@ void update(uint32_t time) {
 		update_title(released);
 	case game:
 		// If game is running then render the action.
-		update_game(pressed);
+		update_game(pressed, released);
 		break;
 	case end:
 		// If game has ended render the end screen
 		update_end(pressed);
+		break;
+	case mower_selection:
+		update_mower_selection(released);
 		break;
 	default:
 		break;
