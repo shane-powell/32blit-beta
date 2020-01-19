@@ -22,7 +22,7 @@ point mower_location;
 bool mowing = false;
 
 // Keep track of game state
-enum enum_state {
+	enum enum_state {
     title = 0,
     game = 1,
     end = 2,
@@ -31,21 +31,33 @@ enum enum_state {
 
 uint8_t mower_choice = 0;
 
-enum_state game_state = enum_state::game;
+	enum_state game_state = enum_state::title;
 
 void reset_game()
 {
 	// Set the location of the mower to the bottom right of the screen
 	mower_location = point(res_x - sprite_size, res_y - sprite_size);
 
+	// Make sure vibration is off
+	blit::vibration = 0;
+
+	// Reset mower choice to default
 	mower_choice = 0;
+
+	// Turn off the mower
+	mowing = false;
 }
 
 //size screen_size(160, 120);
 void new_game()
 {
+	// Reset the game ready for a new game
 	reset_game();
 
+	// Set vibration to mower idle
+	blit::vibration = 0.2;
+
+	// Set the game state to game
     game_state = game;
 }
 
@@ -57,16 +69,15 @@ void new_game()
 //
 void init() {
 
+	blit::vibration = 0;
+
 	// Set screen to highest resolution
     set_screen_mode(screen_mode::hires);
 
 	// Load the spritesheet from the packed data
     fb.sprites = spritesheet::load(packed_data);
 
-	reset_game();
-
-	game_state = title;
-	
+	reset_game();	
 }
 
 
@@ -123,8 +134,8 @@ void render_mower_selection()
 		break;
 		case 4:
 		default:
-			fb.text("The Clivester", &minimal_font[0][0], point(res_x / 4, res_y / 2));
-			fb.text("is in perfect working order.", &minimal_font[0][0], point(res_x / 4, res_y / 2 + 10));
+			fb.text("The Clivester", &minimal_font[0][0], point(res_x / 4 + 40, res_y / 2));
+			fb.text("is in perfect working order.", &minimal_font[0][0], point(res_x / 4 + 5, res_y / 2 + 10));
 		break;
 	}
 
@@ -217,6 +228,9 @@ void render_title()
 
 	fb.text("?", &minimal_font[0][0], point(res_x / 2, 140));
 
+
+	fb.text("Controls: A = Select B = Mow", &minimal_font[0][0], point(res_x / 4 + 10, 200));
+
 	// Set colour to green for background
 	fb.pen(rgba(0, 138, 0));
 }
@@ -258,7 +272,7 @@ void render(uint32_t time)
 
 void update_title(const uint16_t released)
 {
-	if (released & blit::button::B)
+	if (released & blit::button::A)
 	{
 		game_state = mower_selection;
 	}
@@ -294,10 +308,16 @@ void update_game(const uint16_t pressed, const uint16_t released)
 	if (pressed & blit::button::B)
 	{
 		mowing = true;
+		blit::vibration = 1;
 	}
 	else if(released & blit::button::B)
 	{
 		mowing = false;
+		blit::vibration = 0.2;
+	}
+	else
+	{
+		// blit::vibration = 0.2;
 	}
 
 
@@ -314,6 +334,8 @@ void update_game(const uint16_t pressed, const uint16_t released)
 		}
 		else
 		{
+			blit::vibration = 0;
+			mowing = false;
 			game_state = end;
 		}
 	}
@@ -323,7 +345,7 @@ void update_game(const uint16_t pressed, const uint16_t released)
 void update_end(const uint16_t released)
 {
 
-	if (released & blit::button::B)
+	if (released & blit::button::A)
 	{
 		reset_game();
 		game_state = title;
@@ -332,7 +354,7 @@ void update_end(const uint16_t released)
 
 void update_mower_selection(const uint16_t released)
 {
-	if (released & blit::button::B)
+	if (released & blit::button::A)
 	{
 		if(mower_choice == 4)
 		{
