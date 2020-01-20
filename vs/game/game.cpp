@@ -17,6 +17,8 @@ const rect grass = rect(2, 0, 2, 2);
 const rect mower = rect(4, 0, 2, 2);
 const rect sky = rect(6, 0, 2, 2);
 
+std::string end_comment = "";
+
 point mower_location;
 
 bool mowing = false;
@@ -149,7 +151,7 @@ void render_end()
 	fb.pen(rgba(255, 255, 255));
 
 	//Write end of game text
-	fb.text("Congratulations you successfully held a button down.", &minimal_font[0][0], point(5, 4));
+	fb.text(end_comment, &minimal_font[0][0], point(5, 4));
 	fb.text("Press a to play again", &minimal_font[0][0], point(5, 16));
 
 	// Set colour to green for background
@@ -336,6 +338,7 @@ void update_game(const uint16_t pressed, const uint16_t released)
 		{
 			blit::vibration = 0;
 			mowing = false;
+			end_comment = "Congratulations you successfully held a button down.";
 			game_state = end;
 		}
 	}
