@@ -206,7 +206,7 @@ void render_game()
 		while (current_pos_x >= 0)
 		{
 			// If the mower is to the left of the current position or above it then draw lawn
-			if (mower_location.y < current_pos_y || mower_location.y == current_pos_y && mower_location.x <= current_pos_x)
+			if ((mower_location.y < current_pos_y) || (mower_location.y == current_pos_y) && (mower_location.x <= current_pos_x))
 			{
 				// Draw cut lawn
 				fb.sprite(lawn, point(current_pos_x, current_pos_y));
