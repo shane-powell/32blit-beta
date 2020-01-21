@@ -41,13 +41,13 @@ const rect mower = rect(4, 0, 2, 2);
  */
 const rect sky = rect(6, 0, 2, 2);
 
-std::vector<std::string> motivational_messages = {"					001100111011100011110011100111100",
+std::vector<std::string> motivational_messages = {"001100111011100011110011100111100",
 	"JESUS, YOU CALL THAT MOWING? I'VE SEEN\nBARBERS WHO CUT BETTER THAN THAT.SORRY.\nTHAT WASN'T FUNNY. I'LL TRY HARDER LATER.",
 	"TRES MAGNIFIQUE! MEGA MOWER DUDE ALERT.\nYOU SURE ARE THE CATS RINGBINDER.\nALL SIX OF MY NIPPLES ARE TINGLING.",
-	"OH NO! BY THE LOOK OF THAT LAWN\n		 IT LOOKS LIKE IT'S\n	  TIME TO CALL NATIONAL RESCUE",
-	"LAWNMOWER MAN IN NEAT GRASS SHOCK\n			ANOTHER SUN SCOOP\n			READ MORE ON PAGE 3!",
-	"OH DEAR. THAT WAS A BIT CRAP\n	DON'T LET ME SEE YOU ROUND HERE AGAIN OR\n		I'LL SET MY LETTUCE ON YOU. ",
-	"NOT BAD AT ALL\n			WELL WORTH A CHEESE SARNIE	\n			MY HEARTY CONGRATULATIONS."
+	"OH NO! BY THE LOOK OF THAT LAWN\nIT LOOKS LIKE IT'S\nTIME TO CALL NATIONAL RESCUE",
+	"LAWNMOWER MAN IN NEAT GRASS SHOCK\nANOTHER SUN SCOOP\nREAD MORE ON PAGE 3!",
+	"OH DEAR. THAT WAS A BIT CRAP\nDON'T LET ME SEE YOU ROUND HERE AGAIN OR\nI'LL SET MY LETTUCE ON YOU.",
+	"NOT BAD AT ALL\nWELL WORTH A CHEESE SARNIE\nMY HEARTY CONGRATULATIONS."
 };
 
 
@@ -151,6 +151,22 @@ void new_game()
     game_state = game;
 }
 
+void end_game()
+{
+	// Safely shut down lawnmower
+	blit::vibration = 0;
+	mowing = false;
+
+	// Set the end comment to display
+	const uint8_t random_index = blit::random() % (motivational_messages.capacity() - 1);
+	end_comment = motivational_messages[random_index];
+
+	//end_comment = "Congratulations you successfully held a button down.";
+
+	// Set the gamestate to end
+	game_state = end;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // init()
@@ -167,7 +183,9 @@ void init() {
 	// Load the spritesheet from the packed data
     fb.sprites = spritesheet::load(packed_data);
 
-	reset_game();	
+	reset_game();
+
+	end_game();
 }
 
 
@@ -246,7 +264,19 @@ void render_end()
 	fb.pen(rgba(255, 255, 255));
 
 	//Write end of game text
-	fb.text(end_comment, &minimal_font[0][0], point(res_x / 4, res_y / 2));
+
+	std::vector<std::string> message_lines = split_string_with_delimiter(end_comment, "\n");
+
+	int8_t y_offset = 0;
+	
+	for (const auto& message_line : message_lines)
+	{
+		const uint16_t x_offset = (res_x - message_line.size() * 6) / 2;
+		fb.text(message_line, &minimal_font[0][0], point(x_offset, res_y / 2 + y_offset), false);
+		y_offset += 10;
+	}
+	
+	
 	fb.text("Press a to play again", &minimal_font[0][0], point(5, 16));
 
 	// Set colour to green for background
@@ -443,17 +473,7 @@ void update_game(const uint16_t pressed, const uint16_t released)
 		// Otherwise we have reached the end or something really bad and unexpected has happened.
 		else
 		{
-			// Safely shut down lawnmower
-			blit::vibration = 0;
-			mowing = false;
-
-			// Set the end comment to display
-			end_comment = motivational_messages[ blit::random() % motivational_messages.size()];
-			
-			//end_comment = "Congratulations you successfully held a button down.";
-
-			// Set the gamestate to end
-			game_state = end;
+			end_game();
 		}
 	}
 
