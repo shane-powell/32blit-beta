@@ -27,10 +27,12 @@ const int8_t grass_height = 10;
  * \brief The location of the lawn (post lawnmower) sprite on the spritesheet.
  */
 const rect lawn = rect(0, 0, 2, 2);
+
 /**
  * \brief The location of the grass sprite on the spritesheet.
  */
 const rect grass = rect(2, 0, 2, 2);
+
 /**
  * \brief The location of the mower sprite on the spritesheet.
  */
@@ -41,7 +43,25 @@ const rect mower = rect(4, 0, 2, 2);
  */
 const rect sky = rect(6, 0, 2, 2);
 
-std::vector<std::string> motivational_messages = {"001100111011100011110011100111100",
+/**
+ * \brief The location of the dead_mower sprite on the spritesheet. (Not currently used as we just draw the background sky coloured)
+ */
+const rect dead_mower = rect(8, 0, 2, 2);
+
+/**
+ * \brief The location of the dead grass sprite on the spritesheet. (Not currently used as we just draw the background sky coloured)
+ */
+const rect dead_grass = rect(10, 0, 2, 2);
+
+/**
+ * \brief The location of the dead_lawn sprite on the spritesheet. (Not currently used as we just draw the background sky coloured)
+ */
+const rect dead_lawn = rect(12, 0, 2, 2);
+
+/**
+ * \brief A vector of motivational messages to randomly select from when a level is completed. 
+ */
+const std::vector<std::string> motivational_messages = {"001100111011100011110011100111100",
 	"JESUS, YOU CALL THAT MOWING? I'VE SEEN\nBARBERS WHO CUT BETTER THAN THAT.SORRY.\nTHAT WASN'T FUNNY. I'LL TRY HARDER LATER.",
 	"TRES MAGNIFIQUE! MEGA MOWER DUDE ALERT.\nYOU SURE ARE THE CATS RINGBINDER.\nALL SIX OF MY NIPPLES ARE TINGLING.",
 	"OH NO! BY THE LOOK OF THAT LAWN\nIT LOOKS LIKE IT'S\nTIME TO CALL NATIONAL RESCUE",
@@ -50,6 +70,11 @@ std::vector<std::string> motivational_messages = {"00110011101110001111001110011
 	"NOT BAD AT ALL\nWELL WORTH A CHEESE SARNIE\nMY HEARTY CONGRATULATIONS."
 };
 
+
+/**
+ * \brief A message to display when the player meets an untimely death
+ */
+const std::string death_message = "OH NO! YOU HIT A ROCK.\nAND HAD AN EPILEPTIC FIT.\nAND, er, DIED.";
 
 /**
  * \brief The comment to show on the end screen
@@ -67,6 +92,12 @@ point mower_location;
  */
 bool mowing = false;
 
+/**
+ * \brief Whether or not the player is currently deceased.
+ */
+bool dead = false;
+
+int16_t death_clock = 1000;
 
 enum enum_state {
 	/**
@@ -133,6 +164,9 @@ void reset_game()
 
 	// Turn off the mower
 	mowing = false;
+
+	// Revive player
+	dead = false;
 }
 
 
@@ -151,15 +185,24 @@ void new_game()
     game_state = game;
 }
 
-void end_game()
+void end_game(bool dead)
 {
 	// Safely shut down lawnmower
 	blit::vibration = 0;
 	mowing = false;
 
-	// Set the end comment to display
-	const uint8_t random_index = blit::random() % (motivational_messages.capacity() - 1);
-	end_comment = motivational_messages[random_index];
+	if(dead)
+	{
+		end_comment = death_message;
+	}
+	else
+	{
+		// Set the end comment to display
+		const uint8_t random_index = blit::random() % (motivational_messages.capacity() - 1);
+		end_comment = motivational_messages[random_index];
+	}
+	
+	
 
 	//end_comment = "Congratulations you successfully held a button down.";
 
@@ -184,15 +227,25 @@ void init() {
     fb.sprites = spritesheet::load(packed_data);
 
 	reset_game();
-
-	end_game();
 }
 
 
 void render_game()
 {
-	// Set pen to sky colour
-	fb.pen(rgba(1, 240, 255));
+	if(!dead)
+	{
+		// Set pen to sky colour
+		fb.pen(rgba(1, 240, 255));
+	}
+	else
+	{
+		const uint8_t bg_red = blit::random() % 255;
+		const uint8_t bg_green = blit::random() % 255;
+		const uint8_t bg_blue = blit::random() % 255;
+		
+		fb.pen(rgba(bg_red, bg_green, bg_blue));
+	}
+	
 	
 	// Set the current position of the lawn draw location to the bottom right of the screen
 	int current_pos_x = res_x - sprite_size;
@@ -209,13 +262,30 @@ void render_game()
 			if ((mower_location.y < current_pos_y) || (mower_location.y == current_pos_y) && (mower_location.x <= current_pos_x))
 			{
 				// Draw cut lawn
-				fb.sprite(lawn, point(current_pos_x, current_pos_y));
+				if (!dead)
+				{
+					fb.sprite(lawn, point(current_pos_x, current_pos_y));
+
+				}
+				else
+				{
+					fb.sprite(dead_lawn, point(current_pos_x, current_pos_y));
+				}
 			}
 				// Otherwise draw un cut grass
 			else
 			{
-				// Draw grass
-				fb.sprite(grass, point(current_pos_x, current_pos_y));
+				if (!dead)
+				{
+					// Draw grass
+					fb.sprite(grass, point(current_pos_x, current_pos_y));
+				}
+				else
+				{
+					// Draw grass
+					fb.sprite(dead_grass, point(current_pos_x, current_pos_y));
+				}
+				
 			}
 
 			// Move current draw position one sprites width to the left
@@ -230,7 +300,16 @@ void render_game()
 	}
 
 	// draw player
-	fb.sprite(mower, mower_location);
+	if (!dead)
+	{
+		fb.sprite(mower, mower_location);
+
+	}
+	else
+	{
+		fb.sprite(dead_mower, mower_location);
+
+	}
 }
 
 void render_mower_selection()
@@ -443,37 +522,65 @@ void update_title(const uint16_t released)
  */
 void update_game(const uint16_t pressed, const uint16_t released)
 {
-	
-	// If button B is pressed set mower to on and increase vibration
-	if (pressed & blit::button::B)
-	{
-		mowing = true;
-		blit::vibration = 1;
-	} // If button B is released set mower to off and decrease vibration.
-	else if(released & blit::button::B)
-	{
-		mowing = false;
-		blit::vibration = 0.2;
-	}
 
-	// If mower is on then move the mower along
-	if (mowing)
+	if (!dead)
 	{
-		// If the x location of the mower is greater than 0 move the mower 2 pixels to the left
-		if (mower_location.x > 0)
+		// If button B is pressed set mower to on and increase vibration
+		if (pressed & blit::button::B)
 		{
-			mower_location.x -= 2;
-		}
-		// Otherwise if not at top of lawn move the mowers location up by one sprites height.
-		else if (mower_location.y > res_y - grass_height * 16)
+			mowing = true;
+			blit::vibration = 1;
+		} // If button B is released set mower to off and decrease vibration.
+		else if (released & blit::button::B)
 		{
-			mower_location.x = res_x - sprite_size;
-			mower_location.y -= sprite_size;
+			mowing = false;
+			blit::vibration = 0.2;
 		}
-		// Otherwise we have reached the end or something really bad and unexpected has happened.
+
+		// If mower is on then move the mower along
+		if (mowing)
+		{
+			// If the x location of the mower is greater than 0 move the mower 2 pixels to the left
+			if (mower_location.x > 0)
+			{
+				mower_location.x -= 2;
+			}
+			// Otherwise if not at top of lawn move the mowers location up by one sprites height.
+			else if (mower_location.y > res_y - grass_height * 16)
+			{
+				mower_location.x = res_x - sprite_size;
+				mower_location.y -= sprite_size;
+			}
+			// Otherwise we have reached the end or something really bad and unexpected has happened.
+			else
+			{
+				end_game(false);
+			}
+
+			const uint16_t death_value = blit::random() % 1200;
+
+			// If unlucky player dies
+			if (death_value == 1)
+			{
+				dead = true;
+				mowing = false;
+				blit::vibration = 0;
+
+				death_clock = 200;
+			}
+	}
+	
+	
+	}
+	else
+	{
+		if(death_clock == 0)
+		{
+			end_game(true);
+		}
 		else
 		{
-			end_game();
+			death_clock--;
 		}
 	}
 
