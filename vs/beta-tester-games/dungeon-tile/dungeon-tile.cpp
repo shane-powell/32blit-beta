@@ -4,6 +4,19 @@
 
 using namespace blit;
 
+static uint8_t layer_world[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+tilemap world((uint8_t*)layer_world, nullptr, size(16, 8), nullptr);
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // init()
@@ -12,6 +25,12 @@ using namespace blit;
 //
 void init() {
     set_screen_mode(screen_mode::hires);
+
+    fb.sprites = spritesheet::load(packed_data);
+
+    //world.transforms = layer_world_transforms;
+
+    world.sprites = fb.sprites;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -23,16 +42,16 @@ void init() {
 //
 void render(uint32_t time) {
 
+    fb.alpha = 255;
+    fb.pen(rgba(0, 0, 0));
+	
     // clear the screen -- fb is a reference to the frame buffer and can be used to draw all things with the 32blit
     fb.clear();
 
-    // draw some text at the top of the screen
     fb.alpha = 255;
     fb.mask = nullptr;
-    fb.pen(rgba(255, 255, 255));
-    fb.rectangle(rect(0, 0, 320, 14));
-    fb.pen(rgba(0, 0, 0));
-    fb.text("Hello 32blit!", &minimal_font[0][0], point(5, 4));
+
+    world.draw(&fb, rect(0, 0, 320, 240), nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////
