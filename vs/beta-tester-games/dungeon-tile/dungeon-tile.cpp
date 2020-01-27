@@ -39,12 +39,15 @@ const rect key_sprite = rect(2, 0, 1, 1);
 
 const rect player_sprite = rect(0, 1, 1, 1);
 
+const uint8_t sprite_width = 16;
 
 point player_location = point(32, 20);
 
 tilemap world((uint8_t*)layer_world, nullptr, size(32, 16), nullptr);
 
-std::vector<rect> bounding_rectangles = {rect(0,0, 32*2, 16*2)};
+std::vector<rect> bounding_rectangles = {rect(0,0,  32 * 16, 16), rect(0, 0, 16, 20 * 16), rect(5 * 16, 3 * 16,2 * 16, 2 * 16), rect(5 * 16, 11 * 16, 2 * 16, 2 * 16) };
+
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -85,13 +88,12 @@ void render(uint32_t time) {
         mat3::translation(wo) *
         mat3::scale(vec2(0.5, 0.5)) *
         mat3::translation(vec2(-128, -80));
-    point tl = point(160, 120) - (wo * 2.0f);
 	
     world.draw(&fb, rect(0, 0, 320, 240), nullptr);
    
-    fb.sprite(key_sprite, point(80 * 2, 40 * 2), point(0,0), vec2(2,2));
+    fb.sprite(key_sprite, point(16, 16), point(0,0), vec2(2,2));
 
-    fb.sprite(player_sprite, player_location, point(6, 0), vec2(2, 2));
+    fb.sprite(player_sprite, player_location, point(0, 0), vec2(2, 2));
 
 }
 
@@ -108,18 +110,42 @@ void update(uint32_t time) {
     uint16_t pressed = changed & blit::buttons;
     uint16_t released = changed & ~blit::buttons;
 
+    point new_player_location = player_location;
+	
     if (blit::buttons & blit::button::DPAD_LEFT) {
-        player_location.x -= 1;
+        new_player_location.x -= 1;
     }
     if (blit::buttons & blit::button::DPAD_RIGHT) {
-        player_location.x += 1;
+        new_player_location.x += 1;
     }
     if (blit::buttons & blit::button::DPAD_UP) {
-        player_location.y -= 1;
+        new_player_location.y -= 1;
     }
     if (blit::buttons & blit::button::DPAD_DOWN) {
-        player_location.y += 1;
+        new_player_location.y += 1;
     }
+
+    bool move_ok = true;
+
+    for (auto bounding_rectangle : bounding_rectangles)
+    {
+        if (new_player_location.x + sprite_width >= bounding_rectangle.x && new_player_location.x <= bounding_rectangle.x + bounding_rectangle.w && new_player_location.y + sprite_width > bounding_rectangle.y && new_player_location.y < bounding_rectangle.y + bounding_rectangle.h)
+        {
+            move_ok = false;
+            break;
+        }
+    	
+	    /*if(new_player_location.x + sprite_width >= bounding_rectangle.x && new_player_location.x <= bounding_rectangle.x + bounding_rectangle.w && new_player_location.y  <= bounding_rectangle.y + bounding_rectangle.h && new_player_location.y >= bounding_rectangle.y)
+	    {
+            move_ok = false;
+	    	break;
+	    }*/
+    }
+
+	if(move_ok)
+	{
+        player_location = new_player_location;
+	}
 	
     last_buttons = blit::buttons;
 }
