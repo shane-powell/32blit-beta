@@ -47,14 +47,14 @@ const uint32_t tilemap_width = 32;
 
 const uint32_t tilemap_height = 16;
 
-tilemap world((uint8_t*)layer_world, nullptr, size(32, 16), nullptr);
+tilemap world((uint8_t*)layer_world, nullptr, size(tilemap_width, tilemap_height), nullptr);
 
 std::vector<rect> bounding_rectangles = {rect(0,0,  32 * 16, 16), rect(0, 0, 16, 20 * 16), rect(5 * 16, 3 * 16,2 * 16, 2 * 16), rect(5 * 16, 11 * 16, 2 * 16, 2 * 16) };
 
 std::string tile_name;
 
 uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile_map_width)
-{
+{	
     uint16_t horizontal_location = point.x / tile_size;
 
     if (point.x % tile_size > 0)
@@ -72,6 +72,24 @@ uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile
     const uint16_t array_location = horizontal_location + vertical_location - 1;
 
     return array_location;
+}
+
+bool can_move(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+{
+    for (auto y = 0; y < sprite_width; y++)
+    {
+        for (auto x = 0; x < sprite_width; x++)
+        {
+            auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
+            uint8_t tile_scanned = layer_world[array_location];
+        	if(tile_scanned == 0)
+        	{
+                return false;
+        	}
+        }
+    }
+
+    return true;
 }
 
 bool is_point_in_rect(const point& object_origin, std::vector<rect>::value_type bounding_rectangle)
@@ -170,7 +188,7 @@ void update(uint32_t time) {
 
     bool move_ok = true;
 
-    for (const auto bounding_rectangle : bounding_rectangles)
+    /*for (const auto bounding_rectangle : bounding_rectangles)
     {
         if (is_point_in_rect(new_player_location, bounding_rectangle))
         {
@@ -179,11 +197,17 @@ void update(uint32_t time) {
         }
     }
 
-    auto tile_index = get_tile_from_point(new_player_location, 16, tilemap_width);
+    auto tile_found = world.tile_at(new_player_location);
 
-    auto tile_scanned = layer_world[tile_index];
 
-    tile_name = std::to_string(tile_index);
+    point check_point = point(new_player_location.x, new_player_location.y);
+	
+    auto tile_index = get_tile_from_point(check_point, 16, tilemap_width);
+
+    auto tile_scanned = layer_world[tile_index];*/
+
+	
+    /*tile_name = std::to_string(tile_index);
 
     tile_name.append(" ");
 	
@@ -199,8 +223,10 @@ void update(uint32_t time) {
         tile_name +=
             "unknown";
     	break;
-    }
+    }*/
 
+    move_ok = can_move(new_player_location, sprite_width, tilemap_width);
+	
 	if(move_ok)
 	{
         player_location = new_player_location;
