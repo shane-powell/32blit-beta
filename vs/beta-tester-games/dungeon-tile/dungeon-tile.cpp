@@ -133,7 +133,7 @@ void render(uint32_t time) {
     fb.sprite(key_sprite, point(16, 16), point(0,0), vec2(2,2));
 
     fb.sprite(player_sprite, player_location, point(0, 0), vec2(2, 2));
-
+    fb.pen(rgba(255, 255, 255));
     fb.text(tile_name, &minimal_font[0][0], point(0, 0));
 
 }
