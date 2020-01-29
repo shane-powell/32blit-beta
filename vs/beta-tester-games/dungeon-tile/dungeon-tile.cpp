@@ -23,11 +23,11 @@ static uint8_t layer_world[] = {
   0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -35,9 +35,11 @@ static uint8_t layer_world[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-const rect key_sprite = rect(2, 0, 1, 1);
+const rect key_sprite = rect(0, 2, 1, 1);
 
 const rect player_sprite = rect(0, 1, 1, 1);
+
+const rect player_swim_sprite = rect(1, 1, 1, 1);
 
 const uint8_t sprite_width = 16;
 
@@ -52,6 +54,17 @@ tilemap world((uint8_t*)layer_world, nullptr, size(tilemap_width, tilemap_height
 std::vector<rect> bounding_rectangles = {rect(0,0,  32 * 16, 16), rect(0, 0, 16, 20 * 16), rect(5 * 16, 3 * 16,2 * 16, 2 * 16), rect(5 * 16, 11 * 16, 2 * 16, 2 * 16) };
 
 std::string tile_name;
+
+struct Tile_Data
+{
+    bool can_move = true;
+    uint16_t pixels_in_water = 0;
+    bool in_water = false;
+    float movement_modifier = 0;
+    float life_modifier = 0;
+};
+
+Tile_Data current_tile_data;
 
 uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile_map_width)
 {	
@@ -74,8 +87,10 @@ uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile
     return array_location;
 }
 
-bool can_move(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+Tile_Data get_local_tile_data(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
 {
+    Tile_Data tile_data;
+	
     for (auto y = 0; y < sprite_width; y++)
     {
         for (auto x = 0; x < sprite_width; x++)
@@ -84,12 +99,24 @@ bool can_move(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_w
             uint8_t tile_scanned = layer_world[array_location];
         	if(tile_scanned == 0)
         	{
-                return false;
+                tile_data.can_move = false;
+                //return false;
         	}
+	    else if (tile_scanned == 4)
+            {
+                tile_data.movement_modifier = 0.5;
+                tile_data.pixels_in_water += 1;
+            }
+
         }
     }
 
-    return true;
+	if(tile_data.pixels_in_water > (sprite_width * sprite_width / 2))
+	{
+        tile_data.in_water = true;
+	}
+
+    return tile_data;
 }
 
 bool is_point_in_rect(const point& object_origin, std::vector<rect>::value_type bounding_rectangle)
@@ -150,7 +177,16 @@ void render(uint32_t time) {
    
     fb.sprite(key_sprite, point(16, 16), point(0,0), vec2(2,2));
 
-    fb.sprite(player_sprite, player_location, point(0, 0), vec2(2, 2));
+	if(current_tile_data.in_water)
+	{
+        fb.sprite(player_swim_sprite, player_location, point(0, 0), vec2(2, 2));
+
+	}
+    else
+    {
+        fb.sprite(player_sprite, player_location, point(0, 0), vec2(2, 2));
+    }
+	
     fb.pen(rgba(255, 255, 255));
     fb.text(tile_name, &minimal_font[0][0], point(0, 0));
 
@@ -171,18 +207,25 @@ void update(uint32_t time) {
     uint16_t pressed = changed & blit::buttons;
     uint16_t released = changed & ~blit::buttons;
 
+    int16_t x_change = 0;
+    int16_t y_change = 0;	
+	
     point new_player_location = player_location;
 	
     if (blit::buttons & blit::button::DPAD_LEFT) {
+        x_change -= 1;
         new_player_location.x -= 1;
     }
     if (blit::buttons & blit::button::DPAD_RIGHT) {
+        x_change += 1;
         new_player_location.x += 1;
     }
     if (blit::buttons & blit::button::DPAD_UP) {
+        y_change -= 1;
         new_player_location.y -= 1;
     }
     if (blit::buttons & blit::button::DPAD_DOWN) {
+        y_change += 1;
         new_player_location.y += 1;
     }
 
@@ -225,11 +268,33 @@ void update(uint32_t time) {
     	break;
     }*/
 
-    move_ok = can_move(new_player_location, sprite_width, tilemap_width);
+    current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
 	
-	if(move_ok)
+	if(current_tile_data.can_move)
 	{
-        player_location = new_player_location;
+       /* if(current_tile_data.movement_modifier > 0)
+        {
+            x_change = x_change * current_tile_data.movement_modifier;
+            y_change = y_change * current_tile_data.movement_modifier;
+        }*/
+		
+		/*if(x_change >= 0)
+		{*/
+            player_location.x += (x_change);
+		/*}
+        else
+        {
+            player_location.x -= x_change;
+        }*/
+
+       /* if (y_change >= 0)
+        {*/
+            player_location.y += (y_change);
+       /* }
+        else
+        {
+            player_location.y -= y_change;
+        }*/
 	}
 	
     last_buttons = blit::buttons;
