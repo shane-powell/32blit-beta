@@ -41,9 +41,19 @@ const rect player_sprite = rect(0, 1, 1, 1);
 
 const rect player_swim_sprite = rect(1, 1, 1, 1);
 
+const rect skeleton_sprite = rect(0, 2, 1, 1);
+
+const rect proj_1 = rect(1, 1, 1, 1);
+
+const rect proj_1_d = rect(2, 1, 1, 1);
+
+const rect proj_2 = rect(3, 2, 1, 1);
+
+const rect proj_2_d = rect(4, 2, 1, 1);
+
 const uint8_t sprite_width = 16;
 
-point player_location = point(32, 20);
+// point player_location = point(32, 20);
 
 const uint32_t tilemap_width = 32;
 
@@ -63,6 +73,27 @@ struct Tile_Data
     float movement_modifier = 0;
     float life_modifier = 0;
 };
+
+struct Player
+{
+    rect sprite = player_sprite;
+    char dir = 'r';
+	point location = point(32, 20);
+};
+
+struct Projectile
+{
+    rect sprite;
+    point location;
+    uint8_t transform;
+    uint8_t lifetime = 100;
+    int8_t vel_x;
+    int8_t vel_y;
+};
+
+std::vector<Projectile> projectiles;
+
+Player player;
 
 Tile_Data current_tile_data;
 
@@ -179,12 +210,24 @@ void render(uint32_t time) {
 
 	if(current_tile_data.in_water)
 	{
-        fb.sprite(player_swim_sprite, player_location, point(0, 0), vec2(2, 2));
+        fb.sprite(player_swim_sprite, player.location, point(0, 0), vec2(2, 2));
 
 	}
     else
     {
-        fb.sprite(player_sprite, player_location, point(0, 0), vec2(2, 2));
+    	if(player.dir == 'r')
+    	{
+            fb.sprite(player.sprite, player.location, point(0, 0), vec2(2, 2));
+    	}
+        else
+        {
+            fb.sprite(player.sprite, player.location, point(0, 0), vec2(2, 2), 1);
+        }
+    }
+
+    for (Projectile projectile : projectiles)
+    {
+        fb.sprite(projectile.sprite, projectile.location, point(0, 0));
     }
 	
     fb.pen(rgba(255, 255, 255));
@@ -202,6 +245,13 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
+	for (Projectile projectile : projectiles)
+	{
+        projectile.lifetime--;
+        projectile.location.x += projectile.vel_x;
+        projectile.location.y += projectile.vel_y;
+	}
+	
     static uint16_t last_buttons = 0;
     uint16_t changed = blit::buttons ^ last_buttons;
     uint16_t pressed = changed & blit::buttons;
@@ -210,24 +260,41 @@ void update(uint32_t time) {
     int16_t x_change = 0;
     int16_t y_change = 0;	
 	
-    point new_player_location = player_location;
+    point new_player_location = player.location;
 	
-    if (blit::buttons & blit::button::DPAD_LEFT) {
+    if (blit::buttons & blit::button::DPAD_LEFT || joystick.x < 0) {
         x_change -= 1;
         new_player_location.x -= 1;
     }
-    if (blit::buttons & blit::button::DPAD_RIGHT) {
+    if (blit::buttons & blit::button::DPAD_RIGHT || joystick.x > 0) {
         x_change += 1;
         new_player_location.x += 1;
     }
-    if (blit::buttons & blit::button::DPAD_UP) {
+    if (blit::buttons & blit::button::DPAD_UP || joystick.y < 0) {
         y_change -= 1;
         new_player_location.y -= 1;
     }
-    if (blit::buttons & blit::button::DPAD_DOWN) {
+    if (blit::buttons & blit::button::DPAD_DOWN || joystick.y > 0) {
         y_change += 1;
         new_player_location.y += 1;
     }
+	if(blit::buttons & blit::button::B)
+	{
+        Projectile projectile;
+        projectile.vel_x = x_change;
+        projectile.vel_y = y_change;
+		if(projectile.vel_x == 0 || projectile.vel_y == 0)
+		{
+            projectile.sprite = proj_2;
+		}
+        else
+        {
+            projectile.sprite = proj_2_d;
+        }
+        projectile.location = player.location;
+
+        projectiles.push_back(projectile);
+	}
 
     bool move_ok = true;
 
@@ -239,63 +306,24 @@ void update(uint32_t time) {
             break;
         }
     }
-
-    auto tile_found = world.tile_at(new_player_location);
-
-
-    point check_point = point(new_player_location.x, new_player_location.y);
-	
-    auto tile_index = get_tile_from_point(check_point, 16, tilemap_width);
-
-    auto tile_scanned = layer_world[tile_index];*/
-
-	
-    /*tile_name = std::to_string(tile_index);
-
-    tile_name.append(" ");
-	
-    switch (tile_scanned)
-    {
-    case 0:
-        tile_name += "Wall";
-    	break;
-    case 1:
-        tile_name += "Floor";
-    	break;
-    default:
-        tile_name +=
-            "unknown";
-    	break;
-    }*/
+    */
 
     current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
 	
 	if(current_tile_data.can_move)
 	{
-       /* if(current_tile_data.movement_modifier > 0)
-        {
-            x_change = x_change * current_tile_data.movement_modifier;
-            y_change = y_change * current_tile_data.movement_modifier;
-        }*/
-		
-		/*if(x_change >= 0)
-		{*/
-            player_location.x += (x_change);
-		/*}
-        else
-        {
-            player_location.x -= x_change;
-        }*/
-
-       /* if (y_change >= 0)
-        {*/
-            player_location.y += (y_change);
-       /* }
-        else
-        {
-            player_location.y -= y_change;
-        }*/
+        player.location.x += (x_change);
+        player.location.y += (y_change);
 	}
+
+	if(x_change > 0)
+	{
+        player.dir = 'r';
+	}
+    else if (x_change < 0)
+    {
+        player.dir = 'l';
+    }
 	
     last_buttons = blit::buttons;
 }
