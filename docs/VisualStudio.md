@@ -28,6 +28,10 @@ Now you can proceed to open `vs\32blit.sln`. It contains two static linked libra
 
 There is also a skeleton game created for you in `vs\game.sln`. This is an empty skeleton with some comments to get you started with your own game (if you do not want to start tweaking one of the examples).
 
+### Troubleshooting
+
+If you see errors such as `Cannot open include file: 'SDL.h': No such file or directory` and `cannot open file 'SDL2.lib'` you've probably extracted the SDL development libraries wrong. Inside your sdl folder you should have the folders docs, include and lib not SDL2-2.0.10.
+
 ## Option 2: Use Visual Studio's built-in CMake support
 
 This has the advantage of being closer to the build for the device and may be easier if you already use vcpkg.

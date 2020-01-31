@@ -1,5 +1,11 @@
 # Building & Running on Linux or WSL + XMing
 
+First install some required tools:
+
+```
+apt-get install git cmake gcc g++ libsdl2-dev
+```
+
 To build your project for testing, go into the relevant example directory. We'll use `palette-cycle` to demonstrate:
 
 ```
@@ -9,15 +15,13 @@ cd examples/palette-cycle
 prepare the Makefile with CMake:
 
 ```
-mkdir build
-cd build
-cmake ..
+cmake . -B build
 ```
 
 and compile the example:
 
 ```
-make
+make -C build
 ```
 
 To run the application on your computer, use the following command (from within the same directory):

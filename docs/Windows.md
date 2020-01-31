@@ -23,7 +23,7 @@ If you want to deploy to the device, you will also need to download a DFU tool. 
 
 To run the examples from WSL on Windows you will need to have XMing (or another XWindow Server) running on Windows. Click on the following link which will help you install and setup WSL and XMing together.
 
-- [Information how to run XMing with WSL](https://virtualizationreview.com/articles/2017/02/08/ graphical-programs-on-windows-subsystem-on-linux.aspx)
+- [Information how to run XMing with WSL](https://virtualizationreview.com/articles/2017/02/08/graphical-programs-on-windows-subsystem-on-linux.aspx)
 - [XMing homepage](http://www.straightrunning.com/XmingNotes/)
 - Direct link to [download XMing setup](https://sourceforge.net/projects/xming/files/Xming/6.9.0.31/Xming-6-9-0-31-setup.exe/download)
 
@@ -46,15 +46,13 @@ cd examples/palette-cycle
 prepare the Makefile with CMake:
 
 ```
-mkdir build
-cd build
-cmake ..
+cmake . -B build
 ```
 
 and compile the example:
 
 ```
-make
+make -C build
 ```
 
 To run the application on your computer, use the following command (from within the same directory):
@@ -93,10 +91,8 @@ sudo make install
 Finally, from the root directory of your project:
 
 ```
-mkdir build.mingw
-cd build.mingw
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../../../mingw.toolchain -DSDL2_DIR=/usr/local/cross-tools/x86_64-w64-mingw32/lib/cmake/SDL2
-make
+cmake . -B build.mingw -DCMAKE_TOOLCHAIN_FILE=../../mingw.toolchain -DSDL2_DIR=/usr/local/cross-tools/x86_64-w64-mingw32/lib/cmake/SDL2
+make -C build.mingw
 cp /usr/local/cross-tools/x86_64-w64-mingw32/bin/SDL2.dll .
 ```
 
