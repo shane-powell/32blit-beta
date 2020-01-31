@@ -78,6 +78,7 @@ struct Player
 {
     rect sprite = player_sprite;
     char dir = 'r';
+    int8_t aim = 6;
 	point location = point(32, 20);
     bool can_fire = true;
     int16_t can_fire_timeout = 0;
@@ -90,8 +91,8 @@ struct Projectile
     point location;
     uint8_t transform;
     uint8_t lifetime = 100;
-    int8_t vel_x;
-    int8_t vel_y;
+    int16_t vel_x;
+    int16_t vel_y;
 };
 
 static std::vector<Projectile> projectiles;
@@ -248,7 +249,7 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
-	for (auto projectile : projectiles)
+	for (auto& projectile : projectiles)
 	{
         projectile.lifetime--;
         projectile.location.x += projectile.vel_x;
@@ -269,7 +270,7 @@ void update(uint32_t time) {
 	{
         player.can_fire_timeout--;
 	}
-    else if(player.can_fire == false)
+    else
     {
         player.can_fire = true;
     }
@@ -297,8 +298,46 @@ void update(uint32_t time) {
             player.can_fire = false;
             player.can_fire_timeout = player.fire_delay;
             Projectile new_projectile;
-            new_projectile.vel_x = x_change;
-            new_projectile.vel_y = y_change;
+
+            switch(player.aim)
+            {
+            case 1:
+                new_projectile.vel_x = -1;
+                new_projectile.vel_y = 1;
+                break;
+            case 2:
+                new_projectile.vel_x = 0;
+                new_projectile.vel_y = 1;
+                break;
+            case 3:
+                new_projectile.vel_x = 1;
+                new_projectile.vel_y = 1;
+                break;
+            case 4:
+                new_projectile.vel_x = -1;
+                new_projectile.vel_y = 0;
+                break;
+            case 6:
+                new_projectile.vel_x = 1;
+                new_projectile.vel_y = 0;
+                break;
+            case 7:
+                new_projectile.vel_x = -1;
+                new_projectile.vel_y = -1;
+                break;
+            case 8:
+                new_projectile.vel_x = 0;
+                new_projectile.vel_y = -1;
+                break;
+            case 9:
+                new_projectile.vel_x = 1;
+                new_projectile.vel_y = -1;
+                break;
+            default: break;
+            }
+			
+            //new_projectile.vel_x = x_change;
+            //new_projectile.vel_y = y_change;
             if (new_projectile.vel_x == 0 || new_projectile.vel_y == 0)
             {
                 new_projectile.sprite = proj_2;
@@ -307,7 +346,8 @@ void update(uint32_t time) {
             {
                 new_projectile.sprite = proj_2_d;
             }
-            new_projectile.location = player.location;
+            new_projectile.location.x = player.location. x + sprite_width / 4;
+            new_projectile.location.y = player.location.y + sprite_width / 4;
 
             projectiles.push_back(new_projectile);
 		}      
@@ -326,21 +366,58 @@ void update(uint32_t time) {
     */
 
     current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
-	
-	if(current_tile_data.can_move)
-	{
-        player.location.x += (x_change);
-        player.location.y += (y_change);
-	}
 
-	if(x_change > 0)
+	if(x_change != 0 || y_change != 0)
 	{
-        player.dir = 'r';
+        if (current_tile_data.can_move)
+        {
+            player.location.x += (x_change);
+            player.location.y += (y_change);
+
+            if (y_change > 0 && x_change == 0)
+            {
+                player.aim = 2;
+            }
+            else if (y_change < 0 && x_change == 0)
+            {
+                player.aim = 8;
+            }
+            else if (x_change > 0 && y_change == 0)
+            {
+                player.aim = 6;
+            }
+            else if (x_change < 0 && y_change == 0)
+            {
+                player.aim = 4;
+            }
+            else if(x_change > 0 && y_change > 0)
+            {
+                player.aim = 3;
+            }
+            else if (x_change < 0 && y_change < 0)
+            {
+                player.aim = 7;
+            }
+            else if (x_change > 0 && y_change < 0)
+            {
+                player.aim = 9;
+            }
+            else if (x_change < 0 && y_change > 0)
+            {
+                player.aim = 1;
+            }
+        }
+
+        if (x_change > 0)
+        {
+            player.dir = 'r';
+        }
+        else if (x_change < 0)
+        {
+            player.dir = 'l';
+        }
 	}
-    else if (x_change < 0)
-    {
-        player.dir = 'l';
-    }
+	
 	
     last_buttons = blit::buttons;
 }
