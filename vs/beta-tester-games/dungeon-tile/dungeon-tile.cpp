@@ -79,6 +79,9 @@ struct Player
     rect sprite = player_sprite;
     char dir = 'r';
 	point location = point(32, 20);
+    bool can_fire = true;
+    int16_t can_fire_timeout = 0;
+    int16_t fire_delay = 20;
 };
 
 struct Projectile
@@ -91,7 +94,7 @@ struct Projectile
     int8_t vel_y;
 };
 
-std::vector<Projectile> projectiles;
+static std::vector<Projectile> projectiles;
 
 Player player;
 
@@ -225,7 +228,7 @@ void render(uint32_t time) {
         }
     }
 
-    for (Projectile projectile : projectiles)
+    for (const Projectile& projectile : projectiles)
     {
         fb.sprite(projectile.sprite, projectile.location, point(0, 0));
     }
@@ -245,7 +248,7 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
-	for (Projectile projectile : projectiles)
+	for (auto projectile : projectiles)
 	{
         projectile.lifetime--;
         projectile.location.x += projectile.vel_x;
@@ -261,6 +264,15 @@ void update(uint32_t time) {
     int16_t y_change = 0;	
 	
     point new_player_location = player.location;
+
+	if(player.can_fire_timeout > 0)
+	{
+        player.can_fire_timeout--;
+	}
+    else if(player.can_fire == false)
+    {
+        player.can_fire = true;
+    }
 	
     if (blit::buttons & blit::button::DPAD_LEFT || joystick.x < 0) {
         x_change -= 1;
@@ -280,20 +292,25 @@ void update(uint32_t time) {
     }
 	if(blit::buttons & blit::button::B)
 	{
-        Projectile projectile;
-        projectile.vel_x = x_change;
-        projectile.vel_y = y_change;
-		if(projectile.vel_x == 0 || projectile.vel_y == 0)
+		if(player.can_fire)
 		{
-            projectile.sprite = proj_2;
-		}
-        else
-        {
-            projectile.sprite = proj_2_d;
-        }
-        projectile.location = player.location;
+            player.can_fire = false;
+            player.can_fire_timeout = player.fire_delay;
+            Projectile new_projectile;
+            new_projectile.vel_x = x_change;
+            new_projectile.vel_y = y_change;
+            if (new_projectile.vel_x == 0 || new_projectile.vel_y == 0)
+            {
+                new_projectile.sprite = proj_2;
+            }
+            else
+            {
+                new_projectile.sprite = proj_2_d;
+            }
+            new_projectile.location = player.location;
 
-        projectiles.push_back(projectile);
+            projectiles.push_back(new_projectile);
+		}      
 	}
 
     bool move_ok = true;
