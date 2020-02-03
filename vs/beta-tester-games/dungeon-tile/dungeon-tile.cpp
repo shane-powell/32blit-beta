@@ -4,18 +4,6 @@
 
 using namespace blit;
 
-// 16 wide example
-//static uint8_t layer_world[] = {
-//  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//};
-
 static uint8_t layer_world[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -85,12 +73,13 @@ struct Player
     int16_t fire_delay = 20;
 };
 
+
 struct Projectile
 {
     rect sprite;
     point location;
     uint8_t transform;
-    uint8_t lifetime = 100;
+    int16_t lifetime = 500;
     int16_t vel_x;
     int16_t vel_y;
 };
@@ -122,7 +111,7 @@ uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile
     return array_location;
 }
 
-Tile_Data get_local_tile_data(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+Tile_Data getLocalTileData(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
 {
     Tile_Data tile_data;
 	
@@ -130,8 +119,8 @@ Tile_Data get_local_tile_data(const point& point_to_check, uint8_t tile_size, ui
     {
         for (auto x = 0; x < sprite_width; x++)
         {
-            auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
-            uint8_t tile_scanned = layer_world[array_location];
+	        const auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
+	        const uint8_t tile_scanned = layer_world[array_location];
         	if(tile_scanned == 0)
         	{
                 tile_data.can_move = false;
@@ -176,9 +165,6 @@ void init() {
     fb.sprites = spritesheet::load(packed_data);
 
     world.sprites = fb.sprites;
-
-   //auto tile_index = get_tile_from_point(point(0, 2), 16, tilemap_width);
-
 	
 }
 
@@ -231,7 +217,7 @@ void render(uint32_t time) {
 
     for (const Projectile& projectile : projectiles)
     {
-        fb.sprite(projectile.sprite, projectile.location, point(0, 0));
+        fb.sprite(projectile.sprite, projectile.location, point(0, 0), projectile.transform);
     }
 	
     fb.pen(rgba(255, 255, 255));
@@ -249,12 +235,39 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
-	for (auto& projectile : projectiles)
+	
+	auto projectile = projectiles.begin();
+
+    while (projectile != projectiles.end()) {
+    	
+        projectile->lifetime--;
+        projectile->location.x += projectile->vel_x;
+        projectile->location.y += projectile->vel_y;
+
+        auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
+
+        if (!projTileData.can_move || projectile->lifetime == 0)
+        {
+            projectile = projectiles.erase(projectile);
+        }
+        else ++projectile;
+
+        
+    }
+	
+	/*for (auto& projectile : projectiles)
 	{
         projectile.lifetime--;
         projectile.location.x += projectile.vel_x;
         projectile.location.y += projectile.vel_y;
-	}
+
+        auto projTileData = getLocalTileData(projectile.location, sprite_width, tilemap_width);
+
+		if(!projTileData.can_move || projectile.lifetime == 0)
+		{
+            
+		}
+	}*/
 	
     static uint16_t last_buttons = 0;
     uint16_t changed = blit::buttons ^ last_buttons;
@@ -304,6 +317,7 @@ void update(uint32_t time) {
             case 1:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 1;
+                
                 break;
             case 2:
                 new_projectile.vel_x = 0;
@@ -312,18 +326,22 @@ void update(uint32_t time) {
             case 3:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 1;
+                new_projectile.transform = sprite_transform::VERTICAL;
                 break;
             case 4:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 0;
+                new_projectile.transform = sprite_transform::R90;
                 break;
             case 6:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 0;
+                new_projectile.transform = sprite_transform::R90;
                 break;
             case 7:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = -1;
+                new_projectile.transform = sprite_transform::VERTICAL;
                 break;
             case 8:
                 new_projectile.vel_x = 0;
@@ -332,12 +350,11 @@ void update(uint32_t time) {
             case 9:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = -1;
+                
                 break;
             default: break;
             }
-			
-            //new_projectile.vel_x = x_change;
-            //new_projectile.vel_y = y_change;
+
             if (new_projectile.vel_x == 0 || new_projectile.vel_y == 0)
             {
                 new_projectile.sprite = proj_2;
@@ -355,17 +372,7 @@ void update(uint32_t time) {
 
     bool move_ok = true;
 
-    /*for (const auto bounding_rectangle : bounding_rectangles)
-    {
-        if (is_point_in_rect(new_player_location, bounding_rectangle))
-        {
-            move_ok = false;
-            break;
-        }
-    }
-    */
-
-    current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
+    current_tile_data = getLocalTileData(new_player_location, sprite_width, tilemap_width);
 
 	if(x_change != 0 || y_change != 0)
 	{
