@@ -4,18 +4,6 @@
 
 using namespace blit;
 
-// 16 wide example
-//static uint8_t layer_world[] = {
-//  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//};
-
 static uint8_t layer_world[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -85,6 +73,7 @@ struct Player
     int16_t fire_delay = 20;
 };
 
+
 struct Projectile
 {
     rect sprite;
@@ -122,7 +111,7 @@ uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile
     return array_location;
 }
 
-Tile_Data get_local_tile_data(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+Tile_Data getLocalTileData(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
 {
     Tile_Data tile_data;
 	
@@ -255,7 +244,7 @@ void update(uint32_t time) {
         projectile->location.x += projectile->vel_x;
         projectile->location.y += projectile->vel_y;
 
-        auto projTileData = get_local_tile_data(projectile->location, sprite_width, tilemap_width);
+        auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
 
         if (!projTileData.can_move || projectile->lifetime == 0)
         {
@@ -272,7 +261,7 @@ void update(uint32_t time) {
         projectile.location.x += projectile.vel_x;
         projectile.location.y += projectile.vel_y;
 
-        auto projTileData = get_local_tile_data(projectile.location, sprite_width, tilemap_width);
+        auto projTileData = getLocalTileData(projectile.location, sprite_width, tilemap_width);
 
 		if(!projTileData.can_move || projectile.lifetime == 0)
 		{
@@ -383,7 +372,7 @@ void update(uint32_t time) {
 
     bool move_ok = true;
 
-    current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
+    current_tile_data = getLocalTileData(new_player_location, sprite_width, tilemap_width);
 
 	if(x_change != 0 || y_change != 0)
 	{
