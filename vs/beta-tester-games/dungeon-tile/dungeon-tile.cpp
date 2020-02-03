@@ -176,9 +176,6 @@ void init() {
     fb.sprites = spritesheet::load(packed_data);
 
     world.sprites = fb.sprites;
-
-   //auto tile_index = get_tile_from_point(point(0, 2), 16, tilemap_width);
-
 	
 }
 
@@ -231,7 +228,7 @@ void render(uint32_t time) {
 
     for (const Projectile& projectile : projectiles)
     {
-        fb.sprite(projectile.sprite, projectile.location, point(0, 0));
+        fb.sprite(projectile.sprite, projectile.location, point(0, 0), projectile.transform);
     }
 	
     fb.pen(rgba(255, 255, 255));
@@ -304,6 +301,7 @@ void update(uint32_t time) {
             case 1:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 1;
+                new_projectile.transform = sprite_transform::HORIZONTAL;
                 break;
             case 2:
                 new_projectile.vel_x = 0;
@@ -316,10 +314,12 @@ void update(uint32_t time) {
             case 4:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 0;
+                new_projectile.transform = sprite_transform::R90;
                 break;
             case 6:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 0;
+                new_projectile.transform = sprite_transform::R90;
                 break;
             case 7:
                 new_projectile.vel_x = -1;
@@ -332,6 +332,7 @@ void update(uint32_t time) {
             case 9:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = -1;
+                new_projectile.transform = sprite_transform::HORIZONTAL;
                 break;
             default: break;
             }
