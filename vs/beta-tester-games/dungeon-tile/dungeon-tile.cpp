@@ -90,7 +90,7 @@ struct Projectile
     rect sprite;
     point location;
     uint8_t transform;
-    uint8_t lifetime = 100;
+    int16_t lifetime = 500;
     int16_t vel_x;
     int16_t vel_y;
 };
@@ -130,8 +130,8 @@ Tile_Data get_local_tile_data(const point& point_to_check, uint8_t tile_size, ui
     {
         for (auto x = 0; x < sprite_width; x++)
         {
-            auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
-            uint8_t tile_scanned = layer_world[array_location];
+	        const auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
+	        const uint8_t tile_scanned = layer_world[array_location];
         	if(tile_scanned == 0)
         	{
                 tile_data.can_move = false;
@@ -246,12 +246,39 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
-	for (auto& projectile : projectiles)
+	
+	auto projectile = projectiles.begin();
+
+    while (projectile != projectiles.end()) {
+    	
+        projectile->lifetime--;
+        projectile->location.x += projectile->vel_x;
+        projectile->location.y += projectile->vel_y;
+
+        auto projTileData = get_local_tile_data(projectile->location, sprite_width, tilemap_width);
+
+        if (!projTileData.can_move || projectile->lifetime == 0)
+        {
+            projectile = projectiles.erase(projectile);
+        }
+        else ++projectile;
+
+        
+    }
+	
+	/*for (auto& projectile : projectiles)
 	{
         projectile.lifetime--;
         projectile.location.x += projectile.vel_x;
         projectile.location.y += projectile.vel_y;
-	}
+
+        auto projTileData = get_local_tile_data(projectile.location, sprite_width, tilemap_width);
+
+		if(!projTileData.can_move || projectile.lifetime == 0)
+		{
+            
+		}
+	}*/
 	
     static uint16_t last_buttons = 0;
     uint16_t changed = blit::buttons ^ last_buttons;
@@ -338,9 +365,7 @@ void update(uint32_t time) {
                 break;
             default: break;
             }
-			
-            //new_projectile.vel_x = x_change;
-            //new_projectile.vel_y = y_change;
+
             if (new_projectile.vel_x == 0 || new_projectile.vel_y == 0)
             {
                 new_projectile.sprite = proj_2;
@@ -357,16 +382,6 @@ void update(uint32_t time) {
 	}
 
     bool move_ok = true;
-
-    /*for (const auto bounding_rectangle : bounding_rectangles)
-    {
-        if (is_point_in_rect(new_player_location, bounding_rectangle))
-        {
-            move_ok = false;
-            break;
-        }
-    }
-    */
 
     current_tile_data = get_local_tile_data(new_player_location, sprite_width, tilemap_width);
 
