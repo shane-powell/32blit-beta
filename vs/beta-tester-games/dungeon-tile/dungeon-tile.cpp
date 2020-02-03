@@ -301,7 +301,7 @@ void update(uint32_t time) {
             case 1:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 1;
-                new_projectile.transform = sprite_transform::HORIZONTAL;
+                
                 break;
             case 2:
                 new_projectile.vel_x = 0;
@@ -310,6 +310,7 @@ void update(uint32_t time) {
             case 3:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 1;
+                new_projectile.transform = sprite_transform::VERTICAL;
                 break;
             case 4:
                 new_projectile.vel_x = -1;
@@ -324,6 +325,7 @@ void update(uint32_t time) {
             case 7:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = -1;
+                new_projectile.transform = sprite_transform::VERTICAL;
                 break;
             case 8:
                 new_projectile.vel_x = 0;
@@ -332,7 +334,7 @@ void update(uint32_t time) {
             case 9:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = -1;
-                new_projectile.transform = sprite_transform::HORIZONTAL;
+                
                 break;
             default: break;
             }
