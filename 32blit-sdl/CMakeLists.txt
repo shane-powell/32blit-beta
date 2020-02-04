@@ -2,6 +2,7 @@ add_library(BlitHalSDL STATIC
 	Input.cpp
 	Main.cpp
 	Renderer.cpp
+	Audio.cpp
 	System.cpp
 )
 
@@ -64,7 +65,10 @@ endif()
 
 function(blit_executable NAME SOURCES)
 	add_executable(${NAME} ${SOURCES} ${ARGN})
-	if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+
+	if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+		target_link_libraries(${NAME} BlitHalSDL)
+	elseif(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
   		target_link_libraries(${NAME} -Wl,-force_load BlitHalSDL)
 	else()
   		target_link_libraries(${NAME} -Wl,--whole-archive BlitHalSDL -Wl,--no-whole-archive)
@@ -73,4 +77,8 @@ function(blit_executable NAME SOURCES)
 	if(EMSCRIPTEN)
 		set_target_properties(${NAME} PROPERTIES SUFFIX ".html")
 	endif()
+endfunction()
+
+function(blit_executable_int_flash NAME SOURCES)
+	blit_executable(${NAME} ${SOURCES} ${ARGN})
 endfunction()

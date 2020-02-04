@@ -6,22 +6,28 @@
 
 namespace blit {
 
-  void (*init)()                                = nullptr;
-  void (*update)(uint32_t time)                 = nullptr;
-  void (*render)(uint32_t time)                 = nullptr;
-  void (*set_screen_mode)(screen_mode new_mode) = nullptr;
-  uint32_t (*now)()                             = nullptr;
-  uint32_t (*random)()                          = nullptr;
-  void (*debug)(std::string message) = nullptr;
+  void (*init)()                                    = nullptr;
+  void (*update)(uint32_t time)                     = nullptr;
+  void (*render)(uint32_t time)                     = nullptr;
+  void (*set_screen_mode)(ScreenMode new_mode)      = nullptr;
+  uint32_t (*now)()                                 = nullptr;
+  uint32_t (*random)()                              = nullptr;
+  void (*debug)(std::string message)                = nullptr;
   int  (*debugf)(const char * psFormatString, ...) 	= nullptr;
+  void (*switch_execution)()												= nullptr;
 
-  surface null_surface(nullptr, pixel_format::RGB565, size(0, 0));
-  surface &fb = null_surface;
+  int32_t (*open_file)(std::string file)          = nullptr;
+  int32_t (*read_file)(uint32_t fh, uint32_t offset, uint32_t length, char* buffer) = nullptr;
+  int32_t (*close_file)(uint32_t fh)              = nullptr;
+
+
+  Surface null_surface(nullptr, PixelFormat::RGB565, Size(0, 0));
+  Surface &screen = null_surface;
 
   uint32_t update_rate_ms = 10;
   uint32_t pending_update_time = 0;
 
-  uint32_t render_rate_ms = 25;
+  uint32_t render_rate_ms = 20;
   uint32_t pending_render_time = 0;
 
   uint32_t last_tick_time = 0;
@@ -44,6 +50,7 @@ namespace blit {
       pending_update_time -= update_rate_ms;
     }
 
+/*
     // render if new frame due
     pending_render_time += (time - last_tick_time);
     if (pending_render_time >= render_rate_ms) {
@@ -52,8 +59,12 @@ namespace blit {
       has_rendered = true;
     }
 
+    
+    return has_rendered;*/
+
     last_tick_time = time;
-    return has_rendered;
+
+    return true;
   }
 
 }
