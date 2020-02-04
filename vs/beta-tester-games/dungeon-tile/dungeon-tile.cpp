@@ -23,33 +23,33 @@ static uint8_t layer_world[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-const rect key_sprite = rect(0, 2, 1, 1);
+const Rect key_sprite = Rect(0, 2, 1, 1);
 
-const rect player_sprite = rect(0, 1, 1, 1);
+const Rect player_sprite = Rect(0, 1, 1, 1);
 
-const rect player_swim_sprite = rect(1, 1, 1, 1);
+const Rect player_swim_sprite = Rect(1, 1, 1, 1);
 
-const rect skeleton_sprite = rect(0, 2, 1, 1);
+const Rect skeleton_sprite = Rect(0, 2, 1, 1);
 
-const rect proj_1 = rect(1, 1, 1, 1);
+const Rect proj_1 = Rect(1, 1, 1, 1);
 
-const rect proj_1_d = rect(2, 1, 1, 1);
+const Rect proj_1_d = Rect(2, 1, 1, 1);
 
-const rect proj_2 = rect(3, 2, 1, 1);
+const Rect proj_2 = Rect(3, 2, 1, 1);
 
-const rect proj_2_d = rect(4, 2, 1, 1);
+const Rect proj_2_d = Rect(4, 2, 1, 1);
 
 const uint8_t sprite_width = 16;
 
-// point player_location = point(32, 20);
+// Point player_location = Point(32, 20);
 
 const uint32_t tilemap_width = 32;
 
 const uint32_t tilemap_height = 16;
 
-tilemap world((uint8_t*)layer_world, nullptr, size(tilemap_width, tilemap_height), nullptr);
+TileMap world((uint8_t*)layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
 
-std::vector<rect> bounding_rectangles = {rect(0,0,  32 * 16, 16), rect(0, 0, 16, 20 * 16), rect(5 * 16, 3 * 16,2 * 16, 2 * 16), rect(5 * 16, 11 * 16, 2 * 16, 2 * 16) };
+std::vector<Rect> bounding_Rectangles = {Rect(0,0,  32 * 16, 16), Rect(0, 0, 16, 20 * 16), Rect(5 * 16, 3 * 16,2 * 16, 2 * 16), Rect(5 * 16, 11 * 16, 2 * 16, 2 * 16) };
 
 std::string tile_name;
 
@@ -64,10 +64,10 @@ struct Tile_Data
 
 struct Player
 {
-    rect sprite = player_sprite;
+    Rect sprite = player_sprite;
     char dir = 'r';
     int8_t aim = 6;
-	point location = point(32, 20);
+	Point location = Point(32, 20);
     bool can_fire = true;
     int16_t can_fire_timeout = 0;
     int16_t fire_delay = 20;
@@ -76,8 +76,8 @@ struct Player
 
 struct Projectile
 {
-    rect sprite;
-    point location;
+    Rect sprite;
+    Point location;
     uint8_t transform;
     int16_t lifetime = 500;
     int16_t vel_x;
@@ -90,16 +90,16 @@ Player player;
 
 Tile_Data current_tile_data;
 
-uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile_map_width)
+uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile_map_width)
 {	
-    uint16_t horizontal_location = point.x / tile_size;
+    uint16_t horizontal_location = Point.x / tile_size;
 
-    if (point.x % tile_size > 0)
+    if (Point.x % tile_size > 0)
     {
         horizontal_location += 1;
     }
 
-    uint16_t vertical_location = (point.y / tile_size) * tile_map_width;
+    uint16_t vertical_location = (Point.y / tile_size) * tile_map_width;
 
     if (vertical_location % tile_size > 0)
     {
@@ -111,7 +111,7 @@ uint16_t get_tile_from_point(const point& point, uint8_t tile_size, uint8_t tile
     return array_location;
 }
 
-Tile_Data getLocalTileData(const point& point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width)
 {
     Tile_Data tile_data;
 	
@@ -119,7 +119,7 @@ Tile_Data getLocalTileData(const point& point_to_check, uint8_t tile_size, uint8
     {
         for (auto x = 0; x < sprite_width; x++)
         {
-	        const auto array_location = get_tile_from_point(point(point_to_check.x + x, point_to_check.y + y), tile_size, tile_map_width);
+	        const auto array_location = get_tile_from_Point(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
 	        const uint8_t tile_scanned = layer_world[array_location];
         	if(tile_scanned == 0)
         	{
@@ -143,9 +143,9 @@ Tile_Data getLocalTileData(const point& point_to_check, uint8_t tile_size, uint8
     return tile_data;
 }
 
-bool is_point_in_rect(const point& object_origin, std::vector<rect>::value_type bounding_rectangle)
+bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type bounding_Rectangle)
 {
-    if (object_origin.x + sprite_width >= bounding_rectangle.x && object_origin.x <= bounding_rectangle.x + bounding_rectangle.w && object_origin.y + sprite_width > bounding_rectangle.y&& object_origin.y < bounding_rectangle.y + bounding_rectangle.h)
+    if (object_origin.x + sprite_width >= bounding_Rectangle.x && object_origin.x <= bounding_Rectangle.x + bounding_Rectangle.w && object_origin.y + sprite_width > bounding_Rectangle.y&& object_origin.y < bounding_Rectangle.y + bounding_Rectangle.h)
     {
         return true;
     }
@@ -160,11 +160,11 @@ bool is_point_in_rect(const point& object_origin, std::vector<rect>::value_type 
 // setup your game here
 //
 void init() {
-    set_screen_mode(screen_mode::hires);
+    set_screen_mode(ScreenMode::hires);
 
-    fb.sprites = spritesheet::load(packed_data);
+    screen.sprites = SpriteSheet::load(packed_data);
 
-    world.sprites = fb.sprites;
+    world.sprites = screen.sprites;
 	
 }
 
@@ -177,51 +177,51 @@ void init() {
 //
 void render(uint32_t time) {
 
-    fb.alpha = 255;
-    fb.pen(rgba(0, 0, 0));
+    screen.alpha = 255;
+    screen.pen(RGBA(0, 0, 0));
 	
     // clear the screen -- fb is a reference to the frame buffer and can be used to draw all things with the 32blit
-    fb.clear();
+    screen.clear();
 
-    fb.alpha = 255;
-    fb.mask = nullptr;
+    screen.alpha = 255;
+    screen.mask = nullptr;
 
-    vec2 wo(64, 40);
+    Vec2 wo(64, 40);
 
     world.transform =
-        mat3::identity() *
-        mat3::translation(wo) *
-        mat3::scale(vec2(0.5, 0.5)) *
-        mat3::translation(vec2(-128, -80));
+        Mat3::identity() *
+        Mat3::translation(wo) *
+        Mat3::scale(Vec2(0.5, 0.5)) *
+        Mat3::translation(Vec2(-128, -80));
 	
-    world.draw(&fb, rect(0, 0, 320, 240), nullptr);
+    world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
    
-    fb.sprite(key_sprite, point(16, 16), point(0,0), vec2(2,2));
+    screen.sprite(key_sprite, Point(16, 16), Point(0,0), Vec2(2,2));
 
 	if(current_tile_data.in_water)
 	{
-        fb.sprite(player_swim_sprite, player.location, point(0, 0), vec2(2, 2));
+        screen.sprite(player_swim_sprite, player.location, Point(0, 0), Vec2(2, 2));
 
 	}
     else
     {
     	if(player.dir == 'r')
     	{
-            fb.sprite(player.sprite, player.location, point(0, 0), vec2(2, 2));
+            screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2));
     	}
         else
         {
-            fb.sprite(player.sprite, player.location, point(0, 0), vec2(2, 2), 1);
+            screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2), 1);
         }
     }
 
     for (const Projectile& projectile : projectiles)
     {
-        fb.sprite(projectile.sprite, projectile.location, point(0, 0),vec2(2,2), projectile.transform);
+        screen.sprite(projectile.sprite, projectile.location, Point(0, 0),Vec2(2,2), projectile.transform);
     }
-	
-    fb.pen(rgba(255, 255, 255));
-    fb.text(tile_name, &minimal_font[0][0], point(0, 0));
+
+    screen.pen(RGBA(255, 255, 255));
+    screen.text(tile_name, &minimal_font[0][0], Point(0, 0));
 
 }
 
@@ -269,15 +269,15 @@ void update(uint32_t time) {
 		}
 	}*/
 	
-    static uint16_t last_buttons = 0;
-    uint16_t changed = blit::buttons ^ last_buttons;
+    static uint16_t last_Buttons = 0;
+    uint16_t changed = blit::buttons ^ last_Buttons;
     uint16_t pressed = changed & blit::buttons;
     uint16_t released = changed & ~blit::buttons;
 
     int16_t x_change = 0;
     int16_t y_change = 0;	
 	
-    point new_player_location = player.location;
+    Point new_player_location = player.location;
 
 	if(player.can_fire_timeout > 0)
 	{
@@ -288,23 +288,23 @@ void update(uint32_t time) {
         player.can_fire = true;
     }
 	
-    if (blit::buttons & blit::button::DPAD_LEFT || joystick.x < 0) {
+    if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
         x_change -= 1;
         new_player_location.x -= 1;
     }
-    if (blit::buttons & blit::button::DPAD_RIGHT || joystick.x > 0) {
+    if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
         x_change += 1;
         new_player_location.x += 1;
     }
-    if (blit::buttons & blit::button::DPAD_UP || joystick.y < 0) {
+    if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
         y_change -= 1;
         new_player_location.y -= 1;
     }
-    if (blit::buttons & blit::button::DPAD_DOWN || joystick.y > 0) {
+    if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
         y_change += 1;
         new_player_location.y += 1;
     }
-	if(blit::buttons & blit::button::B)
+	if(blit::buttons & blit::Button::B)
 	{
 		if(player.can_fire)
 		{
@@ -326,22 +326,22 @@ void update(uint32_t time) {
             case 3:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 1;
-                new_projectile.transform = sprite_transform::VERTICAL;
+                new_projectile.transform = SpriteTransform ::VERTICAL;
                 break;
             case 4:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 0;
-                new_projectile.transform = sprite_transform::R90;
+                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 6:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 0;
-                new_projectile.transform = sprite_transform::R90;
+                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 7:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = -1;
-                new_projectile.transform = sprite_transform::VERTICAL;
+                new_projectile.transform = SpriteTransform::VERTICAL;
                 break;
             case 8:
                 new_projectile.vel_x = 0;
@@ -429,5 +429,5 @@ void update(uint32_t time) {
 	}
 	
 	
-    last_buttons = blit::buttons;
+    last_Buttons = blit::buttons;
 }
