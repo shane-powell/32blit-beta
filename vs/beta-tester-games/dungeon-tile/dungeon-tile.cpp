@@ -217,7 +217,7 @@ void render(uint32_t time) {
 
     for (const Projectile& projectile : projectiles)
     {
-        fb.sprite(projectile.sprite, projectile.location, point(0, 0), projectile.transform);
+        fb.sprite(projectile.sprite, projectile.location, point(0, 0),vec2(2,2), projectile.transform);
     }
 	
     fb.pen(rgba(255, 255, 255));
@@ -363,8 +363,11 @@ void update(uint32_t time) {
             {
                 new_projectile.sprite = proj_2_d;
             }
-            new_projectile.location.x = player.location. x + sprite_width / 4;
-            new_projectile.location.y = player.location.y + sprite_width / 4;
+/*            new_projectile.location.x = player.location. x + sprite_width / 4;
+            new_projectile.location.y = player.location.y + sprite_width / 4;*/
+
+            new_projectile.location.x = player.location.x;
+            new_projectile.location.y = player.location.y;
 
             projectiles.push_back(new_projectile);
 		}      
