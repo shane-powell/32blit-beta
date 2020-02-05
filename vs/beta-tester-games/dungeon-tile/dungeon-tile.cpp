@@ -81,6 +81,8 @@ struct Npc
     bool can_fire = true;
     int16_t can_fire_timeout = 0;
     int16_t fire_delay = 20;
+    uint8_t moveCounter= 0;
+    uint8_t moveCountTrigger = 3;
 };
 
 static std::vector<Npc> npcs;
@@ -279,6 +281,11 @@ void updateNpcs()
 
     while (npc != npcs.end()) {
 
+        if(npc->moveCounter < npc->moveCountTrigger)
+        {
+
+        }
+
         Point newNpcLocation = npc->location;
     	
         int8_t x_mov = 0;
@@ -289,7 +296,7 @@ void updateNpcs()
     	{
             x_mov = 1;
     	}
-        else if(npc->location.x > player.location.x + sprite_width)
+        else if(npc->location.x > player.location.x)
         {
             x_mov = -1;
         }
@@ -298,7 +305,7 @@ void updateNpcs()
         {
             y_mov = 1;
         }
-        else if (npc->location.y > player.location.y + sprite_width)
+        else if (npc->location.y > player.location.y)
         {
             y_mov = -1;
         }
@@ -321,8 +328,18 @@ void updateNpcs()
                 newNpcLocation.y += y_mov;
 
                 npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+                if(!npcTileData.can_move)
+                {
+                    newNpcLocation = npc->location;
+                    newNpcLocation.y += x_mov;
+                    newNpcLocation.x += y_mov;
+
+                    npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+                }
         	}
         }
+
 
     	if(npcTileData.can_move)
     	{
