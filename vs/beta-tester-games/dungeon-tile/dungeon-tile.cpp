@@ -29,7 +29,7 @@ const Rect player_sprite = Rect(0, 1, 1, 1);
 
 const Rect player_swim_sprite = Rect(1, 1, 1, 1);
 
-const Rect skeleton_sprite = Rect(0, 2, 1, 1);
+const Rect skeleton_sprite = Rect(0, 3, 1, 1);
 
 const Rect proj_1 = Rect(1, 1, 1, 1);
 
@@ -104,7 +104,7 @@ Tile_Data current_tile_data;
 void initNpcs()
 {
     Npc npc;
-    npc.location = Point(100,100);
+    npc.location = Point(150,150);
     npcs.push_back(npc);
 }
 
@@ -240,12 +240,105 @@ void render(uint32_t time) {
         screen.sprite(projectile.sprite, projectile.location, Point(0, 0),Vec2(2,2), projectile.transform);
     }
 
+    for (const Npc& npc : npcs)
+    {
+        screen.sprite(npc.sprite, npc.location, Point(0, 0), Vec2(2, 2));
+    }
+
     screen.pen(RGBA(255, 255, 255));
     screen.text(tile_name, &minimal_font[0][0], Point(0, 0));
 
 }
 
 
+void updateProjectiles()
+{
+	auto projectile = projectiles.begin();
+
+	while (projectile != projectiles.end()) {
+    	
+		projectile->lifetime--;
+		projectile->location.x += projectile->vel_x;
+		projectile->location.y += projectile->vel_y;
+
+		auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
+		
+		if (!projTileData.can_move || projectile->lifetime == 0)
+		{
+			projectile = projectiles.erase(projectile);
+		}
+		else ++projectile;
+
+        
+	}
+}
+
+void updateNpcs()
+{
+    auto npc = npcs.begin();
+
+    while (npc != npcs.end()) {
+
+        Point newNpcLocation = npc->location;
+    	
+        int8_t x_mov = 0;
+        int8_t y_mov = 0;
+
+    	
+    	if(npc->location.x < player.location.x)
+    	{
+            x_mov = 1;
+    	}
+        else if(npc->location.x > player.location.x + sprite_width)
+        {
+            x_mov = -1;
+        }
+
+        if (npc->location.y < player.location.y)
+        {
+            y_mov = 1;
+        }
+        else if (npc->location.y > player.location.y + sprite_width)
+        {
+            y_mov = -1;
+        }
+
+        newNpcLocation.x += x_mov;
+        newNpcLocation.y += y_mov;
+
+    	auto npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+        if(!npcTileData.can_move)
+        {
+            newNpcLocation = npc->location;
+            newNpcLocation.x += x_mov;
+
+            npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+        	if(!npcTileData.can_move)
+        	{
+                newNpcLocation = npc->location;
+                newNpcLocation.y += y_mov;
+
+                npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+        	}
+        }
+
+    	if(npcTileData.can_move)
+    	{
+            npc->location = newNpcLocation;
+    	}
+    	
+        // todo Update this so npcs can die.
+        if (false)
+        {
+            npc = npcs.erase(npc);
+        }
+        else ++npc;
+
+
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -256,38 +349,8 @@ void render(uint32_t time) {
 //
 void update(uint32_t time) {
 	
-	auto projectile = projectiles.begin();
-
-    while (projectile != projectiles.end()) {
-    	
-        projectile->lifetime--;
-        projectile->location.x += projectile->vel_x;
-        projectile->location.y += projectile->vel_y;
-
-        auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
-
-        if (!projTileData.can_move || projectile->lifetime == 0)
-        {
-            projectile = projectiles.erase(projectile);
-        }
-        else ++projectile;
-
-        
-    }
-	
-	/*for (auto& projectile : projectiles)
-	{
-        projectile.lifetime--;
-        projectile.location.x += projectile.vel_x;
-        projectile.location.y += projectile.vel_y;
-
-        auto projTileData = getLocalTileData(projectile.location, sprite_width, tilemap_width);
-
-		if(!projTileData.can_move || projectile.lifetime == 0)
-		{
-            
-		}
-	}*/
+	updateProjectiles();
+    updateNpcs();
 	
     static uint16_t last_Buttons = 0;
     uint16_t changed = blit::buttons ^ last_Buttons;
@@ -342,6 +405,7 @@ void update(uint32_t time) {
             case 2:
                 new_projectile.vel_x = 0;
                 new_projectile.vel_y = 1;
+                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 3:
                 new_projectile.vel_x = 1;
@@ -351,12 +415,10 @@ void update(uint32_t time) {
             case 4:
                 new_projectile.vel_x = -1;
                 new_projectile.vel_y = 0;
-                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 6:
                 new_projectile.vel_x = 1;
                 new_projectile.vel_y = 0;
-                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 7:
                 new_projectile.vel_x = -1;
@@ -366,6 +428,7 @@ void update(uint32_t time) {
             case 8:
                 new_projectile.vel_x = 0;
                 new_projectile.vel_y = -1;
+                new_projectile.transform = SpriteTransform::R90;
                 break;
             case 9:
                 new_projectile.vel_x = 1;
