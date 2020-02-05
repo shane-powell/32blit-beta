@@ -73,6 +73,17 @@ struct Player
     int16_t fire_delay = 20;
 };
 
+struct Npc
+{
+    Rect sprite = skeleton_sprite;
+    char dir = 'r';
+    Point location;
+    bool can_fire = true;
+    int16_t can_fire_timeout = 0;
+    int16_t fire_delay = 20;
+};
+
+static std::vector<Npc> npcs;
 
 struct Projectile
 {
@@ -89,6 +100,13 @@ static std::vector<Projectile> projectiles;
 Player player;
 
 Tile_Data current_tile_data;
+
+void initNpcs()
+{
+    Npc npc;
+    npc.location = Point(100,100);
+    npcs.push_back(npc);
+}
 
 uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile_map_width)
 {	
@@ -165,6 +183,8 @@ void init() {
     screen.sprites = SpriteSheet::load(packed_data);
 
     world.sprites = screen.sprites;
+
+    initNpcs();
 	
 }
 
