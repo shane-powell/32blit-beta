@@ -97,6 +97,8 @@ struct Projectile
     int16_t vel_y;
 };
 
+std::vector<Npc>::iterator &moveNpc(std::vector<Npc>::iterator &npc);
+
 static std::vector<Projectile> projectiles;
 
 Player player;
@@ -283,69 +285,15 @@ void updateNpcs()
 
         if(npc->moveCounter < npc->moveCountTrigger)
         {
-
-        }
-
-        Point newNpcLocation = npc->location;
-    	
-        int8_t x_mov = 0;
-        int8_t y_mov = 0;
-
-    	
-    	if(npc->location.x < player.location.x)
-    	{
-            x_mov = 1;
-    	}
-        else if(npc->location.x > player.location.x)
+            npc->moveCounter ++;
+        } else
         {
-            x_mov = -1;
-        }
-
-        if (npc->location.y < player.location.y)
-        {
-            y_mov = 1;
-        }
-        else if (npc->location.y > player.location.y)
-        {
-            y_mov = -1;
-        }
-
-        newNpcLocation.x += x_mov;
-        newNpcLocation.y += y_mov;
-
-    	auto npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
-
-        if(!npcTileData.can_move)
-        {
-            newNpcLocation = npc->location;
-            newNpcLocation.x += x_mov;
-
-            npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
-
-        	if(!npcTileData.can_move)
-        	{
-                newNpcLocation = npc->location;
-                newNpcLocation.y += y_mov;
-
-                npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
-
-                if(!npcTileData.can_move)
-                {
-                    newNpcLocation = npc->location;
-                    newNpcLocation.y += x_mov;
-                    newNpcLocation.x += y_mov;
-
-                    npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
-                }
-        	}
+            npc = moveNpc(npc);
+            npc->moveCounter = 0;
         }
 
 
-    	if(npcTileData.can_move)
-    	{
-            npc->location = newNpcLocation;
-    	}
-    	
+
         // todo Update this so npcs can die.
         if (false)
         {
@@ -355,6 +303,69 @@ void updateNpcs()
 
 
     }
+}
+
+std::vector<Npc>::iterator &moveNpc(std::vector<Npc>::iterator &npc) {
+    Point newNpcLocation = npc->location;
+
+    int8_t x_mov = 0;
+    int8_t y_mov = 0;
+
+
+    if(npc->location.x < player.location.x)
+    {
+x_mov = 1;
+    }
+else if(npc->location.x > player.location.x)
+{
+x_mov = -1;
+}
+
+    if (npc->location.y < player.location.y)
+    {
+        y_mov = 1;
+    }
+    else if (npc->location.y > player.location.y)
+    {
+        y_mov = -1;
+    }
+
+    newNpcLocation.x += x_mov;
+    newNpcLocation.y += y_mov;
+
+    auto npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+    if(!npcTileData.can_move)
+    {
+        newNpcLocation = npc->location;
+        newNpcLocation.x += x_mov;
+
+        npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+        if(!npcTileData.can_move)
+        {
+            newNpcLocation = npc->location;
+            newNpcLocation.y += y_mov;
+
+            npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+            if(!npcTileData.can_move)
+            {
+                newNpcLocation = npc->location;
+                newNpcLocation.y += x_mov;
+                newNpcLocation.x += y_mov;
+
+                npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+            }
+        }
+    }
+
+
+    if(npcTileData.can_move)
+    {
+npc->location = newNpcLocation;
+    }
+    return npc;
 }
 
 ///////////////////////////////////////////////////////////////////////////
