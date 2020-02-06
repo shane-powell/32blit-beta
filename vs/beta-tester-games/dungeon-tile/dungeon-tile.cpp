@@ -55,7 +55,7 @@ std::string tile_name;
 
 struct Tile_Data
 {
-    bool can_move = true;
+    bool canMove = true;
     uint16_t pixels_in_water = 0;
     bool in_water = false;
     float movement_modifier = 0;
@@ -69,7 +69,7 @@ struct Player
     int8_t aim = 6;
 	Point location = Point(32, 20);
     bool can_fire = true;
-    int16_t can_fire_timeout = 0;
+    int16_t canFireTimeout = 0;
     int16_t fire_delay = 20;
 };
 
@@ -103,7 +103,7 @@ static std::vector<Projectile> projectiles;
 
 Player player;
 
-Tile_Data current_tile_data;
+Tile_Data currentTileData;
 
 void initNpcs()
 {
@@ -145,7 +145,7 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
 	        const uint8_t tile_scanned = layer_world[array_location];
         	if(tile_scanned == 0)
         	{
-                tile_data.can_move = false;
+                tile_data.canMove = false;
                 //return false;
         	}
 	    else if (tile_scanned == 4)
@@ -222,7 +222,7 @@ void render(uint32_t time) {
    
     screen.sprite(key_sprite, Point(16, 16), Point(0,0), Vec2(2,2));
 
-	if(current_tile_data.in_water)
+	if(currentTileData.in_water)
 	{
         screen.sprite(player_swim_sprite, player.location, Point(0, 0), Vec2(2, 2));
 
@@ -267,7 +267,7 @@ void updateProjectiles()
 
 		auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
 		
-		if (!projTileData.can_move || projectile->lifetime == 0)
+		if (!projTileData.canMove || projectile->lifetime == 0)
 		{
 			projectile = projectiles.erase(projectile);
 		}
@@ -308,67 +308,67 @@ void updateNpcs()
 std::vector<Npc>::iterator &moveNpc(std::vector<Npc>::iterator &npc) {
     Point newNpcLocation = npc->location;
 
-    int8_t x_mov = 0;
-    int8_t y_mov = 0;
+    int8_t xMov = 0;
+    int8_t yMov = 0;
 
 
     if(npc->location.x < player.location.x)
     {
-x_mov = 1;
+xMov = 1;
     }
 else if(npc->location.x > player.location.x)
 {
-x_mov = -1;
+xMov = -1;
 }
 
     if (npc->location.y < player.location.y)
     {
-        y_mov = 1;
+        yMov = 1;
     }
     else if (npc->location.y > player.location.y)
     {
-        y_mov = -1;
+        yMov = -1;
     }
 
-    newNpcLocation.x += x_mov;
-    newNpcLocation.y += y_mov;
+    newNpcLocation.x += xMov;
+    newNpcLocation.y += yMov;
 
     auto npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-    if(!npcTileData.can_move)
+    if(!npcTileData.canMove)
     {
         newNpcLocation = npc->location;
-        newNpcLocation.x += x_mov;
+        newNpcLocation.x += xMov;
 
         npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-        if(!npcTileData.can_move || x_mov == 0)
+        if(!npcTileData.canMove || xMov == 0)
         {
             newNpcLocation = npc->location;
-            newNpcLocation.y += y_mov;
+            newNpcLocation.y += yMov;
 
             npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-            if(!npcTileData.can_move || y_mov == 0)
+            if(!npcTileData.canMove || yMov == 0)
             {
                 newNpcLocation = npc->location;
-                newNpcLocation.y += x_mov;
-                newNpcLocation.x += y_mov;
+                newNpcLocation.y += xMov;
+                newNpcLocation.x += yMov;
 
                 npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
             }
 
-            if (!npcTileData.can_move)
+            if (!npcTileData.canMove)
             {
                 newNpcLocation = npc->location;
-                newNpcLocation.y += x_mov;
+                newNpcLocation.y += xMov;
 
                 npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-                if (!npcTileData.can_move)
+                if (!npcTileData.canMove)
                 {
                     newNpcLocation = npc->location;
-                    newNpcLocation.x += y_mov;
+                    newNpcLocation.x += yMov;
 
                     npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
                 }
@@ -377,7 +377,7 @@ x_mov = -1;
     }
 
 
-    if(npcTileData.can_move)
+    if(npcTileData.canMove)
     {
 npc->location = newNpcLocation;
     }
@@ -396,19 +396,19 @@ void update(uint32_t time) {
 	updateProjectiles();
     updateNpcs();
 	
-    static uint16_t last_Buttons = 0;
-    uint16_t changed = blit::buttons ^ last_Buttons;
+    static uint16_t lastButtons = 0;
+    uint16_t changed = blit::buttons ^ lastButtons;
     uint16_t pressed = changed & blit::buttons;
     uint16_t released = changed & ~blit::buttons;
 
-    int16_t x_change = 0;
-    int16_t y_change = 0;	
+    int16_t xChange = 0;
+    int16_t yChange = 0;	
 	
-    Point new_player_location = player.location;
+    Point newPlayerLocation = player.location;
 
-	if(player.can_fire_timeout > 0)
+	if(player.canFireTimeout > 0)
 	{
-        player.can_fire_timeout--;
+        player.canFireTimeout--;
 	}
     else
     {
@@ -416,145 +416,145 @@ void update(uint32_t time) {
     }
 	
     if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
-        x_change -= 1;
-        new_player_location.x -= 1;
+        xChange -= 1;
+        newPlayerLocation.x -= 1;
     }
     if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
-        x_change += 1;
-        new_player_location.x += 1;
+        xChange += 1;
+        newPlayerLocation.x += 1;
     }
     if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
-        y_change -= 1;
-        new_player_location.y -= 1;
+        yChange -= 1;
+        newPlayerLocation.y -= 1;
     }
     if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
-        y_change += 1;
-        new_player_location.y += 1;
+        yChange += 1;
+        newPlayerLocation.y += 1;
     }
 	if(blit::buttons & blit::Button::B)
 	{
 		if(player.can_fire)
 		{
             player.can_fire = false;
-            player.can_fire_timeout = player.fire_delay;
-            Projectile new_projectile;
+            player.canFireTimeout = player.fire_delay;
+            Projectile newProjectile;
 
             switch(player.aim)
             {
             case 1:
-                new_projectile.vel_x = -1;
-                new_projectile.vel_y = 1;
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = 1;
                 
                 break;
             case 2:
-                new_projectile.vel_x = 0;
-                new_projectile.vel_y = 1;
-                new_projectile.transform = SpriteTransform::R90;
+                newProjectile.vel_x = 0;
+                newProjectile.vel_y = 1;
+                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 3:
-                new_projectile.vel_x = 1;
-                new_projectile.vel_y = 1;
-                new_projectile.transform = SpriteTransform ::VERTICAL;
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = 1;
+                newProjectile.transform = SpriteTransform ::VERTICAL;
                 break;
             case 4:
-                new_projectile.vel_x = -1;
-                new_projectile.vel_y = 0;
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = 0;
                 break;
             case 6:
-                new_projectile.vel_x = 1;
-                new_projectile.vel_y = 0;
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = 0;
                 break;
             case 7:
-                new_projectile.vel_x = -1;
-                new_projectile.vel_y = -1;
-                new_projectile.transform = SpriteTransform::VERTICAL;
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = -1;
+                newProjectile.transform = SpriteTransform::VERTICAL;
                 break;
             case 8:
-                new_projectile.vel_x = 0;
-                new_projectile.vel_y = -1;
-                new_projectile.transform = SpriteTransform::R90;
+                newProjectile.vel_x = 0;
+                newProjectile.vel_y = -1;
+                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 9:
-                new_projectile.vel_x = 1;
-                new_projectile.vel_y = -1;
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = -1;
                 
                 break;
             default: break;
             }
 
-            if (new_projectile.vel_x == 0 || new_projectile.vel_y == 0)
+            if (newProjectile.vel_x == 0 || newProjectile.vel_y == 0)
             {
-                new_projectile.sprite = proj_2;
+                newProjectile.sprite = proj_2;
             }
             else
             {
-                new_projectile.sprite = proj_2_d;
+                newProjectile.sprite = proj_2_d;
             }
 /*            new_projectile.location.x = player.location. x + sprite_width / 4;
             new_projectile.location.y = player.location.y + sprite_width / 4;*/
 
-            new_projectile.location.x = player.location.x;
-            new_projectile.location.y = player.location.y;
+            newProjectile.location.x = player.location.x;
+            newProjectile.location.y = player.location.y;
 
-            projectiles.push_back(new_projectile);
+            projectiles.push_back(newProjectile);
 		}      
 	}
 
     bool move_ok = true;
 
-    current_tile_data = getLocalTileData(new_player_location, sprite_width, tilemap_width);
+    currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
 
-	if(x_change != 0 || y_change != 0)
+	if(xChange != 0 || yChange != 0)
 	{
-        if (current_tile_data.can_move)
+        if (currentTileData.canMove)
         {
-            player.location.x += (x_change);
-            player.location.y += (y_change);
+            player.location.x += (xChange);
+            player.location.y += (yChange);
 
-            if (y_change > 0 && x_change == 0)
+            if (yChange > 0 && xChange == 0)
             {
                 player.aim = 2;
             }
-            else if (y_change < 0 && x_change == 0)
+            else if (yChange < 0 && xChange == 0)
             {
                 player.aim = 8;
             }
-            else if (x_change > 0 && y_change == 0)
+            else if (xChange > 0 && yChange == 0)
             {
                 player.aim = 6;
             }
-            else if (x_change < 0 && y_change == 0)
+            else if (xChange < 0 && yChange == 0)
             {
                 player.aim = 4;
             }
-            else if(x_change > 0 && y_change > 0)
+            else if(xChange > 0 && yChange > 0)
             {
                 player.aim = 3;
             }
-            else if (x_change < 0 && y_change < 0)
+            else if (xChange < 0 && yChange < 0)
             {
                 player.aim = 7;
             }
-            else if (x_change > 0 && y_change < 0)
+            else if (xChange > 0 && yChange < 0)
             {
                 player.aim = 9;
             }
-            else if (x_change < 0 && y_change > 0)
+            else if (xChange < 0 && yChange > 0)
             {
                 player.aim = 1;
             }
         }
 
-        if (x_change > 0)
+        if (xChange > 0)
         {
             player.dir = 'r';
         }
-        else if (x_change < 0)
+        else if (xChange < 0)
         {
             player.dir = 'l';
         }
 	}
 	
 	
-    last_Buttons = blit::buttons;
+    lastButtons = blit::buttons;
 }
