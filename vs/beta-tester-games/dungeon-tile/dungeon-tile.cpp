@@ -93,8 +93,8 @@ struct Projectile
     Point location;
     uint8_t transform;
     int16_t lifetime = 500;
-    int16_t vel_x;
-    int16_t vel_y;
+    int16_t vel_x = 0;
+    int16_t vel_y = 0;
 };
 
 std::vector<Npc>::iterator &moveNpc(std::vector<Npc>::iterator &npc);
@@ -342,20 +342,36 @@ x_mov = -1;
 
         npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-        if(!npcTileData.can_move)
+        if(!npcTileData.can_move || x_mov == 0)
         {
             newNpcLocation = npc->location;
             newNpcLocation.y += y_mov;
 
             npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
 
-            if(!npcTileData.can_move)
+            if(!npcTileData.can_move || y_mov == 0)
             {
                 newNpcLocation = npc->location;
                 newNpcLocation.y += x_mov;
                 newNpcLocation.x += y_mov;
 
                 npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+            }
+
+            if (!npcTileData.can_move)
+            {
+                newNpcLocation = npc->location;
+                newNpcLocation.y += x_mov;
+
+                npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+
+                if (!npcTileData.can_move)
+                {
+                    newNpcLocation = npc->location;
+                    newNpcLocation.x += y_mov;
+
+                    npcTileData = getLocalTileData(newNpcLocation, sprite_width, tilemap_width);
+                }
             }
         }
     }
