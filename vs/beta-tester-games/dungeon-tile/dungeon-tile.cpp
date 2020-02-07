@@ -329,7 +329,9 @@ xMov = -1;
     {
         yMov = -1;
     }
-
+// todo Tidy up and work out how to set an offset target if main target is not directly reachable.
+// Plot route to target. Recalculate every time.
+//Set maximum chase distance.
     newNpcLocation.x += xMov;
     newNpcLocation.y += yMov;
 
@@ -449,7 +451,6 @@ void update(uint32_t time) {
             case 2:
                 newProjectile.vel_x = 0;
                 newProjectile.vel_y = 1;
-                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 3:
                 newProjectile.vel_x = 1;
@@ -459,10 +460,12 @@ void update(uint32_t time) {
             case 4:
                 newProjectile.vel_x = -1;
                 newProjectile.vel_y = 0;
+                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 6:
                 newProjectile.vel_x = 1;
                 newProjectile.vel_y = 0;
+                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 7:
                 newProjectile.vel_x = -1;
@@ -472,7 +475,6 @@ void update(uint32_t time) {
             case 8:
                 newProjectile.vel_x = 0;
                 newProjectile.vel_y = -1;
-                newProjectile.transform = SpriteTransform::R90;
                 break;
             case 9:
                 newProjectile.vel_x = 1;

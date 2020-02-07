@@ -1,4 +1,4 @@
-/home/shane/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/193.6015.37/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/shane/github/32blit-beta/vs/beta-tester-games/dungeon-tile
+/home/kenjara85/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/193.6015.37/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/kenjara85/github/32blit-beta/vs/beta-tester-games/dungeon-tile
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/shane/github/32blit-beta/vs/beta-tester-games/dungeon-tile/cmake-build-debug
+-- Build files have been written to: /home/kenjara85/github/32blit-beta/vs/beta-tester-games/dungeon-tile/cmake-build-debug
