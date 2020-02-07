@@ -91,7 +91,7 @@ struct Projectile
 {
     Rect sprite;
     Point location;
-    uint8_t transform;
+    uint8_t transform = 0;
     int16_t lifetime = 500;
     int16_t vel_x = 0;
     int16_t vel_y = 0;
