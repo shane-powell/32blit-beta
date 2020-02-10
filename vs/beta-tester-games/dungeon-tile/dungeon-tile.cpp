@@ -260,7 +260,18 @@ void updateProjectiles()
 	auto projectile = projectiles.begin();
 
 	while (projectile != projectiles.end()) {
-    	
+
+        auto npc = npcs.begin();
+
+        while (npc != npcs.end()) {
+         auto hit = is_Point_in_Rect(projectile->location, Rect(npc->location, Size(sprite_width,sprite_width)));
+         if(hit)
+         {
+             npcs.erase(npc);
+             projectile->lifetime = 0;
+         }
+        }
+
 		projectile->lifetime--;
 		projectile->location.x += projectile->vel_x;
 		projectile->location.y += projectile->vel_y;
