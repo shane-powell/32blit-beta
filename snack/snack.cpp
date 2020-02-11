@@ -22,8 +22,7 @@ typedef struct coords Coords;
 
 struct player
 {
-    int16_t X = 0;
-    int16_t Y = 0;
+    Point location = Point(0,0);
     char dir = 'R';
     int Len = 1;
     static const int MaxLength = 100;
@@ -48,8 +47,8 @@ void GenerateFood()
 
 void StartGame()
 {
-    p1.X = maxX / 2;
-    p1.Y = (maxY / 2) + 10;
+    p1.location.x = maxX / 2;
+    p1.location.y = (maxY / 2) + 10;
     GenerateFood();
     score = 0;
     arrayPosition = 0;
@@ -64,14 +63,14 @@ void StartGame()
 
 void LogMove()
 {
-    p1.Moves[arrayPosition].point.y = p1.Y;
+    p1.Moves[arrayPosition].point.y = p1.location.y;
 
     if (p1.Moves[arrayPosition].Active == false)
     {
         p1.Moves[arrayPosition].Active = true;
     }
-    p1.Moves[arrayPosition].point.x = p1.X;
-    p1.Moves[arrayPosition].point.y = p1.Y;
+    p1.Moves[arrayPosition].point.x = p1.location.x;
+    p1.Moves[arrayPosition].point.y = p1.location.y;
 
     if (arrayPosition < p1.Len - 1)
     {
@@ -103,7 +102,7 @@ void CollisionDetection()
 
     //Check if hit wall
 
-    if (p1.X >= maxX || p1.X <= minX || p1.Y >= maxY || p1.Y <= minY)
+    if (p1.location.x >= maxX || p1.location.x <= minX || p1.location.y >= maxY || p1.location.y <= minY)
     {
         EndGame();
     }
@@ -114,7 +113,7 @@ void CollisionDetection()
 
         if (Move.Active == true)
         {
-            if (Move.point.x == p1.X && Move.point.y == p1.Y)
+            if (Move.point.x == p1.location.x && Move.point.y == p1.location.y)
             {
                 EndGame();
             }
@@ -122,7 +121,7 @@ void CollisionDetection()
     }
 
     // Check if on food
-    if (p1.X == foodLocation.point.x && p1.Y == foodLocation.point.y)
+    if (p1.location.x == foodLocation.point.x && p1.location.y == foodLocation.point.y)
     {
         if (p1.Len < Player::MaxLength)
         {
@@ -203,25 +202,78 @@ void render(uint32_t time) {
     //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
     if (gameState == 'G') {
         DrawFrame();
-        screen.pixel(p1.);
+        screen.pen(RGBA(255, 0, 0));
+
+        screen.pixel(p1.location);
         screen.pixel(foodLocation.point);
 
-        if (p1.X != previousPosition.X || p1.Y != previousPosition.Y)
+        if (p1.location.x != previousPosition.point.x || p1.location.y != previousPosition.point.y)
         {
-            previousPosition.X = p1.X;
-            previousPosition.Y = p1.Y;
+            previousPosition.point.x = p1.location.x;
+            previousPosition.point.y = p1.location.y;
             LogMove();
         }
         DrawTail();
 
-        arduboy.setCursor(63, 0);
-        arduboy.print("Score ");
 
-        char scoreBuff[5];
-        sprintf(scoreBuff, "%05d", score);
+        screen.text("Score ", &minimal_font[0][0], Point(63, 0));
 
-        arduboy.print(scoreBuff);
+        //char scoreBuff[5];
+        //sprintf_s(scoreBuff, "%05d", score);
+        
+        screen.text(std::to_string(score), &minimal_font[0][0], Point(95, 0));
     }
+    else if (gameState == 'E')
+    {
+
+        screen.text("Game Over", &minimal_font[0][0], Point(160, 120));
+
+
+        screen.text("Score ", &minimal_font[0][0], Point(160, 130));
+
+       // char scoreBuff[5];
+        //sprintf_s(scoreBuff, "%05d", score);
+
+        screen.text(std::to_string(score), &minimal_font[0][0], Point(160, 140));
+
+    }
+    else if (gameState == 'T')
+    {
+
+        screen.text("Snack", &minimal_font[0][0], Point(maxX /2, 1),true, center_h);
+
+
+
+        screen.text("By Shane Powell", &minimal_font[0][0], Point(maxX / 2, 15), true, center_h);
+
+
+
+        screen.text("Sound ", &minimal_font[0][0], Point(50, 55));
+
+
+        if (sound == true)
+        {
+            screen.pen(RGBA(255, 255, 255));
+            screen.rectangle(Rect(88, 53, 18, 11));
+            screen.pen(RGBA(0, 0, 0));
+            screen.rectangle(Rect(89, 54, 16, 9));
+        }
+        else
+        {
+            screen.pen(RGBA(255, 255, 255));
+            screen.rectangle(Rect(107, 53, 21, 11));
+            screen.pen(RGBA(0, 0, 0));
+            screen.rectangle(Rect(108, 54, 19, 9));
+        }
+        screen.pen(RGBA(255, 255, 255));
+
+
+        screen.text("On ", &minimal_font[0][0], Point(90, 55));
+
+        screen.text("Off ", &minimal_font[0][0], Point(109, 55));
+    }
+
+    screen.pen(RGBA(0,0, 0));
 	
     
 }
@@ -275,90 +327,57 @@ void update(uint32_t time) {
         switch (p1.dir)
         {
         case 'U':
-            if (p1.Y > minY)
+            if (p1.location.y > minY)
             {
-                p1.Y -= 1;
+                p1.location.y -= 1;
             }
             break;
         case 'D':
-            if (p1.Y < maxY)
+            if (p1.location.y < maxY)
             {
-                p1.Y += 1;
+                p1.location.y += 1;
             }
             break;
         case 'L':
-            if (p1.X > minX)
+            if (p1.location.x > minX)
             {
-                p1.X -= 1;
+                p1.location.x -= 1;
             }
             break;
         case 'R':
-            if (p1.X < maxX)
+            if (p1.location.x < maxX)
             {
-                p1.X += 1;
+                p1.location.x += 1;
             }
 
             break;
         }
-        last_buttons = buttons;
         CollisionDetection();
     }
     else if (gameState == 'E')
     {
-        arduboy.setFrameRate(10);
-        arduboy.setCursor(20, 20);
-        arduboy.print("Game Over");
 
-        arduboy.setCursor(20, 40);
-        arduboy.print("Score ");
-
-        char scoreBuff[5];
-        sprintf(scoreBuff, "%05d", score);
-
-        arduboy.print(scoreBuff);
-
-        if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+        if (pressed & Button::A || pressed & Button::B) {
             gameState = 'T';
         }
 
     }
     else if (gameState == 'T')
     {
-        arduboy.setFrameRate(10);
-        arduboy.setCursor(50, 1);
-        arduboy.print("Snack");
 
-        arduboy.setCursor(20, 15);
-        arduboy.print("By Shane Powell");
-
-        arduboy.setCursor(50, 55);
-        arduboy.print("Sound");
-
-        arduboy.setCursor(90, 55);
-        arduboy.print("On");
-
-        arduboy.setCursor(109, 55);
-        arduboy.print("Off");
-
-        if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+        if (pressed & Button::A || pressed & Button::B) {
             StartGame();
         }
-        else if (arduboy.pressed(LEFT_BUTTON))
+        else if (pressed & Button::DPAD_LEFT)
         {
             sound = true;
         }
-        else if (arduboy.pressed(RIGHT_BUTTON))
+        else if (pressed & Button::DPAD_RIGHT)
         {
             sound = false;
         }
-
-        if (sound == true)
-        {
-            arduboy.drawRect(88, 53, 18, 11, WHITE);
-        }
-        else
-        {
-            arduboy.drawRect(107, 53, 21, 11, WHITE);
-        }
     }
+
+    last_buttons = buttons;
+    
 }
