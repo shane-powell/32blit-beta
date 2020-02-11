@@ -42,8 +42,8 @@ int arrayPosition = 0;
 
 void GenerateFood()
 {
-    foodLocation.point.x = random() % (maxX - borderOffset) + 1;
-    foodLocation.point.y = random() % (maxY - borderOffset) + 1;
+    foodLocation.point.x = blit::random() % (maxX - borderOffset) + 1;
+    foodLocation.point.y = blit::random() % (maxY - borderOffset) + 1;
 }
 
 void StartGame()
@@ -201,9 +201,27 @@ void render(uint32_t time) {
     //screen.rectangle(Rect(0, 0, 320, 14));
     //screen.pen(RGBA(0, 0, 0));
     //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
+    if (gameState == 'G') {
+        DrawFrame();
+        screen.pixel(p1.);
+        screen.pixel(foodLocation.point);
 
-    DrawFrame();
+        if (p1.X != previousPosition.X || p1.Y != previousPosition.Y)
+        {
+            previousPosition.X = p1.X;
+            previousPosition.Y = p1.Y;
+            LogMove();
+        }
+        DrawTail();
 
+        arduboy.setCursor(63, 0);
+        arduboy.print("Score ");
+
+        char scoreBuff[5];
+        sprintf(scoreBuff, "%05d", score);
+
+        arduboy.print(scoreBuff);
+    }
 	
     
 }
@@ -216,145 +234,131 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
-    //if (gameState == 'G')
-    //{
-    //    arduboy.setFrameRate(30);
-    //    DrawFrame();
 
-    //    if (arduboy.pressed(RIGHT_BUTTON)) {
-    //        if (p1.dir != 'L')
-    //        {
-    //            p1.dir = 'R';
-    //        }
-    //    }
+    static uint16_t last_buttons = 0;
+    uint16_t changed = buttons ^ last_buttons;
+    uint16_t pressed = changed & buttons;
+    uint16_t released = changed & ~buttons;
 
-    //    if (arduboy.pressed(LEFT_BUTTON)) {
-    //        if (p1.dir != 'R')
-    //        {
-    //            p1.dir = 'L';
-    //        }
-    //    }
+    if (gameState == 'G')
+    {
+        DrawFrame();
 
-    //    if (arduboy.pressed(UP_BUTTON)) {
-    //        if (p1.dir != 'D')
-    //        {
-    //            p1.dir = 'U';
-    //        }
-    //    }
+        if (pressed & Button::DPAD_RIGHT) {
+            if (p1.dir != 'L')
+            {
+                p1.dir = 'R';
+            }
+        }
 
-    //    if (arduboy.pressed(DOWN_BUTTON)) {
-    //        if (p1.dir != 'U')
-    //        {
-    //            p1.dir = 'D';
-    //        }
-    //    }
+        if (pressed & Button::DPAD_LEFT) {
+            if (p1.dir != 'R')
+            {
+                p1.dir = 'L';
+            }
+        }
 
-    //    switch (p1.dir)
-    //    {
-    //    case 'U':
-    //        if (p1.Y > minY)
-    //        {
-    //            p1.Y -= 1;
-    //        }
-    //        break;
-    //    case 'D':
-    //        if (p1.Y < maxY)
-    //        {
-    //            p1.Y += 1;
-    //        }
-    //        break;
-    //    case 'L':
-    //        if (p1.X > minX)
-    //        {
-    //            p1.X -= 1;
-    //        }
-    //        break;
-    //    case 'R':
-    //        if (p1.X < maxX)
-    //        {
-    //            p1.X += 1;
-    //        }
+        if (pressed & Button::DPAD_UP) {
+            if (p1.dir != 'D')
+            {
+                p1.dir = 'U';
+            }
+        }
 
-    //        break;
-    //    }
+        if (pressed & Button::DPAD_DOWN) {
+            if (p1.dir != 'U')
+            {
+                p1.dir = 'D';
+            }
+        }
 
-    //    CollisionDetection();
+        switch (p1.dir)
+        {
+        case 'U':
+            if (p1.Y > minY)
+            {
+                p1.Y -= 1;
+            }
+            break;
+        case 'D':
+            if (p1.Y < maxY)
+            {
+                p1.Y += 1;
+            }
+            break;
+        case 'L':
+            if (p1.X > minX)
+            {
+                p1.X -= 1;
+            }
+            break;
+        case 'R':
+            if (p1.X < maxX)
+            {
+                p1.X += 1;
+            }
 
-    //    arduboy.drawPixel(p1.X, p1.Y, 1);
-    //    arduboy.drawPixel(foodLocation.X, foodLocation.Y, 1);
+            break;
+        }
+        last_buttons = buttons;
+        CollisionDetection();
+    }
+    else if (gameState == 'E')
+    {
+        arduboy.setFrameRate(10);
+        arduboy.setCursor(20, 20);
+        arduboy.print("Game Over");
 
-    //    if (p1.X != previousPosition.X || p1.Y != previousPosition.Y)
-    //    {
-    //        previousPosition.X = p1.X;
-    //        previousPosition.Y = p1.Y;
-    //        LogMove();
-    //    }
-    //    DrawTail();
+        arduboy.setCursor(20, 40);
+        arduboy.print("Score ");
 
-    //    arduboy.setCursor(63, 0);
-    //    arduboy.print("Score ");
+        char scoreBuff[5];
+        sprintf(scoreBuff, "%05d", score);
 
-    //    char scoreBuff[5];
-    //    sprintf(scoreBuff, "%05d", score);
+        arduboy.print(scoreBuff);
 
-    //    arduboy.print(scoreBuff);
-    //}
-    //else if (gameState == 'E')
-    //{
-    //    arduboy.setFrameRate(10);
-    //    arduboy.setCursor(20, 20);
-    //    arduboy.print("Game Over");
+        if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+            gameState = 'T';
+        }
 
-    //    arduboy.setCursor(20, 40);
-    //    arduboy.print("Score ");
+    }
+    else if (gameState == 'T')
+    {
+        arduboy.setFrameRate(10);
+        arduboy.setCursor(50, 1);
+        arduboy.print("Snack");
 
-    //    char scoreBuff[5];
-    //    sprintf(scoreBuff, "%05d", score);
+        arduboy.setCursor(20, 15);
+        arduboy.print("By Shane Powell");
 
-    //    arduboy.print(scoreBuff);
+        arduboy.setCursor(50, 55);
+        arduboy.print("Sound");
 
-    //    if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-    //        gameState = 'T';
-    //    }
+        arduboy.setCursor(90, 55);
+        arduboy.print("On");
 
-    //}
-    //else if (gameState == 'T')
-    //{
-    //    arduboy.setFrameRate(10);
-    //    arduboy.setCursor(50, 1);
-    //    arduboy.print("Snack");
+        arduboy.setCursor(109, 55);
+        arduboy.print("Off");
 
-    //    arduboy.setCursor(20, 15);
-    //    arduboy.print("By Shane Powell");
+        if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+            StartGame();
+        }
+        else if (arduboy.pressed(LEFT_BUTTON))
+        {
+            sound = true;
+        }
+        else if (arduboy.pressed(RIGHT_BUTTON))
+        {
+            sound = false;
+        }
 
-    //    arduboy.setCursor(50, 55);
-    //    arduboy.print("Sound");
-
-    //    arduboy.setCursor(90, 55);
-    //    arduboy.print("On");
-
-    //    arduboy.setCursor(109, 55);
-    //    arduboy.print("Off");
-
-    //    if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-    //        StartGame();
-    //    }
-    //    else if (arduboy.pressed(LEFT_BUTTON))
-    //    {
-    //        sound = true;
-    //    }
-    //    else if (arduboy.pressed(RIGHT_BUTTON))
-    //    {
-    //        sound = false;
-    //    }
-
-    //    if (sound == true)
-    //    {
-    //        arduboy.drawRect(88, 53, 18, 11, WHITE);
-    //    }
-    //    else
-    //    {
-    //        arduboy.drawRect(107, 53, 21, 11, WHITE);
-    //    }
-    //}
+        if (sound == true)
+        {
+            arduboy.drawRect(88, 53, 18, 11, WHITE);
+        }
+        else
+        {
+            arduboy.drawRect(107, 53, 21, 11, WHITE);
+        }
+    }
 }
