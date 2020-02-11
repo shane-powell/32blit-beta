@@ -1,6 +1,7 @@
 #include "dungeon-tile.hpp"
 #include "../../../32blit/engine/engine.hpp"
 #include "../../../32blit/graphics/font.hpp"
+//#include <thread>
 
 using namespace blit;
 
@@ -189,7 +190,9 @@ void init() {
     world.sprites = screen.sprites;
 
     initNpcs();
-	
+
+    //std::chrono::milliseconds timespan(5000);
+    //std::this_thread::sleep_for(timespan);
 }
 
 ///////////////////////////////////////////////////////////////////////////
