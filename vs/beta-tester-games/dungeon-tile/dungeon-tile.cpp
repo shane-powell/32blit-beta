@@ -254,6 +254,29 @@ void render(uint32_t time) {
 
 }
 
+void spawnNpc()
+{
+    auto locX = 0;
+    auto locY = 0;
+
+    bool canSpawn = false;
+
+    while(canSpawn == false)
+    {
+        locX = blit::random() % tilemap_width * 16;
+        locY = blit::random() % tilemap_height * 16;
+        Tile_Data spawnTile = getLocalTileData(Point(locX,locY), sprite_width, tilemap_width);
+
+        canSpawn = spawnTile.canMove;
+    }
+
+    Npc npc;
+    npc.location = Point(locX,locY);
+    npcs.push_back(npc);
+
+
+
+}
 
 void updateProjectiles()
 {
@@ -267,9 +290,10 @@ void updateProjectiles()
          auto hit = is_Point_in_Rect(projectile->location, Rect(npc->location, Size(sprite_width,sprite_width)));
          if(hit)
          {
-             npcs.erase(npc);
+             npc = npcs.erase(npc);
              projectile->lifetime = 0;
          }
+         else ++npc;
         }
 
 		projectile->lifetime--;
@@ -283,13 +307,13 @@ void updateProjectiles()
 			projectile = projectiles.erase(projectile);
 		}
 		else ++projectile;
-
-        
 	}
 }
 
 void updateNpcs()
 {
+    spawnNpc();
+
     auto npc = npcs.begin();
 
     while (npc != npcs.end()) {
