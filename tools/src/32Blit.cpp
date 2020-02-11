@@ -84,7 +84,7 @@ bool OpenComPort(const char *pszComPort, bool bTestConnection = false)
   osTX.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
   char pszFullPortName[32];
-  sprintf(pszFullPortName, "\\\\.\\%s", pszComPort);
+  snprintf(pszFullPortName, 32, "\\\\.\\%s", pszComPort);
   hComm = CreateFile(pszFullPortName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
   return hComm != INVALID_HANDLE_VALUE;
 }
@@ -455,7 +455,7 @@ bool ResetIfNeeded(const char *pszComPort)
 
   if (bResetNeeded)
   {
-    printf("Reseting 32Blit and waiting for USB connection, please wait...\n");
+    printf("Resetting 32Blit and waiting for USB connection, please wait...\n");
     // need to reset 32blit
     char rstCommand[] = "32BL_RST";
     WriteCom(rstCommand, (uint32_t)strlen(rstCommand));
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
   }
 
   const char *pszProcess = argv[1];
-  const char *pszComPort = argv[2];
+  std::string sComPort = argv[2];
   const char *pszBinPath = NULL;
   const char *pszBinFile = NULL;
   bool bShouldReconnect = false;
@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
 
   bool bComPortOpen = false;
 
-  if(std::string(pszComPort) == "AUTO")
+  if(sComPort == "AUTO")
   {
     auto sDetectedPort = GuessPortName();
     if(sDetectedPort.empty())
@@ -528,16 +528,16 @@ int main(int argc, char *argv[])
     else
     {
       printf("Detected port as: %s\n", sDetectedPort.c_str());
-      bComPortOpen = OpenComPort(sDetectedPort.c_str());
+      sComPort = sDetectedPort;
     }
   }
-  else
-    bComPortOpen = OpenComPort(pszComPort);
+
+  bComPortOpen = OpenComPort(sComPort.c_str());
 
   if (!bComPortOpen)
   {
     usage();
-    printf("ERROR <comport> Cannot open %s\n", pszComPort);
+    printf("ERROR <comport> Cannot open %s\n", sComPort.c_str());
     exit(6);
   }
 
@@ -553,7 +553,7 @@ int main(int argc, char *argv[])
   if (!pszBinPath)
   {
     char header[1024];
-    sprintf(header, "32BL%s%c", pszProcess, 0);
+    snprintf(header, 1024, "32BL%s%c", pszProcess, 0);
     size_t uLen = strlen(header) + 1;
     WriteCom(header, (uint32_t)uLen);
     CloseCom();
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
     exit(3);
   }
 
-  if (!ResetIfNeeded(pszComPort))
+  if (!ResetIfNeeded(sComPort.c_str()))
     exit(0);
 
   // check we can still talk to 32blit
@@ -595,15 +595,15 @@ int main(int argc, char *argv[])
     {
       printf("Cannot talk to 32Blit, trying reconnect\n");
       // try to reconnect
-      bComPortOpen = OpenComPort(pszComPort);
+      bComPortOpen = OpenComPort(sComPort.c_str());
     }
   }
 
   printf("Sending binary file ");
   char header[1024];
-  sprintf(header, "32BL%s%s%c%ld%c", pszProcess, pszBinFile, '*', nSize, '*');
+  snprintf(header, 1024, "32BL%s%s%c%ld%c", pszProcess, pszBinFile, '*', nSize, '*');
   size_t uLen = strlen(header);
-  sprintf(header, "32BL%s%s%c%ld%c", pszProcess, pszBinFile, 0, nSize, 0);
+  snprintf(header, 1024, "32BL%s%s%c%ld%c", pszProcess, pszBinFile, 0, nSize, 0);
   if (WriteCom(header, (uint32_t)uLen) != (ssize_t)uLen)
   {
     printf("Error: Failed to write header to 32Blit.\n");
@@ -657,6 +657,13 @@ int main(int argc, char *argv[])
   }
 
   printf("Sending complete.\n");
+  // Add a short delay to avoid PROG and SAVE hanging at 99% complete
+  // See https://github.com/pimoroni/32blit-beta/pull/154
+#ifdef WIN32
+  Sleep(1000);
+#else
+  sleep(1);
+#endif
   if (*puProcess == FourCCMake<'P', 'R', 'O', 'G'>::value && bShouldReconnect)
   {
     printf("Waiting for USB connection for debug logging, please wait...\n");
@@ -665,7 +672,7 @@ int main(int argc, char *argv[])
     while (!bReconnected)
     {
       usleep(250000);
-      bReconnected = OpenComPort(pszComPort);
+      bReconnected = OpenComPort(sComPort.c_str());
       if (bReconnected)
       {
         uint32_t uAck;
@@ -685,7 +692,7 @@ int main(int argc, char *argv[])
         while (!bReconnected)
         {
           usleep(250000);
-          bReconnected = OpenComPort(pszComPort);
+          bReconnected = OpenComPort(sComPort.c_str());
         }
         printf("Reconnected to 32Blit.\n");
       }
