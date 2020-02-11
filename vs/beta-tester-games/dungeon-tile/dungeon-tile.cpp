@@ -276,9 +276,6 @@ void spawnNpc()
     Npc npc;
     npc.location = Point(locX,locY);
     npcs.push_back(npc);
-
-
-
 }
 
 void updateProjectiles()
