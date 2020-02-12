@@ -294,8 +294,6 @@ void update(uint32_t time) {
 
     if (gameState == 'G')
     {
-        DrawFrame();
-
         if (pressed & Button::DPAD_RIGHT) {
             if (p1.dir != 'L')
             {
