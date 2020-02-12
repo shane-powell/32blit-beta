@@ -3,7 +3,7 @@
 using namespace blit;
 
 static uint8_t layer_world[] = {
-  3, 4, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  3, 4, 10, 11, 12, 13, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -248,7 +248,7 @@ void render(uint32_t time) {
     //screen.pen(RGBA(0, 0, 0));
     //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
     if (gameState == 'G') {
-        DrawFrame();
+        //DrawFrame();
 
         DrawWorld();
     	
@@ -266,12 +266,12 @@ void render(uint32_t time) {
         DrawTail();
 
 
-        screen.text("Score ", &minimal_font[0][0], Point(63, 0));
+        //screen.text("Score ", &minimal_font[0][0], Point(63, 0));
 
         //char scoreBuff[5];
         //sprintf_s(scoreBuff, "%05d", score);
         
-        screen.text(std::to_string(score), &minimal_font[0][0], Point(95, 0));
+        //screen.text(std::to_string(score), &minimal_font[0][0], Point(95, 0));
     }
     else if (gameState == 'E')
     {
