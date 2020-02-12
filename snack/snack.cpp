@@ -202,7 +202,7 @@ void render(uint32_t time) {
     //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
     if (gameState == 'G') {
         DrawFrame();
-        screen.pen(RGBA(255, 0, 0));
+        screen.pen(RGBA(255, 255, 0));
 
         screen.pixel(p1.location);
         screen.pixel(foodLocation.point);
