@@ -195,6 +195,20 @@ void init() {
     //std::this_thread::sleep_for(timespan);
 }
 
+void DrawWorld()
+{
+	Vec2 wo(64, 40);
+
+	world.transform =
+		Mat3::identity() *
+		Mat3::translation(wo) *
+		Mat3::scale(Vec2(0.5, 0.5)) *
+		Mat3::translation(Vec2(-128, -80));
+	
+	world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
+   
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // render(time)
@@ -213,17 +227,10 @@ void render(uint32_t time) {
     screen.alpha = 255;
     screen.mask = nullptr;
 
-    Vec2 wo(64, 40);
+    DrawWorld();
 
-    world.transform =
-        Mat3::identity() *
-        Mat3::translation(wo) *
-        Mat3::scale(Vec2(0.5, 0.5)) *
-        Mat3::translation(Vec2(-128, -80));
-	
-    world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
-   
-    screen.sprite(key_sprite, Point(16, 16), Point(0,0), Vec2(2,2));
+    screen.sprite(key_sprite, Point(16, 16), Point(0, 0), Vec2(2, 2));
+
 
 	if(currentTileData.in_water)
 	{

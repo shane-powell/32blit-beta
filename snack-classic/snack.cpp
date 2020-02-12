@@ -2,35 +2,6 @@
 
 using namespace blit;
 
-static uint8_t layer_world[] = {
-  3, 4, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-};
-
-const uint8_t sprite_width = 16;
-
-// Point player_location = Point(32, 20);
-
-const uint32_t tilemap_width = 32;
-
-const uint32_t tilemap_height = 16;
-
-TileMap world((uint8_t*)layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
-
 int16_t maxX = 320;
 int16_t minX = 0;
 int16_t maxY = 230;
@@ -67,20 +38,6 @@ Coords previousPosition;
 
 int score = 0;
 int arrayPosition = 0;
-
-void DrawWorld()
-{
-    Vec2 wo(64, 40);
-
-    world.transform =
-        Mat3::identity() *
-        Mat3::translation(wo) *
-        Mat3::scale(Vec2(0.5, 0.5)) *
-        Mat3::translation(Vec2(-128, -80));
-
-    world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
-
-}
 
 void GenerateFood()
 {
@@ -147,7 +104,7 @@ void CollisionDetection()
 
     if (p1.location.x >= maxX || p1.location.x <= minX || p1.location.y >= maxY || p1.location.y <= minY)
     {
-        //EndGame();
+        EndGame();
     }
 
     //Check if hit tail
@@ -158,7 +115,7 @@ void CollisionDetection()
         {
             if (Move.point.x == p1.location.x && Move.point.y == p1.location.y)
             {
-                //EndGame();
+                EndGame();
             }
         }
     }
@@ -222,10 +179,6 @@ void DrawFrame()
 //
 void init() {
     set_screen_mode(ScreenMode::hires);
-
-    screen.sprites = SpriteSheet::load(packed_data);
-
-    world.sprites = screen.sprites;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -249,9 +202,6 @@ void render(uint32_t time) {
     //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
     if (gameState == 'G') {
         DrawFrame();
-
-        DrawWorld();
-    	
         screen.pen(RGBA(255, 255, 0));
 
         screen.pixel(p1.location);

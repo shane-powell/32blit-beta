@@ -1,7 +1,5 @@
-#include "32blit.hpp"
 
-
-const uint8_t packed_data[] = {
+uint8_t packed_data[] = {
     0x53, 0x50, 0x52, 0x49, 0x54, 0x45, 0x50, 0x4b, // type: spritepk (packed, paletted sprite)
     0xf4, 0x06, // payload size (1780)
 
