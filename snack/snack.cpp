@@ -226,15 +226,15 @@ void render(uint32_t time) {
     else if (gameState == 'E')
     {
 
-        screen.text("Game Over", &minimal_font[0][0], Point(160, 120));
+        screen.text("Game Over", &minimal_font[0][0], Point(maxX /2, 120),true, center_h);
 
 
-        screen.text("Score ", &minimal_font[0][0], Point(160, 130));
+        screen.text("Score ", &minimal_font[0][0], Point(maxX /2, 130),true, center_h);
 
        // char scoreBuff[5];
         //sprintf_s(scoreBuff, "%05d", score);
 
-        screen.text(std::to_string(score), &minimal_font[0][0], Point(160, 140));
+        screen.text(std::to_string(score), &minimal_font[0][0], Point(maxX /2, 140),true, center_h);
 
     }
     else if (gameState == 'T')
