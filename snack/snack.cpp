@@ -38,6 +38,8 @@ int16_t minY = 10;
 char gameState = 'T';
 bool sound = false;
 
+int viewX = 0;
+
 int8_t borderOffset = 2;
 
 struct coords
