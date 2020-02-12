@@ -4,18 +4,18 @@ using namespace blit;
 
 static uint8_t layer_world[] = {
   48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 52,
-  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  64, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 17, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  64, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 35, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 66, 65, 65, 66, 66, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-  64, 66, 66, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 66, 66, 66, 66, 66, 33, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 65, 66, 66, 65, 66, 66, 65, 66, 66, 65, 66, 65, 66, 66, 66, 66, 66, 66, 68, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66,
-  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 35, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-  64, 66, 66, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 33, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 17, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
   80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -38,6 +38,11 @@ int16_t minY = 10;
 char gameState = 'T';
 bool sound = false;
 
+Rect playerSprite = Rect(0, 0, 1, 1);
+Rect playerSpriteUp = Rect(0, 2, 1, 1);
+Rect playerSpriteDown = Rect(0, 1, 1, 1);
+
+
 int viewX = 0;
 
 int8_t borderOffset = 2;
@@ -53,9 +58,10 @@ typedef struct coords Coords;
 
 struct player
 {
+    Rect sprite = playerSprite;
     Point location = Point(0,0);
     char dir = 'R';
-    int Len = 1;
+    int Len = 0;
     static const int MaxLength = 100;
     Coords Moves[MaxLength];
 };
@@ -69,6 +75,16 @@ Coords previousPosition;
 
 int score = 0;
 int arrayPosition = 0;
+
+bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type bounding_Rectangle)
+{
+    if (object_origin.x + sprite_width >= bounding_Rectangle.x && object_origin.x <= bounding_Rectangle.x + bounding_Rectangle.w && object_origin.y + sprite_width > bounding_Rectangle.y&& object_origin.y < bounding_Rectangle.y + bounding_Rectangle.h)
+    {
+        return true;
+    }
+
+    return false;
+}
 
 void DrawWorld()
 {
@@ -97,7 +113,7 @@ void StartGame()
     GenerateFood();
     score = 0;
     arrayPosition = 0;
-    p1.Len = 1;
+    p1.Len = 0;
     for (int i = 0; i < p1.MaxLength; i++) {
         p1.Moves[i].Active = false;
     }
@@ -165,8 +181,10 @@ void CollisionDetection()
         }
     }
 
+    
+	
     // Check if on food
-    if (p1.location.x == foodLocation.point.x && p1.location.y == foodLocation.point.y)
+    if (is_Point_in_Rect(p1.location, Rect(foodLocation.point, Size(16, 16))))
     {
         if (p1.Len < Player::MaxLength)
         {
@@ -183,13 +201,16 @@ void CollisionDetection()
     }
 }
 
+
+
 void DrawTail()
 {
     int tailPosition = arrayPosition;
     for (int i = 0; i < p1.Len; i++) {
         if (p1.Moves[tailPosition].Active == true)
         {
-            screen.pixel(p1.Moves[tailPosition].point);
+            //screen.pixel(p1.Moves[tailPosition].point);
+            screen.sprite(Rect(1, 0, 1, 1), p1.Moves[tailPosition].point, Point(0, 0), Vec2(2, 2));
         }
         else
         {
@@ -206,14 +227,6 @@ void DrawTail()
             tailPosition = p1.Len - 1;
         }
     }
-}
-
-void DrawFrame()
-{
-    screen.pen(RGBA(255, 255, 255));
-    screen.rectangle(Rect(minX, minY, maxX, maxY));
-    screen.pen(RGBA(0, 0, 0));
-    screen.rectangle(Rect(minX +1, minY + 1, maxX - borderOffset, maxY - borderOffset));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -256,8 +269,20 @@ void render(uint32_t time) {
     	
         screen.pen(RGBA(255, 255, 0));
 
-        screen.pixel(p1.location);
-        screen.pixel(foodLocation.point);
+        //screen.pixel(p1.location);
+        screen.sprite(p1.sprite, p1.location,Point(0, 0), Vec2(2, 2));
+
+        if (p1.dir == 'R')
+        {
+            screen.sprite(p1.sprite, p1.location, Point(0, 0), Vec2(2, 2));
+        }
+        else
+        {
+            screen.sprite(p1.sprite, p1.location, Point(0, 0), Vec2(2, 2), 1);
+        }
+    	
+        //screen.pixel(foodLocation.point);
+        screen.sprite(Rect(1, 0, 1, 1), foodLocation.point, Point(0, 0), Vec2(2, 2));
 
         if (p1.location.x != previousPosition.point.x || p1.location.y != previousPosition.point.y)
         {
@@ -350,6 +375,7 @@ void update(uint32_t time) {
             if (p1.dir != 'L')
             {
                 p1.dir = 'R';
+                p1.sprite = playerSprite;
             }
         }
 
@@ -357,6 +383,7 @@ void update(uint32_t time) {
             if (p1.dir != 'R')
             {
                 p1.dir = 'L';
+                p1.sprite = playerSprite;
             }
         }
 
@@ -364,6 +391,7 @@ void update(uint32_t time) {
             if (p1.dir != 'D')
             {
                 p1.dir = 'U';
+                p1.sprite = playerSpriteUp;
             }
         }
 
@@ -371,6 +399,7 @@ void update(uint32_t time) {
             if (p1.dir != 'U')
             {
                 p1.dir = 'D';
+                p1.sprite = playerSpriteDown;
             }
         }
 
