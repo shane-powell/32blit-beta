@@ -35,6 +35,7 @@ int16_t maxX = 320;
 int16_t minX = 0;
 int16_t maxY = 230;
 int16_t minY = 10;
+int8_t  logCounter = 0;
 char gameState = 'T';
 bool sound = false;
 
@@ -124,24 +125,32 @@ void StartGame()
 
 void LogMove()
 {
-    p1.Moves[arrayPosition].point.y = p1.location.y;
+    logCounter ++;
 
-    if (p1.Moves[arrayPosition].Active == false)
+    if(logCounter == 16)
     {
-        p1.Moves[arrayPosition].Active = true;
-    }
-    p1.Moves[arrayPosition].point.x = p1.location.x;
-    p1.Moves[arrayPosition].point.y = p1.location.y;
+        logCounter ++;
 
-    if (arrayPosition < p1.Len - 1)
-    {
-        arrayPosition += 1;
+        p1.Moves[arrayPosition].point.y = p1.location.y;
 
+        if (p1.Moves[arrayPosition].Active == false)
+        {
+            p1.Moves[arrayPosition].Active = true;
+        }
+        p1.Moves[arrayPosition].point.x = p1.location.x;
+        p1.Moves[arrayPosition].point.y = p1.location.y;
+
+        if (arrayPosition < p1.Len - 1)
+        {
+            arrayPosition += 1;
+
+        }
+        else
+        {
+            arrayPosition = 0;
+        }
     }
-    else
-    {
-        arrayPosition = 0;
-    }
+
 }
 
 void EndGame()
@@ -165,7 +174,7 @@ void CollisionDetection()
 
     if (p1.location.x >= maxX || p1.location.x <= minX || p1.location.y >= maxY || p1.location.y <= minY)
     {
-        //EndGame();
+        EndGame();
     }
 
     //Check if hit tail
@@ -174,7 +183,7 @@ void CollisionDetection()
 
         if (Move.Active == true)
         {
-            if (Move.point.x == p1.location.x && Move.point.y == p1.location.y)
+            if (is_Point_in_Rect(p1.location, Rect(Move.point, Size(16,16))))
             {
                 //EndGame();
             }
