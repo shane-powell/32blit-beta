@@ -31,10 +31,10 @@ const uint32_t tilemap_height = 16;
 
 TileMap world((uint8_t*)layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
 
-int16_t maxX = 320;
+int16_t maxX = 319;
 int16_t minX = 0;
-int16_t maxY = 230;
-int16_t minY = 10;
+int16_t maxY = 229;
+int16_t minY = 0;
 int8_t  logCounter = 0;
 char gameState = 'T';
 bool sound = false;
@@ -43,10 +43,11 @@ Rect playerSprite = Rect(0, 0, 1, 1);
 Rect playerSpriteUp = Rect(0, 2, 1, 1);
 Rect playerSpriteDown = Rect(0, 1, 1, 1);
 
+int8_t spriteSize = 16;
 
 int viewX = 0;
 
-int8_t borderOffset = 2;
+//int8_t borderOffset = 2;
 
 struct coords
 {
@@ -103,8 +104,8 @@ void DrawWorld()
 
 void GenerateFood()
 {
-    foodLocation.point.x = blit::random() % (maxX - borderOffset) + 1;
-    foodLocation.point.y = blit::random() % (maxY - borderOffset) + 1;
+    foodLocation.point.x = blit::random() % (maxX - spriteSize);
+    foodLocation.point.y = blit::random() % (maxY - spriteSize);
 }
 
 void StartGame()
@@ -127,9 +128,9 @@ void LogMove()
 {
     logCounter ++;
 
-    if(logCounter == 16)
+    if(logCounter == 8)
     {
-        logCounter ++;
+        logCounter = 0;
 
         p1.Moves[arrayPosition].point.y = p1.location.y;
 
@@ -177,17 +178,21 @@ void CollisionDetection()
         EndGame();
     }
 
+    int i = 0;
+	
     //Check if hit tail
     for (auto& Move : p1.Moves)
     {
-
+        // i hack may not be required.
         if (Move.Active == true)
         {
-            if (is_Point_in_Rect(p1.location, Rect(Move.point, Size(16,16))))
+            if (i > 0 && is_Point_in_Rect(p1.location, Rect(Move.point, Size(16,16))))
             {
-                //EndGame();
+                EndGame();
             }
         }
+
+        i++;
     }
 
     
@@ -205,7 +210,7 @@ void CollisionDetection()
         }
 
         score += 1;
-        LogMove();
+        //LogMove();
         GenerateFood();
     }
 }
