@@ -65,7 +65,8 @@ struct player
     char dir = 'R';
     int Len = 0;
     static const int MaxLength = 100;
-    Coords Moves[MaxLength];
+    //Coords Moves[MaxLength];
+    std::vector<Coords> Moves;
 };
 
 typedef struct player Player;
