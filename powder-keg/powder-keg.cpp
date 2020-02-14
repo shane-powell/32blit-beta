@@ -49,6 +49,8 @@ int viewX = 0;
 
 //int8_t borderOffset = 2;
 
+int viewPortX = 0;
+
 
 struct Player
 {
@@ -143,6 +145,7 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
 void DrawWorld()
 {
     Vec2 wo(64, 40);
+    viewPortX++;
 
     world.transform =
         Mat3::identity() *
@@ -150,7 +153,7 @@ void DrawWorld()
         Mat3::scale(Vec2(0.5, 0.5)) *
         Mat3::translation(Vec2(-128, -80));
 
-    world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
+    world.draw(&screen, Rect(viewPortX, 0, 320, 240), nullptr);
 
 }
 
@@ -206,16 +209,15 @@ void render(uint32_t time) {
     // draw some text at the top of the screen
     screen.alpha = 255;
     screen.mask = nullptr;
-    screen.pen(RGBA(255, 255, 255));
+    screen.pen = Pen(255, 255, 255);
     //screen.rectangle(Rect(0, 0, 320, 14));
     //screen.pen(RGBA(0, 0, 0));
-    //screen.text("Hello 32blit!", &minimal_font[0][0], Point(5, 4));
+    //screen.text("Hello 32blit!", minimal_font, Point(5, 4));
     if (gameState == 'G') {
         //DrawFrame();
-
         DrawWorld();
     	
-        screen.pen(RGBA(255, 255, 0));
+        screen.pen = Pen(255, 255, 0);
 
         //screen.pixel(player.location);
         screen.sprite(player.sprite, player.location,Point(0, 0), Vec2(2, 2));
@@ -229,64 +231,64 @@ void render(uint32_t time) {
             screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2), 1);
         }
     
-        //screen.text("Score ", &minimal_font[0][0], Point(63, 0));
+        //screen.text("Score ", minimal_font, Point(63, 0));
 
         //char scoreBuff[5];
         //sprintf_s(scoreBuff, "%05d", score);
         
-        //screen.text(std::to_string(score), &minimal_font[0][0], Point(95, 0));
+        //screen.text(std::to_string(score), minimal_font, Point(95, 0));
     }
     else if (gameState == 'E')
     {
 
-        screen.text("Game Over", &minimal_font[0][0], Point(maxX /2, 120),true, center_h);
+        screen.text("Game Over", minimal_font, Point(maxX /2, 120),true, center_h);
 
 
-        screen.text("Score ", &minimal_font[0][0], Point(maxX /2, 130),true, center_h);
+        screen.text("Score ", minimal_font, Point(maxX /2, 130),true, center_h);
 
        // char scoreBuff[5];
         //sprintf_s(scoreBuff, "%05d", score);
 
-        screen.text(std::to_string(score), &minimal_font[0][0], Point(maxX /2, 140),true, center_h);
+        screen.text(std::to_string(score), minimal_font, Point(maxX /2, 140),true, center_h);
 
     }
     else if (gameState == 'T')
     {
 
-        screen.text("Snack", &minimal_font[0][0], Point(maxX /2, 1),true, center_h);
+        screen.text("Snack", minimal_font, Point(maxX /2, 1),true, center_h);
 
 
 
-        screen.text("By Shane Powell", &minimal_font[0][0], Point(maxX / 2, 15), true, center_h);
+        screen.text("By Shane Powell", minimal_font, Point(maxX / 2, 15), true, center_h);
 
 
 
-        screen.text("Sound ", &minimal_font[0][0], Point(50, 55));
+        screen.text("Sound ", minimal_font, Point(50, 55));
 
 
         if (sound == true)
         {
-            screen.pen(RGBA(255, 255, 255));
+            screen.pen = Pen(255, 255, 255);
             screen.rectangle(Rect(88, 53, 18, 11));
-            screen.pen(RGBA(0, 0, 0));
+            screen.pen = Pen(0, 0, 0);
             screen.rectangle(Rect(89, 54, 16, 9));
         }
         else
         {
-            screen.pen(RGBA(255, 255, 255));
+            screen.pen = Pen(255, 255, 255);
             screen.rectangle(Rect(107, 53, 21, 11));
-            screen.pen(RGBA(0, 0, 0));
+            screen.pen = Pen(0, 0, 0);
             screen.rectangle(Rect(108, 54, 19, 9));
         }
-        screen.pen(RGBA(255, 255, 255));
+        screen.pen = Pen(255, 255, 255);
 
 
-        screen.text("On ", &minimal_font[0][0], Point(90, 55));
+        screen.text("On ", minimal_font, Point(90, 55));
 
-        screen.text("Off ", &minimal_font[0][0], Point(109, 55));
+        screen.text("Off ", minimal_font, Point(109, 55));
     }
 
-    screen.pen(RGBA(0,0, 0));
+    screen.pen = Pen(0,0, 0);
 	
     
 }
