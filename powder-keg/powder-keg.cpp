@@ -49,35 +49,33 @@ int viewX = 0;
 
 //int8_t borderOffset = 2;
 
-struct coords
-{
-public:
-    Point point;
-    bool Active = false;
-};
 
-typedef struct coords Coords;
-
-struct player
+struct Player
 {
     Rect sprite = playerSprite;
-    Point location = Point(0,0);
-    char dir = 'R';
-    int Len = 0;
-    static const int MaxLength = 100;
-    //Coords Moves[MaxLength];
-    std::vector<Coords> Moves;
+    char dir = 'r';
+    int8_t aim = 6;
+    Point location = Point(32, 20);
+    bool can_fire = true;
+    int16_t canFireTimeout = 0;
+    int16_t fire_delay = 20;
 };
 
-typedef struct player Player;
+struct Tile_Data
+{
+    bool canMove = true;
+    uint16_t pixels_in_water = 0;
+    bool in_water = false;
+    float movement_modifier = 0;
+    float life_modifier = 0;
+};
 
-Player p1;
-Coords foodLocation;
-Coords previousPosition;
+Player player;
+
+Tile_Data currentTileData;
 
 
 int score = 0;
-int arrayPosition = 0;
 
 bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type bounding_Rectangle)
 {
@@ -87,6 +85,59 @@ bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type 
     }
 
     return false;
+}
+
+uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile_map_width)
+{
+    uint16_t horizontal_location = Point.x / tile_size;
+
+    if (Point.x % tile_size > 0)
+    {
+        horizontal_location += 1;
+    }
+
+    uint16_t vertical_location = (Point.y / tile_size) * tile_map_width;
+
+    if (vertical_location % tile_size > 0)
+    {
+        vertical_location += 1;
+    }
+
+    const uint16_t array_location = horizontal_location + vertical_location - 1;
+
+    return array_location;
+}
+
+Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+{
+    Tile_Data tile_data;
+
+    for (auto y = 0; y < sprite_width; y++)
+    {
+        for (auto x = 0; x < sprite_width; x++)
+        {
+            const auto array_location = get_tile_from_Point(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
+            const uint8_t tile_scanned = layer_world[array_location];
+            if (tile_scanned == 0)
+            {
+                tile_data.canMove = false;
+                //return false;
+            }
+            else if (tile_scanned == 4)
+            {
+                tile_data.movement_modifier = 0.5;
+                tile_data.pixels_in_water += 1;
+            }
+
+        }
+    }
+
+    if (tile_data.pixels_in_water > (sprite_width * sprite_width / 2))
+    {
+        tile_data.in_water = true;
+    }
+
+    return tile_data;
 }
 
 void DrawWorld()
@@ -103,56 +154,13 @@ void DrawWorld()
 
 }
 
-void GenerateFood()
-{
-    foodLocation.point.x = blit::random() % (maxX - spriteSize);
-    foodLocation.point.y = blit::random() % (maxY - spriteSize);
-}
 
 void StartGame()
 {
-    p1.location.x = maxX / 2;
-    p1.location.y = (maxY / 2) + 10;
-    GenerateFood();
+    player.location.x = maxX / 2;
+    player.location.y = (maxY / 2) + 10;
     score = 0;
-    arrayPosition = 0;
-    p1.Len = 0;
-    for (int i = 0; i < p1.MaxLength; i++) {
-        p1.Moves[i].Active = false;
-    }
-
-
     gameState = 'G';
-}
-
-void LogMove()
-{
-    logCounter ++;
-
-    if(logCounter == 8)
-    {
-        logCounter = 0;
-
-        p1.Moves[arrayPosition].point.y = p1.location.y;
-
-        if (p1.Moves[arrayPosition].Active == false)
-        {
-            p1.Moves[arrayPosition].Active = true;
-        }
-        p1.Moves[arrayPosition].point.x = p1.location.x;
-        p1.Moves[arrayPosition].point.y = p1.location.y;
-
-        if (arrayPosition < p1.Len - 1)
-        {
-            arrayPosition += 1;
-
-        }
-        else
-        {
-            arrayPosition = 0;
-        }
-    }
-
 }
 
 void EndGame()
@@ -167,81 +175,6 @@ void EndGame()
     //}
 
     gameState = 'E';
-}
-
-void CollisionDetection()
-{
-
-    //Check if hit wall
-
-    if (p1.location.x >= maxX || p1.location.x <= minX || p1.location.y >= maxY || p1.location.y <= minY)
-    {
-        EndGame();
-    }
-
-    int i = 0;
-	
-    //Check if hit tail
-    for (auto& Move : p1.Moves)
-    {
-        // i hack may not be required.
-        if (Move.Active == true)
-        {
-            if (i > 0 && is_Point_in_Rect(p1.location, Rect(Move.point, Size(16,16))))
-            {
-                EndGame();
-            }
-        }
-
-        i++;
-    }
-
-    
-	
-    // Check if on food
-    if (is_Point_in_Rect(p1.location, Rect(foodLocation.point, Size(16, 16))))
-    {
-        if (p1.Len < Player::MaxLength)
-        {
-            p1.Len += 1;
-        }
-        if (sound == true)
-        {
-            // arduboy.tunes.tone(987, 160);
-        }
-
-        score += 1;
-        //LogMove();
-        GenerateFood();
-    }
-}
-
-
-
-void DrawTail()
-{
-    int tailPosition = arrayPosition;
-    for (int i = 0; i < p1.Len; i++) {
-        if (p1.Moves[tailPosition].Active == true)
-        {
-            //screen.pixel(p1.Moves[tailPosition].point);
-            screen.sprite(Rect(1, 0, 1, 1), p1.Moves[tailPosition].point, Point(0, 0), Vec2(2, 2));
-        }
-        else
-        {
-            return;
-        }
-
-
-        if (tailPosition > 0)
-        {
-            tailPosition -= 1;
-        }
-        else
-        {
-            tailPosition = p1.Len - 1;
-        }
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -284,30 +217,18 @@ void render(uint32_t time) {
     	
         screen.pen(RGBA(255, 255, 0));
 
-        //screen.pixel(p1.location);
-        screen.sprite(p1.sprite, p1.location,Point(0, 0), Vec2(2, 2));
+        //screen.pixel(player.location);
+        screen.sprite(player.sprite, player.location,Point(0, 0), Vec2(2, 2));
 
-        if (p1.dir == 'R')
+        if (player.dir == 'R')
         {
-            screen.sprite(p1.sprite, p1.location, Point(0, 0), Vec2(2, 2));
+            screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2));
         }
         else
         {
-            screen.sprite(p1.sprite, p1.location, Point(0, 0), Vec2(2, 2), 1);
+            screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2), 1);
         }
-    	
-        //screen.pixel(foodLocation.point);
-        screen.sprite(Rect(1, 0, 1, 1), foodLocation.point, Point(0, 0), Vec2(2, 2));
-
-        if (p1.location.x != previousPosition.point.x || p1.location.y != previousPosition.point.y)
-        {
-            previousPosition.point.x = p1.location.x;
-            previousPosition.point.y = p1.location.y;
-            LogMove();
-        }
-        DrawTail();
-
-
+    
         //screen.text("Score ", &minimal_font[0][0], Point(63, 0));
 
         //char scoreBuff[5];
@@ -379,99 +300,168 @@ void render(uint32_t time) {
 //
 void update(uint32_t time) {
 
-    static uint16_t last_buttons = 0;
-    uint16_t changed = buttons ^ last_buttons;
-    uint16_t pressed = changed & buttons;
-    uint16_t released = changed & ~buttons;
+    /*updateProjectiles();
+    updateNpcs();*/
 
-    if (gameState == 'G')
+    static uint16_t lastButtons = 0;
+    uint16_t changed = blit::buttons ^ lastButtons;
+    uint16_t pressed = changed & blit::buttons;
+    uint16_t released = changed & ~blit::buttons;
+
+    int16_t xChange = 0;
+    int16_t yChange = 0;
+
+    Point newPlayerLocation = player.location;
+
+    if (player.canFireTimeout > 0)
     {
-        if (pressed & Button::DPAD_RIGHT) {
-            if (p1.dir != 'L')
-            {
-                p1.dir = 'R';
-                p1.sprite = playerSprite;
-            }
-        }
-
-        if (pressed & Button::DPAD_LEFT) {
-            if (p1.dir != 'R')
-            {
-                p1.dir = 'L';
-                p1.sprite = playerSprite;
-            }
-        }
-
-        if (pressed & Button::DPAD_UP) {
-            if (p1.dir != 'D')
-            {
-                p1.dir = 'U';
-                p1.sprite = playerSpriteUp;
-            }
-        }
-
-        if (pressed & Button::DPAD_DOWN) {
-            if (p1.dir != 'U')
-            {
-                p1.dir = 'D';
-                p1.sprite = playerSpriteDown;
-            }
-        }
-
-        switch (p1.dir)
-        {
-        case 'U':
-            if (p1.location.y > minY)
-            {
-                p1.location.y -= 1;
-            }
-            break;
-        case 'D':
-            if (p1.location.y < maxY)
-            {
-                p1.location.y += 1;
-            }
-            break;
-        case 'L':
-            if (p1.location.x > minX)
-            {
-                p1.location.x -= 1;
-            }
-            break;
-        case 'R':
-            if (p1.location.x < maxX)
-            {
-                p1.location.x += 1;
-            }
-
-            break;
-        }
-        CollisionDetection();
+        player.canFireTimeout--;
     }
-    else if (gameState == 'E')
+    else
     {
-
-        if (pressed & Button::A || pressed & Button::B) {
-            gameState = 'T';
-        }
-
-    }
-    else if (gameState == 'T')
-    {
-
-        if (pressed & Button::A || pressed & Button::B) {
-            StartGame();
-        }
-        else if (pressed & Button::DPAD_LEFT)
-        {
-            sound = true;
-        }
-        else if (pressed & Button::DPAD_RIGHT)
-        {
-            sound = false;
-        }
+        player.can_fire = true;
     }
 
-    last_buttons = buttons;
-    
+    if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
+        xChange -= 1;
+        newPlayerLocation.x -= 1;
+    }
+    if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
+        xChange += 1;
+        newPlayerLocation.x += 1;
+    }
+    if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
+        yChange -= 1;
+        newPlayerLocation.y -= 1;
+    }
+    if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
+        yChange += 1;
+        newPlayerLocation.y += 1;
+    }
+    if (blit::buttons & blit::Button::B)
+    {
+        if (player.can_fire)
+        {
+            //player.can_fire = false;
+            //player.canFireTimeout = player.fire_delay;
+            //Projectile newProjectile;
+
+            //switch (player.aim)
+            //{
+            //case 1:
+            //    newProjectile.vel_x = -1;
+            //    newProjectile.vel_y = 1;
+
+            //    break;
+            //case 2:
+            //    newProjectile.vel_x = 0;
+            //    newProjectile.vel_y = 1;
+            //    break;
+            //case 3:
+            //    newProjectile.vel_x = 1;
+            //    newProjectile.vel_y = 1;
+            //    newProjectile.transform = SpriteTransform::VERTICAL;
+            //    break;
+            //case 4:
+            //    newProjectile.vel_x = -1;
+            //    newProjectile.vel_y = 0;
+            //    newProjectile.transform = SpriteTransform::R90;
+            //    break;
+            //case 6:
+            //    newProjectile.vel_x = 1;
+            //    newProjectile.vel_y = 0;
+            //    newProjectile.transform = SpriteTransform::R90;
+            //    break;
+            //case 7:
+            //    newProjectile.vel_x = -1;
+            //    newProjectile.vel_y = -1;
+            //    newProjectile.transform = SpriteTransform::VERTICAL;
+            //    break;
+            //case 8:
+            //    newProjectile.vel_x = 0;
+            //    newProjectile.vel_y = -1;
+            //    break;
+            //case 9:
+            //    newProjectile.vel_x = 1;
+            //    newProjectile.vel_y = -1;
+
+            //    break;
+            //default: break;
+            //}
+
+            //if (newProjectile.vel_x == 0 || newProjectile.vel_y == 0)
+            //{
+            //    newProjectile.sprite = proj_2;
+            //}
+            //else
+            //{
+            //    newProjectile.sprite = proj_2_d;
+            //}
+            ///*            new_projectile.location.x = player.location. x + sprite_width / 4;
+            //            new_projectile.location.y = player.location.y + sprite_width / 4;*/
+
+            //newProjectile.location.x = player.location.x;
+            //newProjectile.location.y = player.location.y;
+
+            //projectiles.push_back(newProjectile);
+        }
+    }
+
+    bool move_ok = true;
+
+    currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
+
+    if (xChange != 0 || yChange != 0)
+    {
+        if (currentTileData.canMove)
+        {
+            player.location.x += (xChange);
+            player.location.y += (yChange);
+
+            if (yChange > 0 && xChange == 0)
+            {
+                player.aim = 2;
+            }
+            else if (yChange < 0 && xChange == 0)
+            {
+                player.aim = 8;
+            }
+            else if (xChange > 0 && yChange == 0)
+            {
+                player.aim = 6;
+            }
+            else if (xChange < 0 && yChange == 0)
+            {
+                player.aim = 4;
+            }
+            else if (xChange > 0 && yChange > 0)
+            {
+                player.aim = 3;
+            }
+            else if (xChange < 0 && yChange < 0)
+            {
+                player.aim = 7;
+            }
+            else if (xChange > 0 && yChange < 0)
+            {
+                player.aim = 9;
+            }
+            else if (xChange < 0 && yChange > 0)
+            {
+                player.aim = 1;
+            }
+        }
+
+        if (xChange > 0)
+        {
+            player.dir = 'r';
+        }
+        else if (xChange < 0)
+        {
+            player.dir = 'l';
+        }
+    }
+
+
+    lastButtons = blit::buttons;
 }

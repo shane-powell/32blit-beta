@@ -23,7 +23,7 @@
     <ProjectGuid>{3C0D173C-82A1-43AB-8E9C-DE3F0067AD59}</ProjectGuid>
     <RootNamespace>logo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>snack</ProjectName>
+    <ProjectName>powder-keg</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
