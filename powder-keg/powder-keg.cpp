@@ -36,7 +36,7 @@ int16_t minX = 0;
 int16_t maxY = 229;
 int16_t minY = 0;
 int8_t  logCounter = 0;
-char gameState = 'T';
+char gameState = 'G';
 bool sound = false;
 
 Rect playerSprite = Rect(0, 0, 1, 1);
@@ -145,7 +145,6 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
 void DrawWorld()
 {
     Vec2 wo(64, 40);
-    viewPortX++;
 
     world.transform =
         Mat3::identity() *
@@ -153,7 +152,7 @@ void DrawWorld()
         Mat3::scale(Vec2(0.5, 0.5)) *
         Mat3::translation(Vec2(-128, -80));
 
-    world.draw(&screen, Rect(viewPortX, 0, 320, 240), nullptr);
+    world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
 
 }
 
@@ -211,7 +210,7 @@ void render(uint32_t time) {
     screen.mask = nullptr;
     screen.pen = Pen(255, 255, 255);
     //screen.rectangle(Rect(0, 0, 320, 14));
-    //screen.pen(RGBA(0, 0, 0));
+    screen.pen = Pen(0, 0, 0);
     //screen.text("Hello 32blit!", minimal_font, Point(5, 4));
     if (gameState == 'G') {
         //DrawFrame();

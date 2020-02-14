@@ -219,7 +219,7 @@ void DrawWorld()
 void render(uint32_t time) {
 
     screen.alpha = 255;
-    screen.pen = Pen(0, 0, 0);
+    screen.pen = Pen(0, 0, 0, 0);
 	
     // clear the screen -- fb is a reference to the frame buffer and can be used to draw all things with the 32blit
     screen.clear();
@@ -259,7 +259,7 @@ void render(uint32_t time) {
         screen.sprite(npc.sprite, npc.location, Point(0, 0), Vec2(2, 2));
     }
 
-    screen.pen = Pen(255, 255, 255);
+    screen.pen = Pen(255, 255, 255, 0);
     screen.text(tile_name, minimal_font, Point(0, 0));
 
 }

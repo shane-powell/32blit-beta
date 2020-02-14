@@ -10,7 +10,7 @@ const uint8_t packed_data[] = {
     0x10, 0x00, // cols (16)
     0x10, 0x00, // rows (16)
 
-    0x03, // format (paletted)
+    0x02, // format (paletted)
 
     0x14, // number of palette colours (20)
 //  r     g     b     a
