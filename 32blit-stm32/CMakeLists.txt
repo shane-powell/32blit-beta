@@ -57,6 +57,7 @@ list(APPEND SOURCES
 	Src/display.cpp
 	Src/gpio.cpp
 	Src/sound.cpp
+	Src/file.cpp
 	Src/adc.c
 	Src/debug.c
 	Src/dma.c
@@ -106,6 +107,8 @@ set(DEFINITIONS
 )
 set(HAL_DEFINITIONS ${DEFINITIONS} PARENT_SCOPE)
 
+set_source_files_properties(Middlewares/Third_Party/FatFs/src/ff.c PROPERTIES COMPILE_FLAGS "-Wno-misleading-indentation")
+
 target_include_directories(BlitHalSTM32
 	PRIVATE
 		${INCLUDE_DIRS}
@@ -149,6 +152,8 @@ target_compile_options(BlitHalSTM32Ext
 set(MCU_LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/${MCU_LINKER_SCRIPT}")
 set(MCU_LINKER_SCRIPT "${MCU_LINKER_SCRIPT}" PARENT_SCOPE)
 set(MCU_LINKER_SCRIPT_EXT "${CMAKE_CURRENT_LIST_DIR}/${MCU_LINKER_SCRIPT_EXT}" PARENT_SCOPE)
+
+find_package(PythonInterp 3 REQUIRED)
 
 function(blit_executable_common NAME)
 	target_link_libraries(${NAME} BlitEngine)
@@ -196,6 +201,6 @@ function(blit_executable_int_flash NAME SOURCES)
 
 	add_custom_command(TARGET ${NAME} POST_BUILD
 		COMMENT "Building ${NAME}.dfu"
-		COMMAND ${CMAKE_DFU} build --force --out ${NAME}.dfu ${NAME}.bin
+		COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_DFU} build --force --out ${NAME}.dfu ${NAME}.bin
 	)
 endfunction()

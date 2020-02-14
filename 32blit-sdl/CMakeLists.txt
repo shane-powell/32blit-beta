@@ -1,4 +1,5 @@
 add_library(BlitHalSDL STATIC
+	File.cpp
 	Input.cpp
 	Main.cpp
 	Renderer.cpp
@@ -78,7 +79,6 @@ if(DEFINED VIDEO_CAPTURE AND VIDEO_CAPTURE)
 			-D__STDC_CONSTANT_MACROS
 	)
 endif()
-
 
 function(blit_executable NAME SOURCES)
 	add_executable(${NAME} ${SOURCES} ${ARGN})
