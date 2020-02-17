@@ -42,6 +42,7 @@ bool sound = false;
 Rect playerSprite = Rect(0, 0, 1, 1);
 Rect playerSpriteUp = Rect(0, 2, 1, 1);
 Rect playerSpriteDown = Rect(0, 1, 1, 1);
+Rect bombSprite = Rect(6, 0, 1, 1);
 
 int8_t spriteSize = 16;
 
@@ -51,12 +52,24 @@ int viewX = 0;
 
 int viewPortX = 0;
 
+struct Projectile
+{
+    Rect sprite;
+    Point location;
+    uint8_t transform = 0;
+    int16_t lifetime = 500;
+    int16_t vel_x = 0;
+    int16_t vel_y = 0;
+};
+
+static std::vector<Projectile> projectiles;
+
 struct Movement
 {
-    uint8_t xMovement = 0;
-    uint8_t yMovement = 0;
-    int8_t movementCount = 0;
-    int8_t movementDelay = 20;
+    int8_t xMovement = 0;
+    int8_t yMovement = 0;
+    uint8_t movementCount = 0;
+    uint8_t movementDelay = 20;
 
 };
 
@@ -176,15 +189,6 @@ void StartGame()
 
 void EndGame()
 {
-    //if (sound == true)
-    //{
-    //    arduboy.tunes.tone(200, 200);
-    //    delay(400);
-    //    arduboy.tunes.tone(100, 400);
-    //    delay(600);
-    //    arduboy.tunes.tone(50, 2000);
-    //}
-
     gameState = 'E';
 }
 
@@ -238,6 +242,16 @@ void render(uint32_t time) {
         {
             screen.sprite(player.sprite, player.location, Point(0, 0), Vec2(2, 2), 1);
         }
+
+        for (const Projectile& projectile : projectiles)
+        {
+            screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
+        }
+
+        /*for (const Npc& npc : npcs)
+        {
+            screen.sprite(npc.sprite, npc.location, Point(0, 0), Vec2(2, 2));
+        }*/
     
         //screen.text("Score ", minimal_font, Point(63, 0));
 
@@ -301,6 +315,38 @@ void render(uint32_t time) {
     
 }
 
+void updateProjectiles()
+{
+    auto projectile = projectiles.begin();
+
+    while (projectile != projectiles.end()) {
+
+        /*auto npc = npcs.begin();
+
+        while (npc != npcs.end()) {
+            auto hit = is_Point_in_Rect(projectile->location, Rect(npc->location, Size(sprite_width, sprite_width)));
+            if (hit)
+            {
+                npc = npcs.erase(npc);
+                projectile->lifetime = 0;
+            }
+            else ++npc;
+        }*/
+
+        projectile->lifetime--;
+        projectile->location.x += projectile->vel_x;
+        projectile->location.y += projectile->vel_y;
+
+        auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
+
+        if (projectile->lifetime == 0)
+        {
+            projectile = projectiles.erase(projectile);
+        }
+        else ++projectile;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // update(time)
@@ -334,86 +380,80 @@ void update(uint32_t time) {
 
     if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
         xChange -= 1;
-        newPlayerLocation.x -= 1;
+        newPlayerLocation.x -= 16;
     }
-    if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
+    else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
         xChange += 1;
-        newPlayerLocation.x += 1;
+        newPlayerLocation.x += 16;
     }
-    if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
+    else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
         yChange -= 1;
-        newPlayerLocation.y -= 1;
+        newPlayerLocation.y -= 16;
     }
-    if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
+    else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
         yChange += 1;
-        newPlayerLocation.y += 1;
+        newPlayerLocation.y += 16;
     }
+	
     if (blit::buttons & blit::Button::B)
     {
         if (player.can_fire)
         {
-            //player.can_fire = false;
-            //player.canFireTimeout = player.fire_delay;
-            //Projectile newProjectile;
+            player.can_fire = false;
+            player.canFireTimeout = player.fire_delay;
+            Projectile newProjectile;
 
-            //switch (player.aim)
-            //{
-            //case 1:
-            //    newProjectile.vel_x = -1;
-            //    newProjectile.vel_y = 1;
+            /*switch (player.aim)
+            {
+            case 1:
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = 1;
 
-            //    break;
-            //case 2:
-            //    newProjectile.vel_x = 0;
-            //    newProjectile.vel_y = 1;
-            //    break;
-            //case 3:
-            //    newProjectile.vel_x = 1;
-            //    newProjectile.vel_y = 1;
-            //    newProjectile.transform = SpriteTransform::VERTICAL;
-            //    break;
-            //case 4:
-            //    newProjectile.vel_x = -1;
-            //    newProjectile.vel_y = 0;
-            //    newProjectile.transform = SpriteTransform::R90;
-            //    break;
-            //case 6:
-            //    newProjectile.vel_x = 1;
-            //    newProjectile.vel_y = 0;
-            //    newProjectile.transform = SpriteTransform::R90;
-            //    break;
-            //case 7:
-            //    newProjectile.vel_x = -1;
-            //    newProjectile.vel_y = -1;
-            //    newProjectile.transform = SpriteTransform::VERTICAL;
-            //    break;
-            //case 8:
-            //    newProjectile.vel_x = 0;
-            //    newProjectile.vel_y = -1;
-            //    break;
-            //case 9:
-            //    newProjectile.vel_x = 1;
-            //    newProjectile.vel_y = -1;
+                break;
+            case 2:
+                newProjectile.vel_x = 0;
+                newProjectile.vel_y = 1;
+                break;
+            case 3:
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = 1;
+                newProjectile.transform = SpriteTransform::VERTICAL;
+                break;
+            case 4:
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = 0;
+                newProjectile.transform = SpriteTransform::R90;
+                break;
+            case 6:
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = 0;
+                newProjectile.transform = SpriteTransform::R90;
+                break;
+            case 7:
+                newProjectile.vel_x = -1;
+                newProjectile.vel_y = -1;
+                newProjectile.transform = SpriteTransform::VERTICAL;
+                break;
+            case 8:
+                newProjectile.vel_x = 0;
+                newProjectile.vel_y = -1;
+                break;
+            case 9:
+                newProjectile.vel_x = 1;
+                newProjectile.vel_y = -1;
 
-            //    break;
-            //default: break;
-            //}
+                break;
+            default: break;
+            }*/
 
-            //if (newProjectile.vel_x == 0 || newProjectile.vel_y == 0)
-            //{
-            //    newProjectile.sprite = proj_2;
-            //}
-            //else
-            //{
-            //    newProjectile.sprite = proj_2_d;
-            //}
-            ///*            new_projectile.location.x = player.location. x + sprite_width / 4;
-            //            new_projectile.location.y = player.location.y + sprite_width / 4;*/
+            newProjectile.sprite = bombSprite;
+            /*            new_projectile.location.x = player.location. x + sprite_width / 4;
+                        new_projectile.location.y = player.location.y + sprite_width / 4;*/
 
-            //newProjectile.location.x = player.location.x;
-            //newProjectile.location.y = player.location.y;
+            newProjectile.location.x = player.location.x;
+            newProjectile.location.y = player.location.y;
 
-            //projectiles.push_back(newProjectile);
+            projectiles.push_back(newProjectile);
         }
     }
 
@@ -425,8 +465,14 @@ void update(uint32_t time) {
     {
         if (currentTileData.canMove)
         {
-            player.location.x += (xChange);
-            player.location.y += (yChange);
+            //player.location.x += (xChange);
+            //player.location.y += (yChange);
+            if(player.currentMovement.movementCount == 0)
+            {
+                player.currentMovement.movementCount = 16;
+                player.currentMovement.xMovement = xChange;
+                player.currentMovement.yMovement = yChange;
+            }
 
             if (yChange > 0 && xChange == 0)
             {
@@ -471,6 +517,14 @@ void update(uint32_t time) {
             player.dir = 'l';
         }
     }
+
+	if(player.currentMovement.movementCount > 0)
+	{
+        player.currentMovement.movementCount--;
+
+        player.location.x += player.currentMovement.xMovement;
+        player.location.y += player.currentMovement.yMovement;
+	}
 
 
     lastButtons = blit::buttons;
