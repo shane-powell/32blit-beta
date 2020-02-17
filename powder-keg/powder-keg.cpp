@@ -51,16 +51,25 @@ int viewX = 0;
 
 int viewPortX = 0;
 
+struct Movement
+{
+    uint8_t xMovement = 0;
+    uint8_t yMovement = 0;
+    int8_t movementCount = 0;
+    int8_t movementDelay = 20;
+
+};
 
 struct Player
 {
     Rect sprite = playerSprite;
     char dir = 'r';
     int8_t aim = 6;
-    Point location = Point(32, 20);
+    Point location = Point(16, 16);
     bool can_fire = true;
     int16_t canFireTimeout = 0;
     int16_t fire_delay = 20;
+    Movement currentMovement;
 };
 
 struct Tile_Data
