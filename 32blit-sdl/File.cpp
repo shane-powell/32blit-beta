@@ -5,6 +5,7 @@
 #include "shlobj.h"
 #else
 #include <dirent.h>
+#include <sys/stat.h>
 #endif
 
 #include "SDL.h"
@@ -49,6 +50,14 @@ int32_t read_file(uint32_t fh, uint32_t offset, uint32_t length, char *buffer) {
 
 int32_t close_file(uint32_t fh) {
   return SDL_RWclose(open_files[fh]) == 0 ? 0 : -1;
+}
+
+uint32_t get_file_length(uint32_t fh)
+{
+  auto file = open_files[fh];
+  SDL_RWseek(file, 0, RW_SEEK_END);
+
+  return SDL_RWtell(file);
 }
 
 std::vector<blit::FileInfo> list_files(std::string path) {
@@ -99,7 +108,13 @@ std::vector<blit::FileInfo> list_files(std::string path) {
 
     info.flags = 0;
 
-    if(ent->d_type == DT_DIR)
+    if(ent->d_type == DT_LNK) {
+      // lookup link target
+      struct stat stat_buf;
+  
+      if(stat(ent->d_name, &stat_buf) >= 0 && S_ISDIR(stat_buf.st_mode))
+        info.flags |= blit::FileFlags::directory;
+    } else if(ent->d_type == DT_DIR)
       info.flags |= blit::FileFlags::directory;
 
     ret.push_back(info);
