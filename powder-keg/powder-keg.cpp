@@ -57,12 +57,25 @@ struct Projectile
     Rect sprite;
     Point location;
     uint8_t transform = 0;
-    int16_t lifetime = 500;
+    int16_t lifetime = 300;
     int16_t vel_x = 0;
     int16_t vel_y = 0;
 };
 
+struct Explosion
+{
+    Point origin;
+    uint8_t lengthUp = 0;
+    uint8_t lengthDown = 0;
+    uint8_t lengthLeft = 0;
+    uint8_t lengthRight = 0;
+    int16_t  lifeTime = 300;
+
+};
+
 static std::vector<Projectile> projectiles;
+
+static std::vector<Explosion> explosions;
 
 struct Movement
 {
@@ -339,7 +352,7 @@ void updateProjectiles()
 
         auto projTileData = getLocalTileData(projectile->location, sprite_width, tilemap_width);
 
-        if (projectile->lifetime == 0)
+        if (projectile->lifetime <= 0)
         {
             projectile = projectiles.erase(projectile);
         }
@@ -356,8 +369,8 @@ void updateProjectiles()
 //
 void update(uint32_t time) {
 
-    /*updateProjectiles();
-    updateNpcs();*/
+    updateProjectiles();
+    //updateNpcs();
 
     static uint16_t lastButtons = 0;
     uint16_t changed = blit::buttons ^ lastButtons;
