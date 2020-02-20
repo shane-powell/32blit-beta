@@ -43,6 +43,8 @@ Rect playerSprite = Rect(0, 0, 1, 1);
 Rect playerSpriteUp = Rect(0, 2, 1, 1);
 Rect playerSpriteDown = Rect(0, 1, 1, 1);
 Rect bombSprite = Rect(6, 0, 1, 1);
+Rect explosionCore = Rect(7, 0, 1, 1);
+Rect explosionLine = Rect(8, 0, 1, 1);
 
 int8_t spriteSize = 16;
 
@@ -64,6 +66,7 @@ struct Projectile
 
 struct Explosion
 {
+    //Rect sprite;
     Point origin;
     uint8_t lengthUp = 0;
     uint8_t lengthDown = 0;
@@ -140,7 +143,7 @@ uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile
         vertical_location += 1;
     }
 
-    const uint16_t array_location = horizontal_location + vertical_location - 1;
+    const uint16_t array_location = horizontal_location + vertical_location; //- 1;
 
     return array_location;
 }
@@ -155,16 +158,37 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
         {
             const auto array_location = get_tile_from_Point(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
             const uint8_t tile_scanned = layer_world[array_location];
-            if (tile_scanned == 0)
+
+            switch (tile_scanned)
             {
-                tile_data.canMove = false;
-                //return false;
+	            case 48:
+	            case 49:
+	            case 50:
+	            case 51:
+	            case 52:
+                case 64:
+                case 68:
+                case 80:
+                case 81:
+                case 82:
+                case 83:
+                case 84:
+                    tile_data.canMove = false;
+            	break;
+                default:
+            	break;
             }
-            else if (tile_scanned == 4)
-            {
-                tile_data.movement_modifier = 0.5;
-                tile_data.pixels_in_water += 1;
-            }
+        	
+            //if (tile_scanned == 0)
+            //{
+            //    tile_data.canMove = false;
+            //    //return false;
+            //}
+            //else if (tile_scanned == 4)
+            //{
+            //    tile_data.movement_modifier = 0.5;
+            //    tile_data.pixels_in_water += 1;
+            //}
 
         }
     }
@@ -261,6 +285,31 @@ void render(uint32_t time) {
             screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
         }
 
+        for (const Explosion& explosion : explosions)
+        {
+            screen.sprite(explosionCore, explosion.origin, Point(0, 0), Vec2(2, 2));
+
+        	for (int i = 1; i < explosion.lengthRight; i++)
+        	{
+                screen.sprite(explosionLine, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+        	}
+
+            for (int i = 1; i < explosion.lengthLeft; i++)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+            }
+
+            for (int i = 1; i < explosion.lengthUp; i++)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), 1);
+            }
+
+            for (int i = 1; i < explosion.lengthDown; i++)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), 1);
+            }
+        }
+
         /*for (const Npc& npc : npcs)
         {
             screen.sprite(npc.sprite, npc.location, Point(0, 0), Vec2(2, 2));
@@ -354,9 +403,80 @@ void updateProjectiles()
 
         if (projectile->lifetime <= 0)
         {
+            Explosion explosion;
+            explosion.origin = projectile->location;
+
+            bool canMove = true;
+
+            while (canMove)
+            {
+                Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)));
+                const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
+                canMove = tileData.canMove;
+                if (canMove)
+                {
+                    explosion.lengthRight++;
+                }
+            }
+
+            canMove = true;
+
+            while (canMove)
+            {
+                Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthRight + 1)));
+                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+                if (canMove)
+                {
+                    explosion.lengthLeft++;
+                }
+            }
+
+            canMove = true;
+
+            while (canMove)
+            {
+                Point point = Point(explosion.origin.y + (sprite_width * (explosion.lengthRight + 1)));
+                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+                if (canMove)
+                {
+                    explosion.lengthUp ++;
+                }
+            }
+
+            canMove = true;
+
+            while (canMove)
+            {
+                Point point = Point(explosion.origin.y - (sprite_width * (explosion.lengthRight + 1)));
+                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+                if (canMove)
+                {
+                    explosion.lengthDown ++;
+                }
+            }            
+
+        	
             projectile = projectiles.erase(projectile);
+
+            explosions.push_back(explosion);
+        	
         }
         else ++projectile;
+    }
+
+    auto explosion = explosions.begin();
+
+    while (explosion != explosions.end())
+    {
+        explosion->lifeTime--;
+	    if (explosion->lifeTime <= 0)
+	    {
+            explosion = explosions.erase(explosion);
+	    }
+        else
+        {
+            ++explosion;
+        }
     }
 }
 
