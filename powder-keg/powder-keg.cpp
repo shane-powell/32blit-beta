@@ -301,12 +301,12 @@ void render(uint32_t time) {
 
             for (int i = 1; i < explosion.lengthUp; i++)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), 2);
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R90);
             }
 
             for (int i = 1; i < explosion.lengthDown; i++)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), 2);
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R90);
             }
         }
 
