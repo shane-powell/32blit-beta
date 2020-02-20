@@ -301,12 +301,12 @@ void render(uint32_t time) {
 
             for (int i = 1; i < explosion.lengthUp; i++)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), 1);
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), 2);
             }
 
             for (int i = 1; i < explosion.lengthDown; i++)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), 1);
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), 2);
             }
         }
 
@@ -410,7 +410,7 @@ void updateProjectiles()
 
             while (canMove)
             {
-                Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)));
+                Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)),explosion.origin.y);
                 const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
                 canMove = tileData.canMove;
                 if (canMove)
@@ -423,7 +423,7 @@ void updateProjectiles()
 
             while (canMove)
             {
-                Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthRight + 1)));
+                Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.origin.y);
                 canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
                 if (canMove)
                 {
@@ -435,7 +435,7 @@ void updateProjectiles()
 
             while (canMove)
             {
-                Point point = Point(explosion.origin.y + (sprite_width * (explosion.lengthRight + 1)));
+                Point point = Point(explosion.origin.y + (sprite_width * (explosion.lengthUp + 1)), explosion.origin.x);
                 canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
                 if (canMove)
                 {
@@ -447,7 +447,7 @@ void updateProjectiles()
 
             while (canMove)
             {
-                Point point = Point(explosion.origin.y - (sprite_width * (explosion.lengthRight + 1)));
+                Point point = Point(explosion.origin.y - (sprite_width * (explosion.lengthDown + 1)), explosion.origin.x);
                 canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
                 if (canMove)
                 {
@@ -455,10 +455,10 @@ void updateProjectiles()
                 }
             }            
 
-        	
-            projectile = projectiles.erase(projectile);
-
+        	          
             explosions.push_back(explosion);
+
+            projectile = projectiles.erase(projectile);
         	
         }
         else ++projectile;
