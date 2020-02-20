@@ -45,6 +45,7 @@ Rect playerSpriteDown = Rect(0, 1, 1, 1);
 Rect bombSprite = Rect(6, 0, 1, 1);
 Rect explosionCore = Rect(7, 0, 1, 1);
 Rect explosionLine = Rect(8, 0, 1, 1);
+Rect explosionEnd = Rect(9, 0, 1, 1);
 
 int8_t spriteSize = 16;
 
@@ -117,9 +118,9 @@ Tile_Data currentTileData;
 
 int score = 0;
 
-bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type bounding_Rectangle)
+bool is_Point_in_Rect(const Point& pointToCheck, std::vector<Rect>::value_type bounding_Rectangle)
 {
-    if (object_origin.x + sprite_width >= bounding_Rectangle.x && object_origin.x <= bounding_Rectangle.x + bounding_Rectangle.w && object_origin.y + sprite_width > bounding_Rectangle.y&& object_origin.y < bounding_Rectangle.y + bounding_Rectangle.h)
+    if (pointToCheck.x + sprite_width >= bounding_Rectangle.x && pointToCheck.x <= bounding_Rectangle.x + bounding_Rectangle.w && pointToCheck.y + sprite_width > bounding_Rectangle.y&& pointToCheck.y < bounding_Rectangle.y + bounding_Rectangle.h)
     {
         return true;
     }
@@ -127,11 +128,11 @@ bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type 
     return false;
 }
 
-uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile_map_width)
+uint16_t getTileFromPoint(const Point& Point, uint8_t tile_size, uint8_t tile_map_width)
 {
     uint16_t horizontal_location = Point.x / tile_size;
 
-    if (Point.x % tile_size > 0)
+    if (Point.x % tile_size)
     {
         horizontal_location += 1;
     }
@@ -143,7 +144,7 @@ uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile
         vertical_location += 1;
     }
 
-    const uint16_t array_location = horizontal_location + vertical_location; //- 1;
+    const uint16_t array_location = horizontal_location + vertical_location;
 
     return array_location;
 }
@@ -156,7 +157,7 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
     {
         for (auto x = 0; x < sprite_width; x++)
         {
-            const auto array_location = get_tile_from_Point(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
+            const auto array_location = getTileFromPoint(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
             const uint8_t tile_scanned = layer_world[array_location];
 
             switch (tile_scanned)
@@ -243,6 +244,63 @@ void init() {
     world.sprites = screen.sprites;
 }
 
+void RenderExplosions()
+{
+	for (const Explosion& explosion : explosions)
+	{
+		screen.sprite(explosionCore, explosion.origin, Point(0, 0), Vec2(2, 2));
+
+		for (int i = 1; i <= explosion.lengthRight; i++)
+		{
+			if(i < explosion.lengthRight)
+			{
+                screen.sprite(explosionLine, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+			}
+            else
+            {
+                screen.sprite(explosionEnd, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+            }
+		}
+
+		for (int i = 1; i <= explosion.lengthLeft; i++)
+		{
+            if (i < explosion.lengthLeft)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+            }
+            else
+            {
+                screen.sprite(explosionEnd, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2), SpriteTransform::R180);
+
+            }
+		}
+
+		for (int i = 1; i <= explosion.lengthDown; i++)
+		{
+            if (i < explosion.lengthDown)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+            }
+            else
+            {
+                screen.sprite(explosionEnd, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R90);
+            }
+		}
+
+		for (int i = 1; i <= explosion.lengthUp; i++)
+		{
+            if (i < explosion.lengthUp)
+            {
+                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+            }
+            else
+            {
+                screen.sprite(explosionEnd, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+            }
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // render(time)
@@ -255,6 +313,8 @@ void render(uint32_t time) {
     // clear the screen -- screen is a reference to the frame buffer and can be used to draw all things with the 32blit
     screen.clear();
 
+
+	
     // draw some text at the top of the screen
     screen.alpha = 255;
     screen.mask = nullptr;
@@ -263,12 +323,10 @@ void render(uint32_t time) {
     screen.pen = Pen(0, 0, 0);
     //screen.text("Hello 32blit!", minimal_font, Point(5, 4));
     if (gameState == 'G') {
-        //DrawFrame();
         DrawWorld();
     	
         screen.pen = Pen(255, 255, 0);
 
-        //screen.pixel(player.location);
         screen.sprite(player.sprite, player.location,Point(0, 0), Vec2(2, 2));
 
         if (player.dir == 'R')
@@ -285,30 +343,7 @@ void render(uint32_t time) {
             screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
         }
 
-        for (const Explosion& explosion : explosions)
-        {
-            screen.sprite(explosionCore, explosion.origin, Point(0, 0), Vec2(2, 2));
-
-        	for (int i = 1; i < explosion.lengthRight; i++)
-        	{
-                screen.sprite(explosionLine, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
-        	}
-
-            for (int i = 1; i < explosion.lengthLeft; i++)
-            {
-                screen.sprite(explosionLine, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
-            }
-
-            for (int i = 1; i < explosion.lengthUp; i++)
-            {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
-            }
-
-            for (int i = 1; i < explosion.lengthDown; i++)
-            {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
-            }
-        }
+        RenderExplosions();
 
         /*for (const Npc& npc : npcs)
         {
@@ -377,6 +412,64 @@ void render(uint32_t time) {
     
 }
 
+void CreateExplosion(std::vector<Projectile>::iterator projectile)
+{
+	Explosion explosion;
+	explosion.origin = projectile->location;
+
+	bool canMove = true;
+
+	while (canMove)
+	{
+		Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)),explosion.origin.y);
+		const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
+		canMove = tileData.canMove;
+		if (canMove)
+		{
+			explosion.lengthRight++;
+		}
+	}
+
+	canMove = true;
+
+	while (canMove)
+	{
+		Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.origin.y);
+		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+		if (canMove)
+		{
+			explosion.lengthLeft++;
+		}
+	}
+
+	canMove = true;
+
+	while (canMove)
+	{
+		Point point = Point(explosion.origin.x, explosion.origin.y + (sprite_width * (explosion.lengthDown + 1)));
+		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+		if (canMove)
+		{
+			explosion.lengthDown ++;
+		}
+	}
+
+	canMove = true;
+
+	while (canMove)
+	{
+		Point point = Point(explosion.origin.x, explosion.origin.y - (sprite_width * (explosion.lengthUp + 1)));
+		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+		if (canMove)
+		{
+			explosion.lengthUp++;
+		}
+	}            
+
+        	          
+	explosions.push_back(explosion);
+}
+
 void updateProjectiles()
 {
     auto projectile = projectiles.begin();
@@ -403,60 +496,7 @@ void updateProjectiles()
 
         if (projectile->lifetime <= 0)
         {
-            Explosion explosion;
-            explosion.origin = projectile->location;
-
-            bool canMove = true;
-
-            while (canMove)
-            {
-                Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)),explosion.origin.y);
-                const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
-                canMove = tileData.canMove;
-                if (canMove)
-                {
-                    explosion.lengthRight++;
-                }
-            }
-
-            canMove = true;
-
-            while (canMove)
-            {
-                Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.origin.y);
-                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
-                if (canMove)
-                {
-                    explosion.lengthLeft++;
-                }
-            }
-
-            canMove = true;
-
-            while (canMove)
-            {
-                Point point = Point(explosion.origin.y + (sprite_width * (explosion.lengthUp + 1)), explosion.origin.x);
-                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
-                if (canMove)
-                {
-                    explosion.lengthUp ++;
-                }
-            }
-
-            canMove = true;
-
-            while (canMove)
-            {
-                Point point = Point(explosion.origin.y - (sprite_width * (explosion.lengthDown + 1)), explosion.origin.x);
-                canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
-                if (canMove)
-                {
-                    explosion.lengthDown ++;
-                }
-            }            
-
-        	          
-            explosions.push_back(explosion);
+            CreateExplosion(projectile);
 
             projectile = projectiles.erase(projectile);
         	
@@ -530,7 +570,7 @@ void update(uint32_t time) {
 	
     if (blit::buttons & blit::Button::B)
     {
-        if (player.can_fire)
+        if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
         {
             player.can_fire = false;
             player.canFireTimeout = player.fire_delay;
