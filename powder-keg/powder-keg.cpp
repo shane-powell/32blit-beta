@@ -132,10 +132,10 @@ uint16_t getTileFromPoint(const Point& Point, uint8_t tile_size, uint8_t tile_ma
 {
     uint16_t horizontal_location = Point.x / tile_size;
 
-    if (Point.x % tile_size)
-    {
-        horizontal_location += 1;
-    }
+//    if (Point.x % tile_size)
+//    {
+//        horizontal_location += 1;
+//    }
 
     uint16_t vertical_location = (Point.y / tile_size) * tile_map_width;
 
