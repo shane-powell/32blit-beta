@@ -53,6 +53,8 @@ Rect pirateSpriteSide = Rect(1, 6, 1, 2);
 Rect pirateSpriteUp = Rect(1, 10, 1, 2);
 Rect pirateSpriteDown = Rect(1, 8, 1, 2);
 
+Rect chestSprite = Rect(1,0,1,1);
+
 int8_t spriteSize = 16;
 
 int viewX = 0;
@@ -82,6 +84,14 @@ struct Explosion
     int16_t  lifeTime = 300;
 
 };
+
+struct Block
+{
+    Point position;
+    Rect sprite = chestSprite;
+};
+
+static std::vector<Block> blocks;
 
 static std::vector<Projectile> projectiles;
 
