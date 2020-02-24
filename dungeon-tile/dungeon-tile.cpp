@@ -117,10 +117,10 @@ uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile
 {	
     uint16_t horizontal_location = Point.x / tile_size;
 
-    if (Point.x % tile_size > 0)
-    {
-        horizontal_location += 1;
-    }
+    //    if (Point.x % tile_size)
+    //    {
+    //        horizontal_location += 1;
+    //    }
 
     uint16_t vertical_location = (Point.y / tile_size) * tile_map_width;
 
@@ -129,7 +129,7 @@ uint16_t get_tile_from_Point(const Point& Point, uint8_t tile_size, uint8_t tile
         vertical_location += 1;
     }
 
-    const uint16_t array_location = horizontal_location + vertical_location - 1;
+    const uint16_t array_location = horizontal_location + vertical_location;
 
     return array_location;
 }
