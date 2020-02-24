@@ -3,8 +3,27 @@
 using namespace blit;
 
 static uint8_t layer_world[] = {
-  48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 0, 0, 0, 0, 0, 0, 26, 27, 28, 29, 30, 52,
-  64, 17, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
+  64, 17, 66, 66, 66, 01, 01, 66, 01, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+  64, 65, 01, 01, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 66, 65, 66, 35, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 01, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 01, 36, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 36, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 01, 66, 66, 66, 66, 66, 36, 36, 66, 66, 36, 36, 66, 66, 65, 66, 66, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 01, 66, 66, 66, 66, 66, 36, 66, 66, 66, 66, 36, 66, 66, 66, 66, 66, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 01, 66, 66, 65, 66, 66, 66, 66, 66, 65, 66, 66, 66, 66, 66, 66, 66, 66, 68, 00, 65, 66, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 66, 66, 66, 36, 66, 66, 66, 66, 36, 66, 66, 66, 66, 66, 66, 68, 00, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66,
+  64, 66, 66, 66, 35, 66, 66, 36, 36, 66, 66, 36, 36, 66, 66, 65, 66, 66, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 36, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 36, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 00, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 33, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 17, 66, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
+  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
+  80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+  00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+};
+
+static uint8_t blockLayer[] = {
+  48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
+  64, 17, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
   64, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 35, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 36, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
@@ -17,8 +36,8 @@ static uint8_t layer_world[] = {
   64, 66, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 33, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 17, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
   64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
-  80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+  00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
 };
 
 const uint8_t sprite_width = 16;
@@ -81,7 +100,7 @@ struct Explosion
     uint8_t lengthDown = 0;
     uint8_t lengthLeft = 0;
     uint8_t lengthRight = 0;
-    int16_t  lifeTime = 300;
+    int16_t  lifeTime = 200;
 
 };
 
@@ -120,18 +139,21 @@ struct Player
     Movement currentMovement;
 };
 
-struct Tile_Data
+struct TileData
 {
+    uint8_t id = 0;
+    uint16_t index = 0;
     bool canMove = true;
     uint16_t pixels_in_water = 0;
     bool in_water = false;
     float movement_modifier = 0;
     float life_modifier = 0;
+    //TileData();
 };
 
 Player player;
 
-Tile_Data currentTileData;
+// TileData currentTileData = TileData(0);
 
 
 int score = 0;
@@ -167,18 +189,21 @@ uint16_t getTileFromPoint(const Point& Point, uint8_t tile_size, uint8_t tile_ma
     return array_location;
 }
 
-Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width)
+TileData getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width)
 {
-    Tile_Data tile_data;
+    TileData tileData;
 
     for (auto y = 0; y < sprite_width; y++)
     {
         for (auto x = 0; x < sprite_width; x++)
         {
             const auto array_location = getTileFromPoint(Point(Point_to_check.x + x, Point_to_check.y + y), tile_size, tile_map_width);
-            const uint8_t tile_scanned = layer_world[array_location];
+            const uint8_t tileScanned = layer_world[array_location];
 
-            switch (tile_scanned)
+            tileData.id = tileScanned;
+            tileData.index = array_location;
+        	
+            switch (tileScanned)
             {
 	            case 48:
 	            case 49:
@@ -193,7 +218,8 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
                 case 83:
                 case 84:
                 case 36:
-                    tile_data.canMove = false;
+                case 01:
+                    tileData.canMove = false;
             	break;
                 default:
             	break;
@@ -213,12 +239,12 @@ Tile_Data getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8
         }
     }
 
-    if (tile_data.pixels_in_water > (sprite_width * sprite_width / 2))
+    if (tileData.pixels_in_water > (sprite_width * sprite_width / 2))
     {
-        tile_data.in_water = true;
+        tileData.in_water = true;
     }
 
-    return tile_data;
+    return tileData;
 }
 
 void DrawWorld()
@@ -320,6 +346,33 @@ void RenderExplosions()
 	}
 }
 
+void RenderPlayers()
+{
+	if (player.dir == 'r')
+	{
+		screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2));
+	}
+	else if (player.dir == 'l')
+	{
+		screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2), 1);
+	}
+	else if (player.dir == 'u')
+	{
+		screen.sprite(player.spriteUp, player.location, Point(0, 8), Vec2(2, 2));
+
+	}
+	else if (player.dir == 'd')
+	{
+		screen.sprite(player.spriteDown, player.location, Point(0, 8), Vec2(2, 2));
+
+	}
+
+	for (const Projectile& projectile : projectiles)
+	{
+		screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // render(time)
@@ -350,31 +403,9 @@ void render(uint32_t time) {
 
         //screen.sprite(ninjaSpriteSide, player.location, Point(0, 8), Vec2(2, 2));
     	
-        if (player.dir == 'r')
-        {
-            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2));
-        }
-        else if (player.dir == 'l')
-        {
-            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2), 1);
-        }
-		else if (player.dir == 'u')
-		{
-            screen.sprite(player.spriteUp, player.location, Point(0, 8), Vec2(2, 2));
-
-		}
-        else if (player.dir == 'd')
-        {
-            screen.sprite(player.spriteDown, player.location, Point(0, 8), Vec2(2, 2));
-
-        }
-
-        for (const Projectile& projectile : projectiles)
-        {
-            screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
-        }
-
         RenderExplosions();
+
+        RenderPlayers();
 
         /*for (const Npc& npc : npcs)
         {
@@ -443,6 +474,17 @@ void render(uint32_t time) {
     
 }
 
+void CheckExplosionTileData(bool& canMove, Point point)
+{
+	const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
+	canMove = tileData.canMove;
+		
+	if(tileData.id == 1)
+	{
+		layer_world[tileData.index] = 66;
+	}
+}
+
 void CreateExplosion(std::vector<Projectile>::iterator projectile)
 {
 	Explosion explosion;
@@ -453,8 +495,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 	while (canMove)
 	{
 		Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)),explosion.origin.y);
-		const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
-		canMove = tileData.canMove;
+		CheckExplosionTileData(canMove, point);
+		
 		if (canMove)
 		{
 			explosion.lengthRight++;
@@ -466,7 +508,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 	while (canMove)
 	{
 		Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.origin.y);
-		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+        CheckExplosionTileData(canMove, point);
+		
 		if (canMove)
 		{
 			explosion.lengthLeft++;
@@ -478,7 +521,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 	while (canMove)
 	{
 		Point point = Point(explosion.origin.x, explosion.origin.y + (sprite_width * (explosion.lengthDown + 1)));
-		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+        CheckExplosionTileData(canMove, point);
+
 		if (canMove)
 		{
 			explosion.lengthDown ++;
@@ -490,7 +534,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 	while (canMove)
 	{
 		Point point = Point(explosion.origin.x, explosion.origin.y - (sprite_width * (explosion.lengthUp + 1)));
-		canMove = getLocalTileData(point, sprite_width, tilemap_width).canMove;
+        CheckExplosionTileData(canMove, point);
+
 		if (canMove)
 		{
 			explosion.lengthUp++;
@@ -663,7 +708,7 @@ void update(uint32_t time) {
 
     bool move_ok = true;
 
-    currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
+    const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
 
     if (xChange != 0 || yChange != 0)
     {
