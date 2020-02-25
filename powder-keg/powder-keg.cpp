@@ -166,6 +166,8 @@ struct Player
     int16_t canFireTimeout = 0;
     int16_t fire_delay = 20;
     Movement currentMovement;
+    Point spawnLocation = Point(16, 16);
+    bool alive = true;
 };
 
 static std::vector<Player> players;
