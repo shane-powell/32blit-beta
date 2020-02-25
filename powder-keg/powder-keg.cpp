@@ -100,7 +100,7 @@ struct Explosion
     uint8_t lengthDown = 0;
     uint8_t lengthLeft = 0;
     uint8_t lengthRight = 0;
-    int16_t  lifeTime = 200;
+    int16_t  lifeTime = 50;
 
 };
 
@@ -344,12 +344,11 @@ void RenderTileAnimations()
     auto tile = tileAnimations.begin();
 
     while (tile != tileAnimations.end()) {
-    	
-        auto currentFrame = tile->animationFrames[tile->frameIndex];
+	    const auto currentFrame = tile->animationFrames[tile->frameIndex];
     	
         layer_world[tile->tileIndex] = currentFrame.tileId;
 
-        currentFrame.frameCount++;
+        tile->animationFrames[tile->frameIndex].frameCount++;
 
     	if(currentFrame.frameCount >= currentFrame.frameLength)
     	{
@@ -359,7 +358,7 @@ void RenderTileAnimations()
     		}
             else
             {
-                tile->tileIndex++;
+                tile->frameIndex++;
             }
     	}
     	
@@ -561,8 +560,8 @@ void CreateChestExplosion(const TileData tileData)
 {
 	TileAnimation animation = TileAnimation(tileData.index);
 		
-	animation.animationFrames.emplace_back(17, 5);
-	animation.animationFrames.emplace_back(33, 5);
+	animation.animationFrames.emplace_back(17, 10);
+	animation.animationFrames.emplace_back(33, 10);
     animation.animationFrames.emplace_back(66, 1);
 
     tileAnimations.push_back(animation);
