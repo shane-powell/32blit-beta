@@ -249,6 +249,8 @@ TileData getLocalTileData(const Point& Point_to_check, uint8_t tile_size, uint8_
         	
             switch (tileScanned)
             {
+				case 17:
+				case 33:
 	            case 48:
 	            case 49:
 	            case 50:
