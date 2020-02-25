@@ -168,6 +168,7 @@ struct Player
     Movement currentMovement;
     Point spawnLocation = Point(16, 16);
     bool alive = true;
+    uint16_t respawnTimer = 1000;
 };
 
 static std::vector<Player> players;
@@ -444,11 +445,6 @@ void RenderPlayers()
 
         }
 
-        for (const Projectile& projectile : projectiles)
-        {
-            screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
-        }
-
         ++p;
     }
 	
@@ -486,6 +482,11 @@ void render(uint32_t time) {
         RenderExplosions();
 
         RenderPlayers();
+
+        for (const Projectile& projectile : projectiles)
+        {
+            screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
+        }
 
 
         /*for (const Npc& npc : npcs)
@@ -587,19 +588,24 @@ void CheckIfExplosionHitPlayer(bool& canMove, const Point& point)
     while (p != players.end()) {
 	    const auto hit = is_Point_in_Rect(point, Rect(p->location, Size(16, 16)));
 
-    	if(hit)
-    	{
-            p = players.erase(p);
-            canMove = false;
-    	}
-        else
+	    if(p->alive && hit)
         {
-            ++p;
+	        p->alive = false;
         }
+        ++p;
+
     }
-	
-    const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
-    canMove = tileData.canMove;
+
+//    	if(hit)
+//    	{
+//            p = players.erase(p);
+//            canMove = false;
+//    	}
+//        else
+//        {
+//            ++p;
+//        }
+
 }
 
 
@@ -742,6 +748,19 @@ void update(uint32_t time) {
 
     int16_t xChange = 0;
     int16_t yChange = 0;
+
+    if(!player.alive)
+    {
+        if(player.respawnTimer == 0)
+        {
+            player.location = player.spawnLocation;
+            player.alive = true;
+            player.respawnTimer = 1000;
+        } else
+        {
+            player.respawnTimer --;
+        }
+    }
 
     Point newPlayerLocation = player.location;
 
