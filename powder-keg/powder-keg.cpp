@@ -21,25 +21,6 @@ static uint8_t layer_world[] = {
   00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
 };
 
-//static uint8_t blockLayer[] = {
-//  48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
-//  64, 17, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
-//  64, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 35, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 36, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 66, 66, 66, 66, 66, 36, 36, 66, 66, 36, 36, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 66, 66, 66, 66, 66, 36, 66, 66, 66, 66, 36, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 65, 66, 66, 65, 66, 66, 66, 66, 66, 65, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 66, 66, 66, 66, 66, 36, 66, 66, 66, 66, 36, 66, 66, 66, 66, 66, 66, 68, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66,
-//  64, 66, 66, 66, 35, 66, 66, 36, 36, 66, 66, 36, 36, 66, 66, 65, 66, 66, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 36, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 65, 66, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 66, 68, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 33, 66, 66, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 17, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
-//  64, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 68, 65, 65, 65, 65, 66, 65, 65, 65, 65, 65, 65, 65,
-//  80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
-//  00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
-//};
-
 const uint8_t sprite_width = 16;
 
 // Point player_location = Point(32, 20);
@@ -82,20 +63,25 @@ int viewX = 0;
 
 int viewPortX = 0;
 
-struct Projectile
+class Entity
 {
+public:
     Rect sprite;
     Point location;
+};
+
+struct Projectile : Entity
+{
     uint8_t transform = 0;
     int16_t lifetime = 300;
     int16_t vel_x = 0;
     int16_t vel_y = 0;
 };
 
-struct Explosion
+struct Explosion : Entity
 {
     //Rect sprite;
-    Point origin;
+    //Point location;
     uint8_t lengthUp = 0;
     uint8_t lengthDown = 0;
     uint8_t lengthLeft = 0;
@@ -147,13 +133,13 @@ std::vector<TileAnimation> tileAnimations;
 
 //std::map < uint16_t, std::vector<AnimationFrame>> animations;
 
-struct Block
-{
-    Point position;
-    Rect sprite = chestSprite;
-};
+//struct Block
+//{
+//    Point position;
+//    Rect sprite = chestSprite;
+//};
 
-static std::vector<Block> blocks;
+//static std::vector<Block> blocks;
 
 static std::vector<Projectile> projectiles;
 
@@ -378,17 +364,17 @@ void RenderExplosions()
 {
 	for (const Explosion& explosion : explosions)
 	{
-		screen.sprite(explosionCore, explosion.origin, Point(0, 0), Vec2(2, 2));
+		screen.sprite(explosionCore, explosion.location, Point(0, 0), Vec2(2, 2));
 
 		for (int i = 1; i <= explosion.lengthRight; i++)
 		{
 			if(i < explosion.lengthRight)
 			{
-                screen.sprite(explosionLine, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+                screen.sprite(explosionLine, Point(explosion.location.x + (i * sprite_width), explosion.location.y), Point(0, 0), Vec2(2, 2));
 			}
             else
             {
-                screen.sprite(explosionEnd, Point(explosion.origin.x + (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+                screen.sprite(explosionEnd, Point(explosion.location.x + (i * sprite_width), explosion.location.y), Point(0, 0), Vec2(2, 2));
             }
 		}
 
@@ -396,11 +382,11 @@ void RenderExplosions()
 		{
             if (i < explosion.lengthLeft)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2));
+                screen.sprite(explosionLine, Point(explosion.location.x - (i * sprite_width), explosion.location.y), Point(0, 0), Vec2(2, 2));
             }
             else
             {
-                screen.sprite(explosionEnd, Point(explosion.origin.x - (i * sprite_width), explosion.origin.y), Point(0, 0), Vec2(2, 2), SpriteTransform::R180);
+                screen.sprite(explosionEnd, Point(explosion.location.x - (i * sprite_width), explosion.location.y), Point(0, 0), Vec2(2, 2), SpriteTransform::R180);
 
             }
 		}
@@ -409,11 +395,11 @@ void RenderExplosions()
 		{
             if (i < explosion.lengthDown)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+                screen.sprite(explosionLine, Point(explosion.location.x, explosion.location.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
             }
             else
             {
-                screen.sprite(explosionEnd, Point(explosion.origin.x, explosion.origin.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R90);
+                screen.sprite(explosionEnd, Point(explosion.location.x, explosion.location.y + (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R90);
             }
 		}
 
@@ -421,11 +407,11 @@ void RenderExplosions()
 		{
             if (i < explosion.lengthUp)
             {
-                screen.sprite(explosionLine, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+                screen.sprite(explosionLine, Point(explosion.location.x, explosion.location.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
             }
             else
             {
-                screen.sprite(explosionEnd, Point(explosion.origin.x, explosion.origin.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
+                screen.sprite(explosionEnd, Point(explosion.location.x, explosion.location.y - (i * sprite_width)), Point(0, 0), Vec2(2, 2), SpriteTransform::R270);
             }
 		}
 	}
@@ -433,29 +419,38 @@ void RenderExplosions()
 
 void RenderPlayers()
 {
-	if (player.dir == 'r')
-	{
-		screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2));
-	}
-	else if (player.dir == 'l')
-	{
-		screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2), 1);
-	}
-	else if (player.dir == 'u')
-	{
-		screen.sprite(player.spriteUp, player.location, Point(0, 8), Vec2(2, 2));
+    auto p = players.begin();
 
-	}
-	else if (player.dir == 'd')
-	{
-		screen.sprite(player.spriteDown, player.location, Point(0, 8), Vec2(2, 2));
+    while (p != players.end()) {
 
-	}
+        if (player.dir == 'r')
+        {
+            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2));
+        }
+        else if (player.dir == 'l')
+        {
+            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2), 1);
+        }
+        else if (player.dir == 'u')
+        {
+            screen.sprite(player.spriteUp, player.location, Point(0, 8), Vec2(2, 2));
 
-	for (const Projectile& projectile : projectiles)
-	{
-		screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
-	}
+        }
+        else if (player.dir == 'd')
+        {
+            screen.sprite(player.spriteDown, player.location, Point(0, 8), Vec2(2, 2));
+
+        }
+
+        for (const Projectile& projectile : projectiles)
+        {
+            screen.sprite(projectile.sprite, projectile.location, Point(0, 0), Vec2(2, 2), projectile.transform);
+        }
+
+        ++p;
+    }
+	
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -569,7 +564,7 @@ void CreateChestExplosion(const TileData tileData)
     tileAnimations.push_back(animation);
 }
 
-void CheckExplosionTileData(bool& canMove, Point point)
+void CheckExplosionTileData(bool& canMove, const Point& point)
 {
 	const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
 	canMove = tileData.canMove;
@@ -582,17 +577,48 @@ void CheckExplosionTileData(bool& canMove, Point point)
 	}
 }
 
-void CreateExplosion(std::vector<Projectile>::iterator projectile)
+
+void CheckIfExplosionHitPlayer(bool& canMove, const Point& point)
+{
+    auto p = players.begin();
+
+    while (p != players.end()) {
+	    const auto hit = is_Point_in_Rect(point, Rect(p->location, Size(16, 16)));
+
+    	if(hit)
+    	{
+            p = players.erase(p);
+            canMove = false;
+    	}
+        else
+        {
+            ++p;
+        }
+    }
+	
+    const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
+    canMove = tileData.canMove;
+}
+
+
+void PerformCollisionChecks(bool& canMove, const Point& point)
+{
+	CheckExplosionTileData(canMove, point);
+	CheckIfExplosionHitPlayer(canMove, point);
+}
+
+void CreateExplosion(const std::vector<Projectile>::iterator& projectile)
 {
 	Explosion explosion;
-	explosion.origin = projectile->location;
+	explosion.location = projectile->location;
 
 	bool canMove = true;
 
 	while (canMove)
 	{
-		Point point = Point(explosion.origin.x + (sprite_width * (explosion.lengthRight + 1)),explosion.origin.y);
-		CheckExplosionTileData(canMove, point);
+		Point point = Point(explosion.location.x + (sprite_width * (explosion.lengthRight + 1)),explosion.location.y);
+		
+		PerformCollisionChecks(canMove, point);
 		
 		if (canMove)
 		{
@@ -604,9 +630,9 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 
 	while (canMove)
 	{
-		Point point = Point(explosion.origin.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.origin.y);
-        CheckExplosionTileData(canMove, point);
-		
+		Point point = Point(explosion.location.x - (sprite_width * (explosion.lengthLeft + 1)), explosion.location.y);
+        PerformCollisionChecks(canMove, point);
+
 		if (canMove)
 		{
 			explosion.lengthLeft++;
@@ -617,8 +643,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 
 	while (canMove)
 	{
-		Point point = Point(explosion.origin.x, explosion.origin.y + (sprite_width * (explosion.lengthDown + 1)));
-        CheckExplosionTileData(canMove, point);
+		Point point = Point(explosion.location.x, explosion.location.y + (sprite_width * (explosion.lengthDown + 1)));
+        PerformCollisionChecks(canMove, point);
 
 		if (canMove)
 		{
@@ -630,8 +656,8 @@ void CreateExplosion(std::vector<Projectile>::iterator projectile)
 
 	while (canMove)
 	{
-		Point point = Point(explosion.origin.x, explosion.origin.y - (sprite_width * (explosion.lengthUp + 1)));
-        CheckExplosionTileData(canMove, point);
+		Point point = Point(explosion.location.x, explosion.location.y - (sprite_width * (explosion.lengthUp + 1)));
+        PerformCollisionChecks(canMove, point);
 
 		if (canMove)
 		{
