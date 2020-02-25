@@ -139,6 +139,8 @@ struct Player
     Movement currentMovement;
 };
 
+static std::vector<Player> players;
+
 struct TileData
 {
     uint8_t id = 0;
@@ -164,7 +166,6 @@ bool is_Point_in_Rect(const Point& pointToCheck, std::vector<Rect>::value_type b
     {
         return true;
     }
-
     return false;
 }
 
@@ -287,6 +288,10 @@ void init() {
     screen.sprites = SpriteSheet::load(packed_data);
 
     world.sprites = screen.sprites;
+
+    players.clear();
+
+    players.push_back(player);
 }
 
 void RenderExplosions()
@@ -384,8 +389,6 @@ void render(uint32_t time) {
 
     // clear the screen -- screen is a reference to the frame buffer and can be used to draw all things with the 32blit
     screen.clear();
-
-
 	
     // draw some text at the top of the screen
     screen.alpha = 255;
