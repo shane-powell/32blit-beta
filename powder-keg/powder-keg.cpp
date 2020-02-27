@@ -169,6 +169,7 @@ struct Player
     Point spawnLocation = Point(16, 16);
     bool alive = true;
     uint16_t respawnTimer = 1000;
+    bool isPlayer = false;
 };
 
 static std::vector<Player> players;
@@ -185,7 +186,7 @@ struct TileData
     //TileData();
 };
 
-Player player;
+//Player player;
 
 // TileData currentTileData = TileData(0);
 
@@ -299,8 +300,6 @@ void DrawWorld()
 
 void StartGame()
 {
-    player.location.x = maxX / 2;
-    player.location.y = (maxY / 2) + 10;
     score = 0;
     gameState = 'G';
 }
@@ -325,7 +324,12 @@ void init() {
 
     players.clear();
 
+    Player player;
+
+    player.isPlayer = true;
+
     players.push_back(player);
+
 }
 
 void RenderTileAnimations()
@@ -426,24 +430,28 @@ void RenderPlayers()
 
     while (p != players.end()) {
 
-        if (player.dir == 'r')
+        if(p->alive)
         {
-            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2));
-        }
-        else if (player.dir == 'l')
-        {
-            screen.sprite(player.spriteSide, player.location, Point(0, 8), Vec2(2, 2), 1);
-        }
-        else if (player.dir == 'u')
-        {
-            screen.sprite(player.spriteUp, player.location, Point(0, 8), Vec2(2, 2));
+            if (p->dir == 'r')
+            {
+                screen.sprite(p->spriteSide, p->location, Point(0, 8), Vec2(2, 2));
+            }
+            else if (p->dir == 'l')
+            {
+                screen.sprite(p->spriteSide, p->location, Point(0, 8), Vec2(2, 2), 1);
+            }
+            else if (p->dir == 'u')
+            {
+                screen.sprite(p->spriteUp, p->location, Point(0, 8), Vec2(2, 2));
 
-        }
-        else if (player.dir == 'd')
-        {
-            screen.sprite(player.spriteDown, player.location, Point(0, 8), Vec2(2, 2));
+            }
+            else if (p->dir == 'd')
+            {
+                screen.sprite(p->spriteDown, p->location, Point(0, 8), Vec2(2, 2));
 
+            }
         }
+        
 
         ++p;
     }
