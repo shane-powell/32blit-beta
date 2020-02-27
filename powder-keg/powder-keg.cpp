@@ -174,6 +174,9 @@ struct Player
 
 static std::vector<Player> players;
 
+//std::vector<std::reference_wrapper<Player>> a;
+
+
 struct TileData
 {
     uint8_t id = 0;
