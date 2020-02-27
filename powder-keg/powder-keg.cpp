@@ -29,6 +29,8 @@ const uint32_t tilemap_width = 32;
 
 const uint32_t tilemap_height = 16;
 
+const int16_t respawnTime = 200;
+
 TileMap world((uint8_t*)layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
 
 int16_t maxX = 319;
@@ -47,11 +49,21 @@ Rect explosionCore = Rect(7, 0, 1, 1);
 Rect explosionLine = Rect(8, 0, 1, 1);
 Rect explosionEnd = Rect(9, 0, 1, 1);
 
-Rect ninjaSpriteSide = Rect(0, 8, 1, 2);
-
 Rect pirateSpriteSide = Rect(1, 6, 1, 2);
 Rect pirateSpriteUp = Rect(1, 10, 1, 2);
 Rect pirateSpriteDown = Rect(1, 8, 1, 2);
+
+Rect ninjaSpriteSide = Rect(5, 6, 1, 2);
+Rect ninjaSpriteUp = Rect(5, 10, 1, 2);
+Rect ninjaSpriteDown = Rect(5, 8, 1, 2);
+
+Rect p3SpriteSide = Rect(2, 6, 1, 2);
+Rect p3SpriteUp = Rect(2, 10, 1, 2);
+Rect p3SpriteDown = Rect(2, 8, 1, 2);
+
+Rect p4SpriteSide = Rect(3, 6, 1, 2);
+Rect p4SpriteUp = Rect(3, 10, 1, 2);
+Rect p4SpriteDown = Rect(3, 8, 1, 2);
 
 Rect chestSprite = Rect(1,0,1,1);
 
@@ -159,7 +171,7 @@ struct Player
     Rect spriteSide = pirateSpriteSide;
     Rect spriteUp = pirateSpriteUp;
     Rect spriteDown = pirateSpriteDown;
-    char dir = 'r';
+    char dir = 'd';
     int8_t aim = 6;
     Point location = Point(16, 16);
     bool can_fire = true;
@@ -168,7 +180,7 @@ struct Player
     Movement currentMovement;
     Point spawnLocation = Point(16, 16);
     bool alive = true;
-    uint16_t respawnTimer = 1000;
+    uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
 };
 
@@ -312,6 +324,46 @@ void EndGame()
     gameState = 'E';
 }
 
+void InitPlayers()
+{
+	players.clear();
+
+	Player player;
+
+	player.isPlayer = true;
+
+	players.push_back(player);
+
+    Player player2;
+    player2.spawnLocation = Point(288, 16);
+    player2.location = player2.spawnLocation;
+    player2.isPlayer = false;
+    player2.spriteDown = ninjaSpriteDown;
+    player2.spriteUp = ninjaSpriteUp;
+    player2.spriteSide = ninjaSpriteSide;
+    players.push_back(player2);
+
+    Player player3;
+    player3.spawnLocation = Point(16, 208);
+    player3.location = player3.spawnLocation;
+    player3.isPlayer = false;
+    player3.spriteDown = p3SpriteDown;
+    player3.spriteUp = p3SpriteUp;
+    player3.spriteSide = p3SpriteSide;
+    players.push_back(player3);
+
+    Player player4;
+    player4.spawnLocation = Point(288, 208);
+    player4.location = player4.spawnLocation;
+    player4.isPlayer = false;
+    player4.spriteDown = p4SpriteDown;
+    player4.spriteUp = p4SpriteUp;
+    player4.spriteSide = p4SpriteSide;
+    players.push_back(player4);
+
+	
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // init()
@@ -325,13 +377,7 @@ void init() {
 
     world.sprites = screen.sprites;
 
-    players.clear();
-
-    Player player;
-
-    player.isPlayer = true;
-
-    players.push_back(player);
+    InitPlayers();
 
 }
 
@@ -604,19 +650,7 @@ void CheckIfExplosionHitPlayer(bool& canMove, const Point& point)
 	        p->alive = false;
         }
         ++p;
-
     }
-
-//    	if(hit)
-//    	{
-//            p = players.erase(p);
-//            canMove = false;
-//    	}
-//        else
-//        {
-//            ++p;
-//        }
-
 }
 
 
@@ -738,6 +772,23 @@ void updateProjectiles()
     }
 }
 
+void DropBomb(Player& player)
+{
+	if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
+	{
+		player.can_fire = false;
+		player.canFireTimeout = player.fire_delay;
+		Projectile newProjectile;
+
+		newProjectile.sprite = bombSprite;
+
+		newProjectile.location.x = player.location.x;
+		newProjectile.location.y = player.location.y;
+
+		projectiles.push_back(newProjectile);
+	}
+}
+
 void UpdatePlayers()
 {
 	static uint16_t lastButtons = 0;
@@ -745,19 +796,19 @@ void UpdatePlayers()
 	uint16_t pressed = changed & blit::buttons;
 	uint16_t released = changed & ~blit::buttons;
 
-	int16_t xChange = 0;
-	int16_t yChange = 0;
-
 	for (Player& player : players)
 	{
+        int16_t xChange = 0;
+        int16_t yChange = 0;
+		
 		if (!player.alive)
 		{
 			if (player.respawnTimer == 0)
 			{
 				player.location = player.spawnLocation;
 				player.alive = true;
-				player.dir = 'D';
-				player.respawnTimer = 800;
+				player.dir = 'd';
+				player.respawnTimer = respawnTime;
 			}
 			else
 			{
@@ -778,86 +829,33 @@ void UpdatePlayers()
 
 		if(player.isPlayer)
 		{
-    		
+            if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
+                xChange -= 1;
+                newPlayerLocation.x -= 16;
+            }
+            else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
+                xChange += 1;
+                newPlayerLocation.x += 16;
+            }
+            else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
+                yChange -= 1;
+                newPlayerLocation.y -= 16;
+            }
+            else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
+                yChange += 1;
+                newPlayerLocation.y += 16;
+            }
+
+            if (blit::buttons & blit::Button::B)
+            {
+                DropBomb(player);
+            }
 		}
-		if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
-			xChange -= 1;
-			newPlayerLocation.x -= 16;
-		}
-		else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
-			xChange += 1;
-			newPlayerLocation.x += 16;
-		}
-		else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
-			yChange -= 1;
-			newPlayerLocation.y -= 16;
-		}
-		else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
-			yChange += 1;
-			newPlayerLocation.y += 16;
-		}
-
-		if (blit::buttons & blit::Button::B)
-		{
-			if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
-			{
-				player.can_fire = false;
-				player.canFireTimeout = player.fire_delay;
-				Projectile newProjectile;
-
-				/*switch (player.aim)
-                {
-                case 1:
-                    newProjectile.vel_x = -1;
-                    newProjectile.vel_y = 1;
-
-                    break;
-                case 2:
-                    newProjectile.vel_x = 0;
-                    newProjectile.vel_y = 1;
-                    break;
-                case 3:
-                    newProjectile.vel_x = 1;
-                    newProjectile.vel_y = 1;
-                    newProjectile.transform = SpriteTransform::VERTICAL;
-                    break;
-                case 4:
-                    newProjectile.vel_x = -1;
-                    newProjectile.vel_y = 0;
-                    newProjectile.transform = SpriteTransform::R90;
-                    break;
-                case 6:
-                    newProjectile.vel_x = 1;
-                    newProjectile.vel_y = 0;
-                    newProjectile.transform = SpriteTransform::R90;
-                    break;
-                case 7:
-                    newProjectile.vel_x = -1;
-                    newProjectile.vel_y = -1;
-                    newProjectile.transform = SpriteTransform::VERTICAL;
-                    break;
-                case 8:
-                    newProjectile.vel_x = 0;
-                    newProjectile.vel_y = -1;
-                    break;
-                case 9:
-                    newProjectile.vel_x = 1;
-                    newProjectile.vel_y = -1;
-
-                    break;
-                default: break;
-                }*/
-
-				newProjectile.sprite = bombSprite;
-				/*            new_projectile.location.x = player.location. x + sprite_width / 4;
-                            new_projectile.location.y = player.location.y + sprite_width / 4;*/
-
-				newProjectile.location.x = player.location.x;
-				newProjectile.location.y = player.location.y;
-
-				projectiles.push_back(newProjectile);
-			}
-		}
+        else
+        {
+            DropBomb(player);
+        }
+		
 
 		bool move_ok = true;
 
@@ -867,8 +865,6 @@ void UpdatePlayers()
 		{
 			if (currentTileData.canMove)
 			{
-				//player.location.x += (xChange);
-				//player.location.y += (yChange);
 				if (player.currentMovement.movementCount == 0)
 				{
 					player.currentMovement.movementCount = 16;
