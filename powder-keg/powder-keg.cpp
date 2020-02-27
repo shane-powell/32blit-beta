@@ -735,6 +735,211 @@ void updateProjectiles()
     }
 }
 
+void UpdatePlayers()
+{
+	static uint16_t lastButtons = 0;
+	uint16_t changed = blit::buttons ^ lastButtons;
+	uint16_t pressed = changed & blit::buttons;
+	uint16_t released = changed & ~blit::buttons;
+
+	int16_t xChange = 0;
+	int16_t yChange = 0;
+
+	for (Player& player : players)
+	{
+		if (!player.alive)
+		{
+			if (player.respawnTimer == 0)
+			{
+				player.location = player.spawnLocation;
+				player.alive = true;
+				player.dir = 'D';
+				player.respawnTimer = 800;
+			}
+			else
+			{
+				player.respawnTimer--;
+			}
+		}
+
+		Point newPlayerLocation = player.location;
+
+		if (player.canFireTimeout > 0)
+		{
+			player.canFireTimeout--;
+		}
+		else
+		{
+			player.can_fire = true;
+		}
+
+		if(player.isPlayer)
+		{
+    		
+		}
+		if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
+			xChange -= 1;
+			newPlayerLocation.x -= 16;
+		}
+		else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
+			xChange += 1;
+			newPlayerLocation.x += 16;
+		}
+		else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
+			yChange -= 1;
+			newPlayerLocation.y -= 16;
+		}
+		else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
+			yChange += 1;
+			newPlayerLocation.y += 16;
+		}
+
+		if (blit::buttons & blit::Button::B)
+		{
+			if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
+			{
+				player.can_fire = false;
+				player.canFireTimeout = player.fire_delay;
+				Projectile newProjectile;
+
+				/*switch (player.aim)
+                {
+                case 1:
+                    newProjectile.vel_x = -1;
+                    newProjectile.vel_y = 1;
+
+                    break;
+                case 2:
+                    newProjectile.vel_x = 0;
+                    newProjectile.vel_y = 1;
+                    break;
+                case 3:
+                    newProjectile.vel_x = 1;
+                    newProjectile.vel_y = 1;
+                    newProjectile.transform = SpriteTransform::VERTICAL;
+                    break;
+                case 4:
+                    newProjectile.vel_x = -1;
+                    newProjectile.vel_y = 0;
+                    newProjectile.transform = SpriteTransform::R90;
+                    break;
+                case 6:
+                    newProjectile.vel_x = 1;
+                    newProjectile.vel_y = 0;
+                    newProjectile.transform = SpriteTransform::R90;
+                    break;
+                case 7:
+                    newProjectile.vel_x = -1;
+                    newProjectile.vel_y = -1;
+                    newProjectile.transform = SpriteTransform::VERTICAL;
+                    break;
+                case 8:
+                    newProjectile.vel_x = 0;
+                    newProjectile.vel_y = -1;
+                    break;
+                case 9:
+                    newProjectile.vel_x = 1;
+                    newProjectile.vel_y = -1;
+
+                    break;
+                default: break;
+                }*/
+
+				newProjectile.sprite = bombSprite;
+				/*            new_projectile.location.x = player.location. x + sprite_width / 4;
+                            new_projectile.location.y = player.location.y + sprite_width / 4;*/
+
+				newProjectile.location.x = player.location.x;
+				newProjectile.location.y = player.location.y;
+
+				projectiles.push_back(newProjectile);
+			}
+		}
+
+		bool move_ok = true;
+
+		const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
+
+		if (xChange != 0 || yChange != 0)
+		{
+			if (currentTileData.canMove)
+			{
+				//player.location.x += (xChange);
+				//player.location.y += (yChange);
+				if (player.currentMovement.movementCount == 0)
+				{
+					player.currentMovement.movementCount = 16;
+					player.currentMovement.xMovement = xChange;
+					player.currentMovement.yMovement = yChange;
+				}
+
+				if (yChange > 0 && xChange == 0)
+				{
+					player.aim = 2;
+				}
+				else if (yChange < 0 && xChange == 0)
+				{
+					player.aim = 8;
+				}
+				else if (xChange > 0 && yChange == 0)
+				{
+					player.aim = 6;
+				}
+				else if (xChange < 0 && yChange == 0)
+				{
+					player.aim = 4;
+				}
+				else if (xChange > 0 && yChange > 0)
+				{
+					player.aim = 3;
+				}
+				else if (xChange < 0 && yChange < 0)
+				{
+					player.aim = 7;
+				}
+				else if (xChange > 0 && yChange < 0)
+				{
+					player.aim = 9;
+				}
+				else if (xChange < 0 && yChange > 0)
+				{
+					player.aim = 1;
+				}
+			}
+
+			if (xChange > 0)
+			{
+				player.dir = 'r';
+			}
+			else if (xChange < 0)
+			{
+				player.dir = 'l';
+			}
+			else if (yChange < 0)
+			{
+				player.dir = 'u';
+
+			}
+			else
+			{
+				player.dir = 'd';
+
+			}
+
+		}
+
+		if (player.currentMovement.movementCount > 0)
+		{
+			player.currentMovement.movementCount--;
+
+			player.location.x += player.currentMovement.xMovement;
+			player.location.y += player.currentMovement.yMovement;
+		}
+	}
+	 
+	lastButtons = blit::buttons;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // update(time)
@@ -749,197 +954,5 @@ void update(uint32_t time) {
 
     RenderTileAnimations();
 	
-    static uint16_t lastButtons = 0;
-    uint16_t changed = blit::buttons ^ lastButtons;
-    uint16_t pressed = changed & blit::buttons;
-    uint16_t released = changed & ~blit::buttons;
-
-    int16_t xChange = 0;
-    int16_t yChange = 0;
-
-    if(!player.alive)
-    {
-        if(player.respawnTimer == 0)
-        {
-            player.location = player.spawnLocation;
-            player.alive = true;
-            player.respawnTimer = 1000;
-        } else
-        {
-            player.respawnTimer --;
-        }
-    }
-
-    Point newPlayerLocation = player.location;
-
-    if (player.canFireTimeout > 0)
-    {
-        player.canFireTimeout--;
-    }
-    else
-    {
-        player.can_fire = true;
-    }
-
-    if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
-        xChange -= 1;
-        newPlayerLocation.x -= 16;
-    }
-    else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
-        xChange += 1;
-        newPlayerLocation.x += 16;
-    }
-    else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
-        yChange -= 1;
-        newPlayerLocation.y -= 16;
-    }
-    else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
-        yChange += 1;
-        newPlayerLocation.y += 16;
-    }
-	
-    if (blit::buttons & blit::Button::B)
-    {
-        if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
-        {
-            player.can_fire = false;
-            player.canFireTimeout = player.fire_delay;
-            Projectile newProjectile;
-
-            /*switch (player.aim)
-            {
-            case 1:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = 1;
-
-                break;
-            case 2:
-                newProjectile.vel_x = 0;
-                newProjectile.vel_y = 1;
-                break;
-            case 3:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = 1;
-                newProjectile.transform = SpriteTransform::VERTICAL;
-                break;
-            case 4:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = 0;
-                newProjectile.transform = SpriteTransform::R90;
-                break;
-            case 6:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = 0;
-                newProjectile.transform = SpriteTransform::R90;
-                break;
-            case 7:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = -1;
-                newProjectile.transform = SpriteTransform::VERTICAL;
-                break;
-            case 8:
-                newProjectile.vel_x = 0;
-                newProjectile.vel_y = -1;
-                break;
-            case 9:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = -1;
-
-                break;
-            default: break;
-            }*/
-
-            newProjectile.sprite = bombSprite;
-            /*            new_projectile.location.x = player.location. x + sprite_width / 4;
-                        new_projectile.location.y = player.location.y + sprite_width / 4;*/
-
-            newProjectile.location.x = player.location.x;
-            newProjectile.location.y = player.location.y;
-
-            projectiles.push_back(newProjectile);
-        }
-    }
-
-    bool move_ok = true;
-
-    const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
-
-    if (xChange != 0 || yChange != 0)
-    {
-        if (currentTileData.canMove)
-        {
-            //player.location.x += (xChange);
-            //player.location.y += (yChange);
-            if(player.currentMovement.movementCount == 0)
-            {
-                player.currentMovement.movementCount = 16;
-                player.currentMovement.xMovement = xChange;
-                player.currentMovement.yMovement = yChange;
-            }
-
-            if (yChange > 0 && xChange == 0)
-            {
-                player.aim = 2;
-            }
-            else if (yChange < 0 && xChange == 0)
-            {
-                player.aim = 8;
-            }
-            else if (xChange > 0 && yChange == 0)
-            {
-                player.aim = 6;
-            }
-            else if (xChange < 0 && yChange == 0)
-            {
-                player.aim = 4;
-            }
-            else if (xChange > 0 && yChange > 0)
-            {
-                player.aim = 3;
-            }
-            else if (xChange < 0 && yChange < 0)
-            {
-                player.aim = 7;
-            }
-            else if (xChange > 0 && yChange < 0)
-            {
-                player.aim = 9;
-            }
-            else if (xChange < 0 && yChange > 0)
-            {
-                player.aim = 1;
-            }
-        }
-
-        if (xChange > 0)
-        {
-            player.dir = 'r';
-        }
-        else if (xChange < 0)
-        {
-            player.dir = 'l';
-        }
-        else if (yChange < 0)
-        {
-            player.dir = 'u';
-
-        }
-        else
-        {
-            player.dir = 'd';
-
-        }
-    	
-    }
-
-	if(player.currentMovement.movementCount > 0)
-	{
-        player.currentMovement.movementCount--;
-
-        player.location.x += player.currentMovement.xMovement;
-        player.location.y += player.currentMovement.yMovement;
-	}
-
-
-    lastButtons = blit::buttons;
+    UpdatePlayers();
 }
