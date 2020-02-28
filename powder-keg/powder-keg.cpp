@@ -206,6 +206,8 @@ struct TileData
 // TileData currentTileData = TileData(0);
 
 
+Player &ProcessLivingPlayer(Player &player);
+
 int score = 0;
 
 bool is_Point_in_Rect(const Point& pointToCheck, std::vector<Rect>::value_type bounding_Rectangle)
@@ -801,8 +803,7 @@ void UpdatePlayers()
 
 	for (Player& player : players)
 	{
-        int16_t xChange = 0;
-        int16_t yChange = 0;
+
 		
 		if (!player.alive)
 		{
@@ -812,6 +813,8 @@ void UpdatePlayers()
 				player.alive = true;
 				player.dir = 'd';
 				player.respawnTimer = respawnTime;
+				player.can_fire = true;
+				player.canFireTimeout = player.fire_delay;
 			}
 			else
 			{
@@ -819,127 +822,136 @@ void UpdatePlayers()
 			}
 		}
 
-		Point newPlayerLocation = player.location;
+        player = ProcessLivingPlayer(player);
 
-		if (player.canFireTimeout > 0)
-		{
-			player.canFireTimeout--;
-		}
-		else
-		{
-			player.can_fire = true;
-		}
 
-		if(player.isPlayer)
-		{
-            if (blit::buttons & blit::Button::DPAD_LEFT || joystick.x < 0) {
-                xChange -= 1;
-                newPlayerLocation.x -= 16;
-            }
-            else if (blit::buttons & blit::Button::DPAD_RIGHT || joystick.x > 0) {
-                xChange += 1;
-                newPlayerLocation.x += 16;
-            }
-            else if (blit::buttons & blit::Button::DPAD_UP || joystick.y < 0) {
-                yChange -= 1;
-                newPlayerLocation.y -= 16;
-            }
-            else if (blit::buttons & blit::Button::DPAD_DOWN || joystick.y > 0) {
-                yChange += 1;
-                newPlayerLocation.y += 16;
-            }
-
-            if (blit::buttons & blit::Button::B)
-            {
-                DropBomb(player);
-            }
-		}
-        else
-        {
-            DropBomb(player);
-        }
-		
-
-		bool move_ok = true;
-
-		const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
-
-		if (xChange != 0 || yChange != 0)
-		{
-			if (currentTileData.canMove)
-			{
-				if (player.currentMovement.movementCount == 0)
-				{
-					player.currentMovement.movementCount = 16;
-					player.currentMovement.xMovement = xChange;
-					player.currentMovement.yMovement = yChange;
-				}
-
-				if (yChange > 0 && xChange == 0)
-				{
-					player.aim = 2;
-				}
-				else if (yChange < 0 && xChange == 0)
-				{
-					player.aim = 8;
-				}
-				else if (xChange > 0 && yChange == 0)
-				{
-					player.aim = 6;
-				}
-				else if (xChange < 0 && yChange == 0)
-				{
-					player.aim = 4;
-				}
-				else if (xChange > 0 && yChange > 0)
-				{
-					player.aim = 3;
-				}
-				else if (xChange < 0 && yChange < 0)
-				{
-					player.aim = 7;
-				}
-				else if (xChange > 0 && yChange < 0)
-				{
-					player.aim = 9;
-				}
-				else if (xChange < 0 && yChange > 0)
-				{
-					player.aim = 1;
-				}
-			}
-
-			if (xChange > 0)
-			{
-				player.dir = 'r';
-			}
-			else if (xChange < 0)
-			{
-				player.dir = 'l';
-			}
-			else if (yChange < 0)
-			{
-				player.dir = 'u';
-
-			}
-			else
-			{
-				player.dir = 'd';
-
-			}
-
-		}
-
-		if (player.currentMovement.movementCount > 0)
-		{
-			player.currentMovement.movementCount--;
-
-			player.location.x += player.currentMovement.xMovement;
-			player.location.y += player.currentMovement.yMovement;
-		}
-	}
+    }
 	 
 	lastButtons = blit::buttons;
+}
+
+Player &ProcessLivingPlayer(Player &player) {
+    int16_t xChange = 0;
+    int16_t yChange = 0;
+    Point newPlayerLocation = player.location;
+
+    if (player.canFireTimeout > 0)
+    {
+        player.canFireTimeout--;
+    }
+    else
+    {
+        player.can_fire = true;
+    }
+
+    if(player.isPlayer)
+    {
+if (buttons & DPAD_LEFT || joystick.x < 0) {
+xChange -= 1;
+newPlayerLocation.x -= 16;
+}
+else if (buttons & DPAD_RIGHT || joystick.x > 0) {
+xChange += 1;
+newPlayerLocation.x += 16;
+}
+else if (buttons & DPAD_UP || joystick.y < 0) {
+yChange -= 1;
+newPlayerLocation.y -= 16;
+}
+else if (buttons & DPAD_DOWN || joystick.y > 0) {
+yChange += 1;
+newPlayerLocation.y += 16;
+}
+
+if (buttons & B)
+{
+DropBomb(player);
+}
+    }
+else
+{
+DropBomb(player);
+}
+
+
+    bool move_ok = true;
+
+    const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
+
+    if (xChange != 0 || yChange != 0)
+    {
+        if (currentTileData.canMove)
+        {
+            if (player.currentMovement.movementCount == 0)
+            {
+                player.currentMovement.movementCount = 16;
+                player.currentMovement.xMovement = xChange;
+                player.currentMovement.yMovement = yChange;
+            }
+
+            if (yChange > 0 && xChange == 0)
+            {
+                player.aim = 2;
+            }
+            else if (yChange < 0 && xChange == 0)
+            {
+                player.aim = 8;
+            }
+            else if (xChange > 0 && yChange == 0)
+            {
+                player.aim = 6;
+            }
+            else if (xChange < 0 && yChange == 0)
+            {
+                player.aim = 4;
+            }
+            else if (xChange > 0 && yChange > 0)
+            {
+                player.aim = 3;
+            }
+            else if (xChange < 0 && yChange < 0)
+            {
+                player.aim = 7;
+            }
+            else if (xChange > 0 && yChange < 0)
+            {
+                player.aim = 9;
+            }
+            else if (xChange < 0 && yChange > 0)
+            {
+                player.aim = 1;
+            }
+        }
+
+        if (xChange > 0)
+        {
+            player.dir = 'r';
+        }
+        else if (xChange < 0)
+        {
+            player.dir = 'l';
+        }
+        else if (yChange < 0)
+        {
+            player.dir = 'u';
+
+        }
+        else
+        {
+            player.dir = 'd';
+
+        }
+
+    }
+
+    if (player.currentMovement.movementCount > 0)
+    {
+        player.currentMovement.movementCount--;
+
+        player.location.x += player.currentMovement.xMovement;
+        player.location.y += player.currentMovement.yMovement;
+    }
+    return player;
 }
 
 ///////////////////////////////////////////////////////////////////////////
