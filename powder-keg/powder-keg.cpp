@@ -801,6 +801,18 @@ void DropBomb(Player& player)
 	}
 }
 
+void RespawnPlayer(Player &player) {
+    player.location = player.spawnLocation;
+    player.alive = true;
+    player.dir = 'd';
+    player.respawnTimer = respawnTime;
+    player.can_fire = true;
+    player.canFireTimeout = player.fire_delay;
+    player.currentMovement.movementCount = 0;
+    player.currentMovement.xMovement = 0;
+    player.currentMovement.yMovement = 0;
+}
+
 void UpdatePlayers()
 {
 	static uint16_t lastButtons = 0;
@@ -816,13 +828,8 @@ void UpdatePlayers()
 		{
 			if (player.respawnTimer == 0)
 			{
-				player.location = player.spawnLocation;
-				player.alive = true;
-				player.dir = 'd';
-				player.respawnTimer = respawnTime;
-				player.can_fire = true;
-				player.canFireTimeout = player.fire_delay;
-			}
+                RespawnPlayer(player);
+            }
 			else
 			{
 				player.respawnTimer--;
