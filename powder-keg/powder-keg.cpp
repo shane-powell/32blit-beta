@@ -2,11 +2,10 @@
 
 using namespace blit;
 
-// For debug only
-// std::vector<int> blocksAdded;
-
-// For debug only
-// std::vector<int> blocksDestroyed;
+enum AIMovementType
+{
+    LeftRight, UpDown, ClockWise, AntiClockWise
+};
 
 static uint8_t layer_world[] = {
   48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
@@ -172,13 +171,13 @@ struct Movement
 
 };
 
-struct Player
+class Player
 {
+public:
     Rect spriteSide = pirateSpriteSide;
     Rect spriteUp = pirateSpriteUp;
     Rect spriteDown = pirateSpriteDown;
     char dir = 'd';
-    std::vector<char> pathToSafePlace;
     int8_t aim = 6;
     Point location = Point(16, 16);
     bool can_fire = true;
@@ -189,6 +188,11 @@ struct Player
     bool alive = true;
     uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
+};
+
+class AIPlayer : public Player{
+    AIMovementType movementType = AIMovementType::ClockWise;
+    std::vector<char> pathToSafePlace;
 };
 
 static std::vector<Player> players;
