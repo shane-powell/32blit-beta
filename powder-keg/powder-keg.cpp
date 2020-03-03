@@ -218,7 +218,7 @@ int score = 0;
 
 bool is_Point_in_Rect(const Point& pointToCheck, std::vector<Rect>::value_type bounding_Rectangle)
 {
-    if (pointToCheck.x + sprite_width >= bounding_Rectangle.x && pointToCheck.x <= bounding_Rectangle.x + bounding_Rectangle.w && pointToCheck.y + sprite_width > bounding_Rectangle.y&& pointToCheck.y < bounding_Rectangle.y + bounding_Rectangle.h)
+    if (pointToCheck.x + sprite_width > bounding_Rectangle.x && pointToCheck.x < bounding_Rectangle.x + bounding_Rectangle.w && pointToCheck.y + sprite_width > bounding_Rectangle.y&& pointToCheck.y < bounding_Rectangle.y + bounding_Rectangle.h)
     {
         return true;
     }
@@ -406,7 +406,6 @@ void RenderTileAnimations()
     		if(tile->frameIndex >= tile->animationFrames.size() - 1)
     		{  			
                 complete = true;
-                blocksDestroyed.push_back(tile->tileIndex);
     		}
             else
             {
@@ -636,7 +635,6 @@ void CreateChestExplosion(const TileData tileData)
     	}
     }
 
-    blocksAdded.push_back(tileData.index);
 
 	TileAnimation animation = TileAnimation(tileData.index);
 	animation.animationFrames.emplace_back(17, 10);
