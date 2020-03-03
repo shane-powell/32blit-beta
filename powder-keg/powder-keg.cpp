@@ -3,10 +3,10 @@
 using namespace blit;
 
 // For debug only
-std::vector<int> blocksAdded;
+// std::vector<int> blocksAdded;
 
 // For debug only
-std::vector<int> blocksDestroyed;
+// std::vector<int> blocksDestroyed;
 
 static uint8_t layer_world[] = {
   48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
@@ -390,12 +390,13 @@ void init() {
 }
 
 void RenderTileAnimations()
-{
-    bool complete = false;
-	
+{	
     auto tile = tileAnimations.begin();
 
     while (tile != tileAnimations.end()) {
+
+        bool complete = false;
+    	
 	    const auto currentFrame = tile->animationFrames[tile->frameIndex];
     	
         layer_world[tile->tileIndex] = currentFrame.tileId;
