@@ -178,6 +178,7 @@ struct Player
     Rect spriteUp = pirateSpriteUp;
     Rect spriteDown = pirateSpriteDown;
     char dir = 'd';
+    std::vector<char> pathToSafePlace;
     int8_t aim = 6;
     Point location = Point(16, 16);
     bool can_fire = true;
