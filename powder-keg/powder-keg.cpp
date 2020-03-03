@@ -2,6 +2,12 @@
 
 using namespace blit;
 
+// For debug only
+std::vector<int> blocksAdded;
+
+// For debug only
+std::vector<int> blocksDestroyed;
+
 static uint8_t layer_world[] = {
   48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27, 28, 29, 30, 52,
   64, 37, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
@@ -399,6 +405,7 @@ void RenderTileAnimations()
     		if(tile->frameIndex >= tile->animationFrames.size() - 1)
     		{  			
                 complete = true;
+                blocksDestroyed.push_back(tile->tileIndex);
     		}
             else
             {
@@ -412,6 +419,9 @@ void RenderTileAnimations()
         if (complete)
         {
             tile = tileAnimations.erase(tile);
+
+            //todo temp hack
+            //player_world[tile->tileIndex] = 66;
             //projectile->lifetime = 0;
         }
         else ++tile;
@@ -624,7 +634,9 @@ void CreateChestExplosion(const TileData tileData)
             return;
     	}
     }
-	
+
+    blocksAdded.push_back(tileData.index);
+
 	TileAnimation animation = TileAnimation(tileData.index);
 	animation.animationFrames.emplace_back(17, 10);
 	animation.animationFrames.emplace_back(33, 10);
