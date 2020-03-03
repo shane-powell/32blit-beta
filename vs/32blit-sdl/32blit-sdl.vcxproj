@@ -91,14 +91,14 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\sdl\include;..\..\32blit</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\sdl\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
@@ -116,7 +116,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\sdl\include;..\..\32blit</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\sdl\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
@@ -146,7 +146,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\sdl\include;..\..\32blit</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\sdl\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
@@ -178,7 +178,7 @@
       <PreprocessorDefinitions>NDEBUG;_LIB;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>..\sdl\include;..\..\32blit</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -188,7 +188,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\sdl\lib\$(PlatformTarget)</AdditionalLibraryDirectories>
@@ -212,6 +212,7 @@
     <ClCompile Include="..\..\32blit-sdl\Audio.cpp" />
     <ClCompile Include="..\..\32blit-sdl\File.cpp" />
     <ClCompile Include="..\..\32blit-sdl\Input.cpp" />
+    <ClCompile Include="..\..\32blit-sdl\JPEG.cpp" />
     <ClCompile Include="..\..\32blit-sdl\Main.cpp" />
     <ClCompile Include="..\..\32blit-sdl\Renderer.cpp" />
     <ClCompile Include="..\..\32blit-sdl\System.cpp" />

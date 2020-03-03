@@ -3,6 +3,8 @@
 #include <cmath>
 #include "quadspi.h"
 #include "CDCCommandStream.h"
+#include "USBManager.h"
+
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +15,7 @@ extern CDCCommandStream g_commandStream;
 
 FlashLoader flashLoader;
 
+extern USBManager g_usbManager;
 
 // c calls to c++ object
 void init()
@@ -36,7 +39,7 @@ void update(uint32_t time)
 // Init() Register command handlers
 void FlashLoader::Init()
 {
-	set_screen_mode(ScreenMode::hires);
+	blit::set_screen_mode(ScreenMode::hires);
 
 	// register PROG
 	g_commandStream.AddCommandHandler(CDCCommandHandler::CDCFourCCMake<'P', 'R', 'O', 'G'>::value, this);
@@ -60,6 +63,7 @@ void FlashLoader::FSInit(void)
 	volatile FRESULT fr;     /* Return value */
 	DIR dj;         /* Directory search object */
 	FILINFO fno;    /* File information */
+	Size s;			/* Size of rendered texts */
 
 	fr = f_findfirst(&dj, &fno, "", "*.BIN");
 
@@ -67,8 +71,15 @@ void FlashLoader::FSInit(void)
 	{
 		if(fno.fname[0]!='.')
 		{
-			//printf("%s %lu\n\r", fno.fname, fno.fsize);
-			strncpy(m_filenames[m_uFileCount], fno.fname, MAX_FILENAME_LENGTH);
+			strncpy(m_filemeta[m_uFileCount].sFilename, fno.fname, MAX_FILENAME_LENGTH);
+			s = screen.measure_text(m_filemeta[m_uFileCount].sFilename, minimal_font, true);
+			if (s.w > m_max_width_name) m_max_width_name = s.w;
+
+			m_filemeta[m_uFileCount].fstFilesize = fno.fsize;
+			sprintf(m_filemeta[m_uFileCount].sFilesize, "%lu", m_filemeta[m_uFileCount].fstFilesize);
+			s = screen.measure_text(m_filemeta[m_uFileCount].sFilesize, minimal_font, true);
+			if (s.w > m_max_width_size) m_max_width_size = s.w;
+
 			m_uFileCount++;
 		}
 		fr = f_findnext(&dj, &fno);
@@ -179,6 +190,44 @@ void FlashLoader::Render(uint32_t time)
 		case stSwitch:
 			blit::switch_execution();
 		break;
+
+		case stMassStorage:
+			RenderMassStorage(time);
+		break;
+	}
+}
+
+void FlashLoader::RenderMassStorage(uint32_t time)
+{
+	static uint8_t uActivityAnim = 0;
+
+	screen.pen = Pen(0,0,0);
+	screen.rectangle(Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+	screen.pen = Pen(255, 255, 255);
+	char buffer[128];
+	sprintf(buffer, "Mass Storage mode (%s)", g_usbManager.GetStateName());
+	screen.text(buffer, minimal_font, ROW(0));
+
+	if(uActivityAnim)
+	{
+		screen.pen = Pen(0, 255, 0, uActivityAnim);
+		screen.circle(Point(320-6, 6), 6);
+		uActivityAnim = uActivityAnim>>1;
+
+	}
+	else
+	{
+		if(g_usbManager.HasHadActivity())
+			uActivityAnim = 255;
+	}
+
+
+	if(g_usbManager.GetState() == USBManager::usbsMSCUnmounted)
+	{
+		// Swicth back to CDC
+		g_usbManager.SetType(USBManager::usbtCDC);
+		FSInit();
+		m_state = stFlashFile;
 	}
 }
 
@@ -219,9 +268,13 @@ void FlashLoader::RenderFlashFile(uint32_t time)
 	uint32_t changedButtons = buttons ^ lastButtons;
 
 	bool button_a = buttons & changedButtons & Button::A;
+	bool button_x = buttons & changedButtons & Button::X;
+	bool button_y = buttons & changedButtons & Button::Y;
 
 	bool button_up = buttons & changedButtons & Button::DPAD_UP;
 	bool button_down = buttons & changedButtons & Button::DPAD_DOWN;
+
+	bool button_home = buttons & changedButtons & Button::HOME;
 
 	if(time - lastRepeat > 150 || button_up || button_down) {
 		button_up = buttons & Button::DPAD_UP;
@@ -245,12 +298,22 @@ void FlashLoader::RenderFlashFile(uint32_t time)
 		for(uint8_t uF = 0; uF < m_uFileCount; uF++) {
 			// TODO: A single line of text should probably vertically center in a 10px bounding box
 			// but in this case it needs to be fudged to 14 pixels
-			screen.text(m_filenames[uF], minimal_font, Rect(ROW(uF).x + 5, ROW(uF).y, 310, 14), true, TextAlign::center_v);
+			screen.text(m_filemeta[uF].sFilename, minimal_font, Rect(ROW(uF).x + 5, ROW(uF).y, m_max_width_name, 14), true, TextAlign::center_v);
+			screen.line(Point(m_max_width_name + 10, ROW(uF).y), Point(m_max_width_name + 10, ROW(uF).y + 14));
+			screen.text(m_filemeta[uF].sFilesize, minimal_font, Rect(m_max_width_name + 16, ROW(uF).y, m_max_width_size, 14), true, TextAlign::center_right);
 		}
 	}
 	else
 	{
 		screen.text("No Files Found.", minimal_font, ROW(0));
+	}
+
+	if(button_home)
+	{
+		// switch to mass media
+		g_usbManager.SetType(USBManager::usbtMSC);
+		m_state = stMassStorage;
+
 	}
 
 	if(button_up)
@@ -272,9 +335,21 @@ void FlashLoader::RenderFlashFile(uint32_t time)
 
 	if(button_a)
 	{
-		if(Flash(m_filenames[m_uCurrentFile])) {
+		if(Flash(m_filemeta[m_uCurrentFile].sFilename)) {
 			blit::switch_execution();
 		}
+	}
+
+	if (button_x)
+	{
+		// Sort by filename
+		std::sort(&m_filemeta[0], &m_filemeta[m_uFileCount], [](auto a, auto b) { return strcmp(a.sFilename, b.sFilename) <= 0; });
+	}
+
+	if (button_y)
+	{
+		// Sort by filesize
+		std::sort(&m_filemeta[0], &m_filemeta[m_uFileCount], [](auto a, auto b) { return a.fstFilesize <= b.fstFilesize; });
 	}
 
 	persist.selected_menu_item = m_uCurrentFile;

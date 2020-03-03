@@ -287,7 +287,7 @@ void DMAMUX1_OVR_IRQHandler(void)
 
   /* USER CODE END DMAMUX1_OVR_IRQn 0 */
   // Handle DMA1_Stream0
-  HAL_DMAEx_MUX_IRQHandler(&hdma_dac1_ch2);
+  //HAL_DMAEx_MUX_IRQHandler(&hdma_dac1_ch2);
   /* USER CODE BEGIN DMAMUX1_OVR_IRQn 1 */
 
   /* USER CODE END DMAMUX1_OVR_IRQn 1 */
@@ -307,6 +307,19 @@ void ADC3_IRQHandler(void)
   /* USER CODE END ADC3_IRQn 1 */
 }
 
+/**
+  * @brief This function handles EXTI line[9:5] interrupts.
+  */
+void EXTI9_5_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+
+  /* USER CODE END EXTI9_5_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+  /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+
+  /* USER CODE END EXTI9_5_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 
