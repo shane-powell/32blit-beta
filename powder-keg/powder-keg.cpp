@@ -188,10 +188,42 @@ public:
     bool alive = true;
     uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
+
+    public:
+    void SetPlayerActions(int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
+        if(this->isPlayer)
+        {
+            if (buttons & DPAD_LEFT || joystick.x < 0) {
+                xChange -= 1;
+                newPlayerLocation.x -= 16;
+            }
+            else if (buttons & DPAD_RIGHT || joystick.x > 0) {
+                xChange += 1;
+                newPlayerLocation.x += 16;
+            }
+            else if (buttons & DPAD_UP || joystick.y < 0) {
+                yChange -= 1;
+                newPlayerLocation.y -= 16;
+            }
+            else if (buttons & DPAD_DOWN || joystick.y > 0) {
+                yChange += 1;
+                newPlayerLocation.y += 16;
+            }
+
+            if (buttons & B)
+            {
+               // DropBomb(player);
+            }
+        }
+        else
+        {
+           // DropBomb(player);
+        }
+    }
 };
 
 class AIPlayer : public Player{
-    AIMovementType movementType = AIMovementType::ClockWise;
+    AIMovementType movementType = AIMovementType::UpDown;
     std::vector<char> pathToSafePlace;
 };
 
@@ -218,6 +250,8 @@ struct TileData
 
 
 Player &ProcessLivingPlayer(Player &player);
+
+void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation);
 
 int score = 0;
 
@@ -347,7 +381,7 @@ void InitPlayers()
 
 	players.push_back(player);
 
-    Player player2;
+    AIPlayer player2;
     player2.spawnLocation = Point(288, 16);
     player2.location = player2.spawnLocation;
     player2.isPlayer = false;
@@ -356,7 +390,7 @@ void InitPlayers()
     player2.spriteSide = ninjaSpriteSide;
     players.push_back(player2);
 
-    Player player3;
+    AIPlayer player3;
     player3.spawnLocation = Point(16, 208);
     player3.location = player3.spawnLocation;
     player3.isPlayer = false;
@@ -365,7 +399,7 @@ void InitPlayers()
     player3.spriteSide = p3SpriteSide;
     players.push_back(player3);
 
-    Player player4;
+    AIPlayer player4;
     player4.spawnLocation = Point(288, 208);
     player4.location = player4.spawnLocation;
     player4.isPlayer = false;
@@ -838,8 +872,6 @@ void UpdatePlayers()
 
 	for (Player& player : players)
 	{
-
-		
 		if (!player.alive)
 		{
 			if (player.respawnTimer == 0)
@@ -873,34 +905,9 @@ Player &ProcessLivingPlayer(Player &player) {
         player.can_fire = true;
     }
 
-    if(player.isPlayer)
-    {
-if (buttons & DPAD_LEFT || joystick.x < 0) {
-xChange -= 1;
-newPlayerLocation.x -= 16;
-}
-else if (buttons & DPAD_RIGHT || joystick.x > 0) {
-xChange += 1;
-newPlayerLocation.x += 16;
-}
-else if (buttons & DPAD_UP || joystick.y < 0) {
-yChange -= 1;
-newPlayerLocation.y -= 16;
-}
-else if (buttons & DPAD_DOWN || joystick.y > 0) {
-yChange += 1;
-newPlayerLocation.y += 16;
-}
+    player.SetPlayerActions(xChange, yChange, newPlayerLocation);
 
-if (buttons & B)
-{
-DropBomb(player);
-}
-    }
-else
-{
-DropBomb(player);
-}
+    //SetPlayerActions(player, xChange, yChange, newPlayerLocation);
 
 
     bool move_ok = true;
@@ -981,6 +988,37 @@ DropBomb(player);
         player.location.y += player.currentMovement.yMovement;
     }
     return player;
+}
+
+void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
+    if(player.isPlayer)
+    {
+if (buttons & DPAD_LEFT || joystick.x < 0) {
+xChange -= 1;
+newPlayerLocation.x -= 16;
+}
+else if (buttons & DPAD_RIGHT || joystick.x > 0) {
+xChange += 1;
+newPlayerLocation.x += 16;
+}
+else if (buttons & DPAD_UP || joystick.y < 0) {
+yChange -= 1;
+newPlayerLocation.y -= 16;
+}
+else if (buttons & DPAD_DOWN || joystick.y > 0) {
+yChange += 1;
+newPlayerLocation.y += 16;
+}
+
+if (buttons & B)
+{
+DropBomb(player);
+}
+    }
+else
+{
+DropBomb(player);
+}
 }
 
 ///////////////////////////////////////////////////////////////////////////
