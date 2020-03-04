@@ -2,7 +2,7 @@
 
 using namespace blit;
 
-enum AIMovementType
+enum AIPatrolPattern
 {
     LeftRight, UpDown, ClockWise, AntiClockWise
 };
@@ -174,7 +174,8 @@ struct Movement
 class Player
 {
 public:
-    Rect spriteSide = pirateSpriteSide;
+	virtual ~Player() = default;
+	Rect spriteSide = pirateSpriteSide;
     Rect spriteUp = pirateSpriteUp;
     Rect spriteDown = pirateSpriteDown;
     char dir = 'd';
@@ -189,10 +190,9 @@ public:
     uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
 
-    public:
-    void SetPlayerActions(int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
-        if(this->isPlayer)
-        {
+    virtual void SetPlayerActions(int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
+      /*  if(this->isPlayer)
+        {*/
             if (buttons & DPAD_LEFT || joystick.x < 0) {
                 xChange -= 1;
                 newPlayerLocation.x -= 16;
@@ -215,21 +215,21 @@ public:
                // DropBomb(player);
             }
         }
-        else
-        {
-           // DropBomb(player);
-        }
-    }
 };
 
 class AIPlayer : public Player{
-    AIMovementType movementType = AIMovementType::UpDown;
+public:
+    AIPatrolPattern movementType = UpDown;
     std::vector<char> pathToSafePlace;
+
+    virtual void SetPlayerActions(int16_t& xChange, int16_t& yChange, Point& newPlayerLocation)
+	{
+    }
 };
 
-static std::vector<Player> players;
+static std::vector<Player*> players;
 
-//std::vector<std::reference_wrapper<Player>> a;
+//std::vector<std::reference_wrapper<Player>> players;
 
 
 struct TileData
@@ -247,9 +247,6 @@ struct TileData
 //Player player;
 
 // TileData currentTileData = TileData(0);
-
-
-Player &ProcessLivingPlayer(Player &player);
 
 void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation);
 
@@ -375,37 +372,39 @@ void InitPlayers()
 {
 	players.clear();
 
-	Player player;
+    /*Player p;
+	
+    Player* player = &p;
 
-	player.isPlayer = true;
+	player->isPlayer = true;*/
+	
+	players.push_back(new Player());
 
-	players.push_back(player);
-
-    AIPlayer player2;
-    player2.spawnLocation = Point(288, 16);
-    player2.location = player2.spawnLocation;
-    player2.isPlayer = false;
-    player2.spriteDown = ninjaSpriteDown;
-    player2.spriteUp = ninjaSpriteUp;
-    player2.spriteSide = ninjaSpriteSide;
+    auto player2 = new AIPlayer();
+    player2->spawnLocation = Point(288, 16);
+    player2->location = player2->spawnLocation;
+    player2->isPlayer = false;
+    player2->spriteDown = ninjaSpriteDown;
+    player2->spriteUp = ninjaSpriteUp;
+    player2->spriteSide = ninjaSpriteSide;
     players.push_back(player2);
 
-    AIPlayer player3;
-    player3.spawnLocation = Point(16, 208);
-    player3.location = player3.spawnLocation;
-    player3.isPlayer = false;
-    player3.spriteDown = p3SpriteDown;
-    player3.spriteUp = p3SpriteUp;
-    player3.spriteSide = p3SpriteSide;
+    auto player3 = new AIPlayer();
+    player3->spawnLocation = Point(16, 208);
+    player3->location = player3->spawnLocation;
+    player3->isPlayer = false;
+    player3->spriteDown = p3SpriteDown;
+    player3->spriteUp = p3SpriteUp;
+    player3->spriteSide = p3SpriteSide;
     players.push_back(player3);
 
-    AIPlayer player4;
-    player4.spawnLocation = Point(288, 208);
-    player4.location = player4.spawnLocation;
-    player4.isPlayer = false;
-    player4.spriteDown = p4SpriteDown;
-    player4.spriteUp = p4SpriteUp;
-    player4.spriteSide = p4SpriteSide;
+    auto player4 = new AIPlayer();
+    player4->spawnLocation = Point(288, 208);
+    player4->location = player4->spawnLocation;
+    player4->isPlayer = false;
+    player4->spriteDown = p4SpriteDown;
+    player4->spriteUp = p4SpriteUp;
+    player4->spriteSide = p4SpriteSide;
     players.push_back(player4);
 
 	
@@ -530,24 +529,25 @@ void RenderPlayers()
 
     while (p != players.end()) {
 
-        if(p->alive)
+    	
+        if((*p)->alive)
         {
-            if (p->dir == 'r')
+            if ((*p)->dir == 'r')
             {
-                screen.sprite(p->spriteSide, p->location, Point(0, 8), Vec2(2, 2));
+                screen.sprite((*p)->spriteSide, (*p)->location, Point(0, 8), Vec2(2, 2));
             }
-            else if (p->dir == 'l')
+            else if ((*p)->dir == 'l')
             {
-                screen.sprite(p->spriteSide, p->location, Point(0, 8), Vec2(2, 2), 1);
+                screen.sprite((*p)->spriteSide, (*p)->location, Point(0, 8), Vec2(2, 2), 1);
             }
-            else if (p->dir == 'u')
+            else if ((*p)->dir == 'u')
             {
-                screen.sprite(p->spriteUp, p->location, Point(0, 8), Vec2(2, 2));
+                screen.sprite((*p)->spriteUp, (*p)->location, Point(0, 8), Vec2(2, 2));
 
             }
-            else if (p->dir == 'd')
+            else if ((*p)->dir == 'd')
             {
-                screen.sprite(p->spriteDown, p->location, Point(0, 8), Vec2(2, 2));
+                screen.sprite((*p)->spriteDown, (*p)->location, Point(0, 8), Vec2(2, 2));
 
             }
         }
@@ -702,11 +702,11 @@ void CheckIfExplosionHitPlayer(bool& canMove, const Point& point)
     auto p = players.begin();
 
     while (p != players.end()) {
-	    const auto hit = is_Point_in_Rect(point, Rect(p->location, Size(16, 16)));
+	    const auto hit = is_Point_in_Rect(point, Rect((*p)->location, Size(16, 16)));
 
-	    if(p->alive && hit)
+	    if((*p)->alive && hit)
         {
-	        p->alive = false;
+            (*p)->alive = false;
         }
         ++p;
     }
@@ -863,49 +863,21 @@ void RespawnPlayer(Player &player) {
     player.currentMovement.yMovement = 0;
 }
 
-void UpdatePlayers()
-{
-	static uint16_t lastButtons = 0;
-	uint16_t changed = blit::buttons ^ lastButtons;
-	uint16_t pressed = changed & blit::buttons;
-	uint16_t released = changed & ~blit::buttons;
-
-	for (Player& player : players)
-	{
-		if (!player.alive)
-		{
-			if (player.respawnTimer == 0)
-			{
-                RespawnPlayer(player);
-            }
-			else
-			{
-				player.respawnTimer--;
-			}
-		}else
-        {
-            player = ProcessLivingPlayer(player);
-        }
-    }
-	 
-	lastButtons = blit::buttons;
-}
-
-Player &ProcessLivingPlayer(Player &player) {
+Player* ProcessLivingPlayer(Player* player) {
     int16_t xChange = 0;
     int16_t yChange = 0;
-    Point newPlayerLocation = player.location;
+    Point newPlayerLocation = player->location;
 
-    if (player.canFireTimeout > 0)
+    if (player->canFireTimeout > 0)
     {
-        player.canFireTimeout--;
+        player->canFireTimeout--;
     }
     else
     {
-        player.can_fire = true;
+        player->can_fire = true;
     }
 
-    player.SetPlayerActions(xChange, yChange, newPlayerLocation);
+    player->SetPlayerActions(xChange, yChange, newPlayerLocation);
 
     //SetPlayerActions(player, xChange, yChange, newPlayerLocation);
 
@@ -918,76 +890,105 @@ Player &ProcessLivingPlayer(Player &player) {
     {
         if (currentTileData.canMove)
         {
-            if (player.currentMovement.movementCount == 0)
+            if (player->currentMovement.movementCount == 0)
             {
-                player.currentMovement.movementCount = 16;
-                player.currentMovement.xMovement = xChange;
-                player.currentMovement.yMovement = yChange;
+                player->currentMovement.movementCount = 16;
+                player->currentMovement.xMovement = xChange;
+                player->currentMovement.yMovement = yChange;
             }
 
             if (yChange > 0 && xChange == 0)
             {
-                player.aim = 2;
+                player->aim = 2;
             }
             else if (yChange < 0 && xChange == 0)
             {
-                player.aim = 8;
+                player->aim = 8;
             }
             else if (xChange > 0 && yChange == 0)
             {
-                player.aim = 6;
+                player->aim = 6;
             }
             else if (xChange < 0 && yChange == 0)
             {
-                player.aim = 4;
+                player->aim = 4;
             }
             else if (xChange > 0 && yChange > 0)
             {
-                player.aim = 3;
+                player->aim = 3;
             }
             else if (xChange < 0 && yChange < 0)
             {
-                player.aim = 7;
+                player->aim = 7;
             }
             else if (xChange > 0 && yChange < 0)
             {
-                player.aim = 9;
+                player->aim = 9;
             }
             else if (xChange < 0 && yChange > 0)
             {
-                player.aim = 1;
+                player->aim = 1;
             }
         }
 
         if (xChange > 0)
         {
-            player.dir = 'r';
+            player->dir = 'r';
         }
         else if (xChange < 0)
         {
-            player.dir = 'l';
+            player->dir = 'l';
         }
         else if (yChange < 0)
         {
-            player.dir = 'u';
+            player->dir = 'u';
 
         }
         else
         {
-            player.dir = 'd';
+            player->dir = 'd';
 
         }
 
     }
 
-    if (player.currentMovement.movementCount > 0)
+    if (player->currentMovement.movementCount > 0)
     {
-        player.currentMovement.movementCount--;
+        player->currentMovement.movementCount--;
 
-        player.location.x += player.currentMovement.xMovement;
-        player.location.y += player.currentMovement.yMovement;
+        player->location.x += player->currentMovement.xMovement;
+        player->location.y += player->currentMovement.yMovement;
     }
     return player;
+}
+
+void UpdatePlayers()
+{
+    static uint16_t lastButtons = 0;
+    uint16_t changed = blit::buttons ^ lastButtons;
+    uint16_t pressed = changed & blit::buttons;
+    uint16_t released = changed & ~blit::buttons;
+
+    for (Player* player : players)
+    {
+        if (!player->alive)
+        {
+            if (player->respawnTimer == 0)
+            {
+                RespawnPlayer(*player);
+            }
+            else
+            {
+                player->respawnTimer--;
+            }
+        }
+        else
+        {
+            player = ProcessLivingPlayer(player);
+        }
+    }
+
+    lastButtons = blit::buttons;
 }
 
 void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
