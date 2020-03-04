@@ -189,6 +189,7 @@ public:
     bool alive = true;
     uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
+    bool droppingBomb = false;
 
     virtual void SetPlayerActions(int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
       /*  if(this->isPlayer)
@@ -212,7 +213,7 @@ public:
 
             if (buttons & B)
             {
-               // DropBomb(player);
+                droppingBomb = true;
             }
         }
 };
@@ -224,6 +225,7 @@ public:
 
     virtual void SetPlayerActions(int16_t& xChange, int16_t& yChange, Point& newPlayerLocation)
 	{
+        droppingBomb = true;
     }
 };
 
@@ -834,18 +836,18 @@ void updateProjectiles()
     }
 }
 
-void DropBomb(Player& player)
+void DropBomb(Player* player)
 {
-	if (player.can_fire && player.location.x % 16 == 0 and player.location.y % 16 == 0)
+	if (player->can_fire && player->location.x % 16 == 0 and player->location.y % 16 == 0)
 	{
-		player.can_fire = false;
-		player.canFireTimeout = player.fire_delay;
+		player->can_fire = false;
+		player->canFireTimeout = player->fire_delay;
 		Projectile newProjectile;
 
 		newProjectile.sprite = bombSprite;
 
-		newProjectile.location.x = player.location.x;
-		newProjectile.location.y = player.location.y;
+		newProjectile.location.x = player->location.x;
+		newProjectile.location.y = player->location.y;
 
 		projectiles.push_back(newProjectile);
 	}
@@ -879,6 +881,11 @@ Player* ProcessLivingPlayer(Player* player) {
 
     player->SetPlayerActions(xChange, yChange, newPlayerLocation);
 
+	if(player->droppingBomb)
+	{
+        DropBomb(player);
+        player->droppingBomb = false;
+	}
     //SetPlayerActions(player, xChange, yChange, newPlayerLocation);
 
 
@@ -991,36 +998,36 @@ void UpdatePlayers()
     lastButtons = blit::buttons;
 }
 
-void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
-    if(player.isPlayer)
-    {
-if (buttons & DPAD_LEFT || joystick.x < 0) {
-xChange -= 1;
-newPlayerLocation.x -= 16;
-}
-else if (buttons & DPAD_RIGHT || joystick.x > 0) {
-xChange += 1;
-newPlayerLocation.x += 16;
-}
-else if (buttons & DPAD_UP || joystick.y < 0) {
-yChange -= 1;
-newPlayerLocation.y -= 16;
-}
-else if (buttons & DPAD_DOWN || joystick.y > 0) {
-yChange += 1;
-newPlayerLocation.y += 16;
-}
-
-if (buttons & B)
-{
-DropBomb(player);
-}
-    }
-else
-{
-DropBomb(player);
-}
-}
+//void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
+//    if(player.isPlayer)
+//    {
+//if (buttons & DPAD_LEFT || joystick.x < 0) {
+//xChange -= 1;
+//newPlayerLocation.x -= 16;
+//}
+//else if (buttons & DPAD_RIGHT || joystick.x > 0) {
+//xChange += 1;
+//newPlayerLocation.x += 16;
+//}
+//else if (buttons & DPAD_UP || joystick.y < 0) {
+//yChange -= 1;
+//newPlayerLocation.y -= 16;
+//}
+//else if (buttons & DPAD_DOWN || joystick.y > 0) {
+//yChange += 1;
+//newPlayerLocation.y += 16;
+//}
+//
+//if (buttons & B)
+//{
+//DropBomb(player);
+//}
+//    }
+//else
+//{
+//DropBomb(player);
+//}
+//}
 
 ///////////////////////////////////////////////////////////////////////////
 //
