@@ -189,11 +189,69 @@ public:
     bool alive = true;
     uint16_t respawnTimer = respawnTime;
     bool isPlayer = false;
-    bool droppingBomb = false;
 
-    virtual void SetPlayerActions(int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
-      /*  if(this->isPlayer)
-        {*/
+    void RespawnPlayer() {
+        this->location = this->spawnLocation;
+        this->alive = true;
+        this->dir = 'd';
+        this->respawnTimer = respawnTime;
+        this->can_fire = true;
+        this->canFireTimeout = this->fire_delay;
+        this->currentMovement.movementCount = 0;
+        this->currentMovement.xMovement = 0;
+        this->currentMovement.yMovement = 0;
+    }
+	
+    void ProcessPlayer()
+    {
+        if (!this->alive)
+        {
+            if (this->respawnTimer == 0)
+            {
+                RespawnPlayer();
+            }
+            else
+            {
+                this->respawnTimer--;
+            }
+        }
+        else
+        {
+            this->SetPlayerActions();
+        }
+    }
+	
+    void DropBomb()
+    {
+        if (this->can_fire && this->location.x % 16 == 0 and this->location.y % 16 == 0)
+        {
+            this->can_fire = false;
+            this->canFireTimeout = this->fire_delay;
+            Projectile newProjectile;
+
+            newProjectile.sprite = bombSprite;
+
+            newProjectile.location.x = this->location.x;
+            newProjectile.location.y = this->location.y;
+
+            projectiles.push_back(newProjectile);
+        }
+    }
+	
+    virtual void SetPlayerActions() {
+        int16_t xChange = 0;
+        int16_t yChange = 0;
+        Point newPlayerLocation = this->location;
+
+        if (this->canFireTimeout > 0)
+        {
+            this->canFireTimeout--;
+        }
+        else
+        {
+            this->can_fire = true;
+        }
+     
             if (buttons & DPAD_LEFT || joystick.x < 0) {
                 xChange -= 1;
                 newPlayerLocation.x -= 16;
@@ -213,9 +271,92 @@ public:
 
             if (buttons & B)
             {
-                droppingBomb = true;
+                DropBomb();
             }
+
+            this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
         }
+
+    void ProcessPlayerMovement(int16_t xChange, int16_t yChange, Point newPlayerLocation)
+    {
+        bool move_ok = true;
+
+        const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
+
+        if (xChange != 0 || yChange != 0)
+        {
+            if (currentTileData.canMove)
+            {
+                if (this->currentMovement.movementCount == 0)
+                {
+                    this->currentMovement.movementCount = 16;
+                    this->currentMovement.xMovement = xChange;
+                    this->currentMovement.yMovement = yChange;
+                }
+
+                if (yChange > 0 && xChange == 0)
+                {
+                    this->aim = 2;
+                }
+                else if (yChange < 0 && xChange == 0)
+                {
+                    this->aim = 8;
+                }
+                else if (xChange > 0 && yChange == 0)
+                {
+                    this->aim = 6;
+                }
+                else if (xChange < 0 && yChange == 0)
+                {
+                    this->aim = 4;
+                }
+                else if (xChange > 0 && yChange > 0)
+                {
+                    this->aim = 3;
+                }
+                else if (xChange < 0 && yChange < 0)
+                {
+                    this->aim = 7;
+                }
+                else if (xChange > 0 && yChange < 0)
+                {
+                    this->aim = 9;
+                }
+                else if (xChange < 0 && yChange > 0)
+                {
+                    this->aim = 1;
+                }
+            }
+
+            if (xChange > 0)
+            {
+                this->dir = 'r';
+            }
+            else if (xChange < 0)
+            {
+                this->dir = 'l';
+            }
+            else if (yChange < 0)
+            {
+                this->dir = 'u';
+
+            }
+            else
+            {
+                this->dir = 'd';
+
+            }
+
+        }
+
+        if (this->currentMovement.movementCount > 0)
+        {
+            this->currentMovement.movementCount--;
+
+            this->location.x += this->currentMovement.xMovement;
+            this->location.y += this->currentMovement.yMovement;
+        }
+    }
 };
 
 class AIPlayer : public Player{
@@ -223,9 +364,58 @@ public:
     AIPatrolPattern movementType = UpDown;
     std::vector<char> pathToSafePlace;
 
-    virtual void SetPlayerActions(int16_t& xChange, int16_t& yChange, Point& newPlayerLocation)
+    virtual void SetPlayerActions()
 	{
-        droppingBomb = true;
+        int16_t xChange = 0;
+        int16_t yChange = 0;
+        Point newPlayerLocation = this->location;
+
+        if (this->canFireTimeout > 0)
+        {
+            this->canFireTimeout--;
+        }
+        else
+        {
+            this->can_fire = true;
+        }
+    	
+    	switch(this->movementType)
+    	{
+			case AntiClockWise:
+                break;
+            case LeftRight:
+                if (this->dir != 'l' && this->dir != 'r')
+                {
+                    this->dir = 'l';
+                }
+
+                if (this->dir == 'r')
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+                break;
+            case UpDown: 
+    			if(this->dir != 'u' && this->dir != 'd')
+    			{
+	                this->dir = 'u';   				
+    			}
+
+    			if(this->dir == 'u')
+    			{
+    				
+    			}
+	            else
+	            {
+		            
+	            }
+    			break;
+            case ClockWise: break;
+            default: ;
+        }
     }
 };
 
@@ -234,17 +424,17 @@ static std::vector<Player*> players;
 //std::vector<std::reference_wrapper<Player>> players;
 
 
-struct TileData
-{
-    uint8_t id = 0;
-    uint16_t index = 0;
-    bool canMove = true;
-    uint16_t pixels_in_water = 0;
-    bool in_water = false;
-    float movement_modifier = 0;
-    float life_modifier = 0;
-    //TileData();
-};
+//struct TileData
+//{
+//    uint8_t id = 0;
+//    uint16_t index = 0;
+//    bool canMove = true;
+//    uint16_t pixels_in_water = 0;
+//    bool in_water = false;
+//    float movement_modifier = 0;
+//    float life_modifier = 0;
+//    //TileData();
+//};
 
 //Player player;
 
@@ -373,12 +563,6 @@ void EndGame()
 void InitPlayers()
 {
 	players.clear();
-
-    /*Player p;
-	
-    Player* player = &p;
-
-	player->isPlayer = true;*/
 	
 	players.push_back(new Player());
 
@@ -836,139 +1020,6 @@ void updateProjectiles()
     }
 }
 
-void DropBomb(Player* player)
-{
-	if (player->can_fire && player->location.x % 16 == 0 and player->location.y % 16 == 0)
-	{
-		player->can_fire = false;
-		player->canFireTimeout = player->fire_delay;
-		Projectile newProjectile;
-
-		newProjectile.sprite = bombSprite;
-
-		newProjectile.location.x = player->location.x;
-		newProjectile.location.y = player->location.y;
-
-		projectiles.push_back(newProjectile);
-	}
-}
-
-void RespawnPlayer(Player &player) {
-    player.location = player.spawnLocation;
-    player.alive = true;
-    player.dir = 'd';
-    player.respawnTimer = respawnTime;
-    player.can_fire = true;
-    player.canFireTimeout = player.fire_delay;
-    player.currentMovement.movementCount = 0;
-    player.currentMovement.xMovement = 0;
-    player.currentMovement.yMovement = 0;
-}
-
-Player* ProcessLivingPlayer(Player* player) {
-    int16_t xChange = 0;
-    int16_t yChange = 0;
-    Point newPlayerLocation = player->location;
-
-    if (player->canFireTimeout > 0)
-    {
-        player->canFireTimeout--;
-    }
-    else
-    {
-        player->can_fire = true;
-    }
-
-    player->SetPlayerActions(xChange, yChange, newPlayerLocation);
-
-	if(player->droppingBomb)
-	{
-        DropBomb(player);
-        player->droppingBomb = false;
-	}
-    //SetPlayerActions(player, xChange, yChange, newPlayerLocation);
-
-
-    bool move_ok = true;
-
-    const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
-
-    if (xChange != 0 || yChange != 0)
-    {
-        if (currentTileData.canMove)
-        {
-            if (player->currentMovement.movementCount == 0)
-            {
-                player->currentMovement.movementCount = 16;
-                player->currentMovement.xMovement = xChange;
-                player->currentMovement.yMovement = yChange;
-            }
-
-            if (yChange > 0 && xChange == 0)
-            {
-                player->aim = 2;
-            }
-            else if (yChange < 0 && xChange == 0)
-            {
-                player->aim = 8;
-            }
-            else if (xChange > 0 && yChange == 0)
-            {
-                player->aim = 6;
-            }
-            else if (xChange < 0 && yChange == 0)
-            {
-                player->aim = 4;
-            }
-            else if (xChange > 0 && yChange > 0)
-            {
-                player->aim = 3;
-            }
-            else if (xChange < 0 && yChange < 0)
-            {
-                player->aim = 7;
-            }
-            else if (xChange > 0 && yChange < 0)
-            {
-                player->aim = 9;
-            }
-            else if (xChange < 0 && yChange > 0)
-            {
-                player->aim = 1;
-            }
-        }
-
-        if (xChange > 0)
-        {
-            player->dir = 'r';
-        }
-        else if (xChange < 0)
-        {
-            player->dir = 'l';
-        }
-        else if (yChange < 0)
-        {
-            player->dir = 'u';
-
-        }
-        else
-        {
-            player->dir = 'd';
-
-        }
-
-    }
-
-    if (player->currentMovement.movementCount > 0)
-    {
-        player->currentMovement.movementCount--;
-
-        player->location.x += player->currentMovement.xMovement;
-        player->location.y += player->currentMovement.yMovement;
-    }
-    return player;
-}
-
 void UpdatePlayers()
 {
     static uint16_t lastButtons = 0;
@@ -978,56 +1029,11 @@ void UpdatePlayers()
 
     for (Player* player : players)
     {
-        if (!player->alive)
-        {
-            if (player->respawnTimer == 0)
-            {
-                RespawnPlayer(*player);
-            }
-            else
-            {
-                player->respawnTimer--;
-            }
-        }
-        else
-        {
-            player = ProcessLivingPlayer(player);
-        }
+        player->ProcessPlayer();
     }
 
     lastButtons = blit::buttons;
 }
-
-//void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation) {
-//    if(player.isPlayer)
-//    {
-//if (buttons & DPAD_LEFT || joystick.x < 0) {
-//xChange -= 1;
-//newPlayerLocation.x -= 16;
-//}
-//else if (buttons & DPAD_RIGHT || joystick.x > 0) {
-//xChange += 1;
-//newPlayerLocation.x += 16;
-//}
-//else if (buttons & DPAD_UP || joystick.y < 0) {
-//yChange -= 1;
-//newPlayerLocation.y -= 16;
-//}
-//else if (buttons & DPAD_DOWN || joystick.y > 0) {
-//yChange += 1;
-//newPlayerLocation.y += 16;
-//}
-//
-//if (buttons & B)
-//{
-//DropBomb(player);
-//}
-//    }
-//else
-//{
-//DropBomb(player);
-//}
-//}
 
 ///////////////////////////////////////////////////////////////////////////
 //
