@@ -252,19 +252,19 @@ public:
             this->can_fire = true;
         }
      
-            if (buttons & DPAD_LEFT || joystick.x < 0) {
+            if (buttons & DPAD_LEFT || joystick.x < -100) {
                 xChange -= 1;
                 newPlayerLocation.x -= 16;
             }
-            else if (buttons & DPAD_RIGHT || joystick.x > 0) {
+            else if (buttons & DPAD_RIGHT || joystick.x > 100) {
                 xChange += 1;
                 newPlayerLocation.x += 16;
             }
-            else if (buttons & DPAD_UP || joystick.y < 0) {
+            else if (buttons & DPAD_UP || joystick.y < -100) {
                 yChange -= 1;
                 newPlayerLocation.y -= 16;
             }
-            else if (buttons & DPAD_DOWN || joystick.y > 0) {
+            else if (buttons & DPAD_DOWN || joystick.y > 100) {
                 yChange += 1;
                 newPlayerLocation.y += 16;
             }
