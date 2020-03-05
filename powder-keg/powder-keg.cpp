@@ -277,9 +277,14 @@ public:
             this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
         }
 
+        virtual void ProcessCannotMove()
+        {
+
+        }
+
     void ProcessPlayerMovement(int16_t xChange, int16_t yChange, Point newPlayerLocation)
     {
-        bool move_ok = true;
+        //bool move_ok = true;
 
         const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
 
@@ -327,6 +332,10 @@ public:
                     this->aim = 1;
                 }
             }
+            else
+            {
+                ProcessCannotMove();
+            }
 
             if (xChange > 0)
             {
@@ -364,6 +373,47 @@ public:
     AIPatrolPattern movementType = UpDown;
     std::vector<char> pathToSafePlace;
 
+    virtual void ProcessCannotMove()
+    {
+        switch(this->movementType)
+        {
+            case AntiClockWise:
+                break;
+            case LeftRight:
+                if (this->dir != 'l' && this->dir != 'r')
+                {
+                    this->dir = 'l';
+                }
+
+                if (this->dir == 'r')
+                {
+                    this->dir = 'l';
+                }
+                else
+                {
+                    this->dir = 'r';
+                }
+                break;
+            case UpDown:
+                if(this->dir != 'u' && this->dir != 'd')
+                {
+                    this->dir = 'u';
+                }
+
+                if(this->dir == 'u')
+                {
+                    this->dir = 'd';
+                }
+                else
+                {
+                    this->dir = 'u';
+                }
+                break;
+            case ClockWise: break;
+            default: ;
+        }
+    }
+
     virtual void SetPlayerActions()
 	{
         int16_t xChange = 0;
@@ -391,11 +441,13 @@ public:
 
                 if (this->dir == 'r')
                 {
-                    
+                    xChange += 1;
+                    newPlayerLocation.x += 16;
                 }
                 else
                 {
-                    
+                    xChange -= 1;
+                    newPlayerLocation.x -= 16;
                 }
                 break;
             case UpDown: 
@@ -406,16 +458,20 @@ public:
 
     			if(this->dir == 'u')
     			{
-    				
+                    yChange -= 1;
+                    newPlayerLocation.y -= 16;
     			}
 	            else
 	            {
-		            
+                    yChange += 1;
+                    newPlayerLocation.y += 16;
 	            }
     			break;
             case ClockWise: break;
             default: ;
         }
+
+        this->ProcessPlayerMovement(xChange,yChange, newPlayerLocation);
     }
 };
 
