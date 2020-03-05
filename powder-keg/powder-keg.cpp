@@ -274,6 +274,25 @@ public:
                 DropBomb();
             }
 
+            if (xChange > 0)
+                {
+                    this->dir = 'r';
+                }
+                else if (xChange < 0)
+                {
+                    this->dir = 'l';
+                }
+                else if (yChange < 0)
+                {
+                    this->dir = 'u';
+
+                }
+                else
+                {
+                    this->dir = 'd';
+
+                }
+
             this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
         }
 
@@ -336,26 +355,7 @@ public:
             {
                 ProcessCannotMove();
             }
-
-            if (xChange > 0)
-            {
-                this->dir = 'r';
-            }
-            else if (xChange < 0)
-            {
-                this->dir = 'l';
-            }
-            else if (yChange < 0)
-            {
-                this->dir = 'u';
-
-            }
-            else
-            {
-                this->dir = 'd';
-
-            }
-
+            
         }
 
         if (this->currentMovement.movementCount > 0)
@@ -629,6 +629,7 @@ void InitPlayers()
     player2->spriteDown = ninjaSpriteDown;
     player2->spriteUp = ninjaSpriteUp;
     player2->spriteSide = ninjaSpriteSide;
+    player2->movementType = LeftRight;
     players.push_back(player2);
 
     auto player3 = new AIPlayer();
