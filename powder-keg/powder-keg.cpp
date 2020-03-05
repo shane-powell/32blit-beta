@@ -2,7 +2,7 @@
 
 using namespace blit;
 
-enum AIPatrolPattern
+enum class AIPatrolPattern
 {
     LeftRight, UpDown, ClockWise, AntiClockWise
 };
@@ -167,7 +167,8 @@ struct Movement
     int8_t xMovement = 0;
     int8_t yMovement = 0;
     uint8_t movementCount = 0;
-    uint8_t movementDelay = 20;
+    uint8_t movementDelay = 0;
+    uint8_t movementStep = 0;
 
 };
 
@@ -360,11 +361,23 @@ public:
 
         if (this->currentMovement.movementCount > 0)
         {
-            this->currentMovement.movementCount--;
+            if(this->currentMovement.movementStep == this->currentMovement.movementDelay)
+            {
+                this->currentMovement.movementCount--;
 
-            this->location.x += this->currentMovement.xMovement;
-            this->location.y += this->currentMovement.yMovement;
+                this->location.x += this->currentMovement.xMovement;
+                this->location.y += this->currentMovement.yMovement;
+
+                this->currentMovement.movementStep = 0;
+            }
+            else
+            {
+                this->currentMovement.movementStep++;
+            }
+        	
+           
         }
+        
     }
 };
 
@@ -629,6 +642,7 @@ void InitPlayers()
     player2->spriteDown = ninjaSpriteDown;
     player2->spriteUp = ninjaSpriteUp;
     player2->spriteSide = ninjaSpriteSide;
+    player2->currentMovement.movementDelay = 1;
     player2->movementType = LeftRight;
     players.push_back(player2);
 
@@ -639,6 +653,7 @@ void InitPlayers()
     player3->spriteDown = p3SpriteDown;
     player3->spriteUp = p3SpriteUp;
     player3->spriteSide = p3SpriteSide;
+    player3->currentMovement.movementDelay = 5;
     players.push_back(player3);
 
     auto player4 = new AIPlayer();
@@ -648,6 +663,7 @@ void InitPlayers()
     player4->spriteDown = p4SpriteDown;
     player4->spriteUp = p4SpriteUp;
     player4->spriteSide = p4SpriteSide;
+    player4->currentMovement.movementDelay = 2;
     players.push_back(player4);
 
 	
