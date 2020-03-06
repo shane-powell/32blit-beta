@@ -383,16 +383,31 @@ public:
 
 class AIPlayer : public Player{
 public:
-    AIPatrolPattern movementType = UpDown;
+    AIPatrolPattern movementType = AIPatrolPattern::UpDown;
     std::vector<char> pathToSafePlace;
 
     virtual void ProcessCannotMove()
     {
         switch(this->movementType)
         {
-            case AntiClockWise:
+            case AIPatrolPattern::AntiClockWise:
+                switch(this->dir)
+                {
+                    case 'l':
+                        this->dir = 'd';
+                        break;
+                    case 'd':
+                        this->dir = 'r';
+                        break;
+                    case 'r':
+                        this->dir = 'u';
+                        break;
+                    case 'u':
+                        this->dir = 'l';
+                        break;
+                }
                 break;
-            case LeftRight:
+            case AIPatrolPattern::LeftRight:
                 if (this->dir != 'l' && this->dir != 'r')
                 {
                     this->dir = 'l';
@@ -407,7 +422,7 @@ public:
                     this->dir = 'r';
                 }
                 break;
-            case UpDown:
+            case AIPatrolPattern::UpDown:
                 if(this->dir != 'u' && this->dir != 'd')
                 {
                     this->dir = 'u';
@@ -422,7 +437,23 @@ public:
                     this->dir = 'u';
                 }
                 break;
-            case ClockWise: break;
+            case AIPatrolPattern::ClockWise:
+                switch(this->dir)
+                {
+                    case 'l':
+                        this->dir = 'u';
+                        break;
+                    case 'd':
+                        this->dir = 'l';
+                        break;
+                    case 'r':
+                        this->dir = 'd';
+                        break;
+                    case 'u':
+                        this->dir = 'r';
+                        break;
+                }
+                break;
             default: ;
         }
     }
@@ -444,44 +475,55 @@ public:
     	
     	switch(this->movementType)
     	{
-			case AntiClockWise:
+			case AIPatrolPattern::AntiClockWise:
                 break;
-            case LeftRight:
+            case AIPatrolPattern::LeftRight:
                 if (this->dir != 'l' && this->dir != 'r')
                 {
                     this->dir = 'l';
                 }
 
-                if (this->dir == 'r')
-                {
-                    xChange += 1;
-                    newPlayerLocation.x += 16;
-                }
-                else
-                {
-                    xChange -= 1;
-                    newPlayerLocation.x -= 16;
-                }
                 break;
-            case UpDown: 
+            case AIPatrolPattern::UpDown:
     			if(this->dir != 'u' && this->dir != 'd')
     			{
 	                this->dir = 'u';   				
     			}
 
-    			if(this->dir == 'u')
-    			{
-                    yChange -= 1;
-                    newPlayerLocation.y -= 16;
-    			}
-	            else
-	            {
-                    yChange += 1;
-                    newPlayerLocation.y += 16;
-	            }
     			break;
-            case ClockWise: break;
+            case AIPatrolPattern::ClockWise: break;
             default: ;
+        }
+
+        switch(this->dir)
+        {
+            case 'u':
+                yChange -= 1;
+                newPlayerLocation.y -= 16;
+                break;
+            case 'd'
+                yChange += 1;
+                newPlayerLocation.y += 16;
+                break;
+            case 'l':
+                xChange -= 1;
+                newPlayerLocation.x -= 16;
+                break;
+            case 'r':
+                xChange += 1;
+                newPlayerLocation.x += 16;
+                break;
+        }
+
+        if (this->dir == 'r')
+        {
+            xChange += 1;
+            newPlayerLocation.x += 16;
+        }
+        else
+        {
+            xChange -= 1;
+            newPlayerLocation.x -= 16;
         }
 
         this->ProcessPlayerMovement(xChange,yChange, newPlayerLocation);
@@ -643,7 +685,7 @@ void InitPlayers()
     player2->spriteUp = ninjaSpriteUp;
     player2->spriteSide = ninjaSpriteSide;
     player2->currentMovement.movementDelay = 1;
-    player2->movementType = LeftRight;
+    player2->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player2);
 
     auto player3 = new AIPlayer();
@@ -654,6 +696,7 @@ void InitPlayers()
     player3->spriteUp = p3SpriteUp;
     player3->spriteSide = p3SpriteSide;
     player3->currentMovement.movementDelay = 5;
+    player3->movementType = AIPatrolPattern::AntiClockWise;
     players.push_back(player3);
 
     auto player4 = new AIPlayer();
@@ -664,6 +707,7 @@ void InitPlayers()
     player4->spriteUp = p4SpriteUp;
     player4->spriteSide = p4SpriteSide;
     player4->currentMovement.movementDelay = 2;
+    player4->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player4);
 
 	
