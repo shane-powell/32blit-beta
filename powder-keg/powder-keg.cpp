@@ -457,7 +457,7 @@ public:
             default: ;
         }
     }
-
+//todo only check if no movement is in progress
     virtual void SetPlayerActions()
 	{
         int16_t xChange = 0;
