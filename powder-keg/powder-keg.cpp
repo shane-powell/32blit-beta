@@ -405,6 +405,7 @@ public:
                     case 'u':
                         this->dir = 'l';
                         break;
+                    default: ;
                 }
                 break;
             case AIPatrolPattern::LeftRight:
@@ -452,30 +453,33 @@ public:
                     case 'u':
                         this->dir = 'r';
                         break;
+                    default: ;
                 }
                 break;
             default: ;
         }
     }
 //todo only check if no movement is in progress
-    virtual void SetPlayerActions()
-	{
-        int16_t xChange = 0;
-        int16_t yChange = 0;
-        Point newPlayerLocation = this->location;
+    void SetPlayerActions() override
+    {
+        //if(this->currentMovement.movementCount == 0)
+        //{
+            int16_t xChange = 0;
+            int16_t yChange = 0;
+            Point newPlayerLocation = this->location;
 
-        if (this->canFireTimeout > 0)
-        {
-            this->canFireTimeout--;
-        }
-        else
-        {
-            this->can_fire = true;
-        }
-    	
-    	switch(this->movementType)
-    	{
-			case AIPatrolPattern::AntiClockWise:
+            if (this->canFireTimeout > 0)
+            {
+                this->canFireTimeout--;
+            }
+            else
+            {
+                this->can_fire = true;
+            }
+
+            switch (this->movementType)
+            {
+            case AIPatrolPattern::AntiClockWise:
                 break;
             case AIPatrolPattern::LeftRight:
                 if (this->dir != 'l' && this->dir != 'r')
@@ -485,23 +489,23 @@ public:
 
                 break;
             case AIPatrolPattern::UpDown:
-    			if(this->dir != 'u' && this->dir != 'd')
-    			{
-	                this->dir = 'u';   				
-    			}
+                if (this->dir != 'u' && this->dir != 'd')
+                {
+                    this->dir = 'u';
+                }
 
-    			break;
+                break;
             case AIPatrolPattern::ClockWise: break;
-            default: ;
-        }
+            default:;
+            }
 
-        switch(this->dir)
-        {
+            switch (this->dir)
+            {
             case 'u':
                 yChange -= 1;
                 newPlayerLocation.y -= 16;
                 break;
-            case 'd'
+            case 'd':
                 yChange += 1;
                 newPlayerLocation.y += 16;
                 break;
@@ -513,20 +517,22 @@ public:
                 xChange += 1;
                 newPlayerLocation.x += 16;
                 break;
-        }
+            }
 
-        if (this->dir == 'r')
-        {
-            xChange += 1;
-            newPlayerLocation.x += 16;
-        }
-        else
-        {
-            xChange -= 1;
-            newPlayerLocation.x -= 16;
-        }
+            if (this->dir == 'r')
+            {
+                xChange += 1;
+                newPlayerLocation.x += 16;
+            }
+            else
+            {
+                xChange -= 1;
+                newPlayerLocation.x -= 16;
+            }
 
-        this->ProcessPlayerMovement(xChange,yChange, newPlayerLocation);
+            this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
+        //}
+       
     }
 };
 
