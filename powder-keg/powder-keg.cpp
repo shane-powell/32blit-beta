@@ -1,5 +1,7 @@
 #include "powder-keg.hpp"
 
+#include "Entity.h"
+
 using namespace blit;
 
 enum class AIPatrolPattern {
@@ -95,11 +97,7 @@ int viewX = 0;
 
 int viewPortX = 0;
 
-class Entity {
-public:
-    Rect sprite;
-    Point location;
-};
+
 
 struct Projectile : Entity {
     uint8_t transform = 0;
