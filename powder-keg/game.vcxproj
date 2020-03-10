@@ -162,6 +162,7 @@
     <ClInclude Include="powder-keg.hpp" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="TileAnimationFrame.h" />
+    <ClInclude Include="TileData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationFrame.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="powder-keg.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="TileAnimationFrame.cpp" />
+    <ClCompile Include="TileData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

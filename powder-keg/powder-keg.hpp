@@ -1,18 +1,8 @@
 #include "32blit.hpp"
 
-struct TileData
-{
-    uint8_t id = 0;
-    uint16_t index = 0;
-    bool canMove = true;
-    uint16_t pixels_in_water = 0;
-    bool in_water = false;
-    float movement_modifier = 0;
-    float life_modifier = 0;
-    //TileData();
-};
 
-TileData getLocalTileData(const blit::Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width);
+
+
 
 const uint8_t packed_data[] = {
     0x53, 0x50, 0x52, 0x49, 0x54, 0x45, 0x00, 0x00, // type: sprite
