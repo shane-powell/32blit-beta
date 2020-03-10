@@ -1,6 +1,8 @@
 #include "powder-keg.hpp"
 
 #include "Entity.h"
+#include "Explosion.h"
+#include "Projectile.h"
 
 using namespace blit;
 
@@ -99,23 +101,9 @@ int viewPortX = 0;
 
 
 
-struct Projectile : Entity {
-    uint8_t transform = 0;
-    int16_t lifetime = 300;
-    int16_t vel_x = 0;
-    int16_t vel_y = 0;
-};
 
-struct Explosion : Entity {
-    //Rect sprite;
-    //Point location;
-    uint8_t lengthUp = 0;
-    uint8_t lengthDown = 0;
-    uint8_t lengthLeft = 0;
-    uint8_t lengthRight = 0;
-    int16_t lifeTime = 50;
 
-};
+
 
 class Frame {
 public:
