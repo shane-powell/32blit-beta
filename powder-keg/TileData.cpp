@@ -3,9 +3,6 @@
 #include "types/point.hpp"
 using namespace blit;
 
-
-const int8_t sprite_width = 16;
-
 uint16_t getTileFromPoint(const Point& point, uint8_t tile_size, uint8_t tile_map_width) {
     uint16_t horizontal_location = point.x / tile_size;
 

@@ -5,21 +5,17 @@
 #include "Projectile.h"
 #include "TileAnimationFrame.h"
 #include "TileData.h"
+#include "GameState.h"
 
 using namespace blit;
+using namespace GameState;
 
 enum class AIPatrolPattern {
     LeftRight, UpDown, ClockWise, AntiClockWise
 };
 
 
-const uint8_t sprite_width = 16;
 
-// Point player_location = Point(32, 20);
-
-const uint32_t tilemap_width = 32;
-
-const uint32_t tilemap_height = 16;
 
 
 TileMap world((uint8_t *) layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
@@ -89,10 +85,6 @@ struct TileAnimation {
 };
 
 std::vector<TileAnimation> tileAnimations;
-
-static std::vector<Projectile> projectiles;
-
-static std::vector<Explosion> explosions;
 
 struct Movement {
     int8_t xMovement = 0;
@@ -265,6 +257,8 @@ public:
     }
 };
 
+static std::vector<Player*> players;
+
 class AIPlayer : public Player {
 public:
     AIPatrolPattern movementType = AIPatrolPattern::UpDown;
@@ -390,7 +384,6 @@ public:
     }
 };
 
-static std::vector<Player *> players;
 
 void SetPlayerActions(Player &player, int16_t &xChange, int16_t &yChange, Point &newPlayerLocation);
 
@@ -520,7 +513,7 @@ void RenderTileAnimations() {
 }
 
 void RenderExplosions() {
-    for (const Explosion &explosion : explosions) {
+    for (const Explosion &explosion : GameState::explosions) {
         screen.sprite(explosionCore, explosion.location, Point(0, 0), Vec2(2, 2));
 
         for (int i = 1; i <= explosion.lengthRight; i++) {
@@ -787,13 +780,13 @@ void CreateExplosion(const std::vector<Projectile>::iterator &projectile) {
     }
 
 
-    explosions.push_back(explosion);
+    GameState::explosions.push_back(explosion);
 }
 
 void updateProjectiles() {
-    auto projectile = projectiles.begin();
+    auto projectile = GameState::projectiles.begin();
 
-    while (projectile != projectiles.end()) {
+    while (projectile != GameState::projectiles.end()) {
 
         /*auto npc = npcs.begin();
 

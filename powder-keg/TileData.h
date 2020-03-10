@@ -5,6 +5,14 @@ namespace blit {
 	struct Point;
 }
 
+const uint8_t sprite_width = 16;
+
+// Point player_location = Point(32, 20);
+
+const uint32_t tilemap_width = 32;
+
+const uint32_t tilemap_height = 16;
+
 struct TileData
 {
     uint8_t id = 0;
