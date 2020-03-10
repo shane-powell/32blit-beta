@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Explosion.h"
 #include "Projectile.h"
+#include "TileAnimationFrame.h"
 
 using namespace blit;
 
@@ -105,30 +106,11 @@ int viewPortX = 0;
 
 
 
-class Frame {
-public:
-    uint8_t frameCount = 0;
-    uint8_t frameLength = 1;
-};
 
-class AnimationFrame : public Frame {
-    Rect sprite;
 
-    AnimationFrame(Rect sprite, uint8_t frameLength) {
-        this->sprite = sprite;
-        this->frameLength = frameLength;
-    };
-};
 
-class TileAnimationFrame : public Frame {
-public:
-    uint16_t tileId;
 
-    TileAnimationFrame(uint16_t tileId, uint8_t frameLength) {
-        this->tileId = tileId;
-        this->frameLength = frameLength;
-    };
-};
+
 
 struct TileAnimation {
     uint16_t tileIndex;
