@@ -160,8 +160,11 @@
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="Movement.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="powder-keg.hpp" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="SpriteDef.h" />
     <ClInclude Include="TileAnimationFrame.h" />
     <ClInclude Include="TileData.h" />
   </ItemGroup>
@@ -171,8 +174,11 @@
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="Movement.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="powder-keg.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="SpriteDef.cpp" />
     <ClCompile Include="TileAnimationFrame.cpp" />
     <ClCompile Include="TileData.cpp" />
   </ItemGroup>
