@@ -1,5 +1,4 @@
 #include "powder-keg.hpp"
-#include "Entity.h"
 #include "Explosion.h"
 #include "Projectile.h"
 #include "TileAnimationFrame.h"
