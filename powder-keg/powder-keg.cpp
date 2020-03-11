@@ -20,7 +20,6 @@ int8_t logCounter = 0;
 char gameState = 'G';
 bool sound = false;
 
-
 int8_t spriteSize = 16;
 
 int viewX = 0;
@@ -28,18 +27,6 @@ int viewX = 0;
 //int8_t borderOffset = 2;
 
 int viewPortX = 0;
-
-
-
-
-
-
-
-
-
-
-
-
 
 struct TileAnimation {
     uint16_t tileIndex;
@@ -52,7 +39,6 @@ struct TileAnimation {
 };
 
 std::vector<TileAnimation> tileAnimations;
-
 
 static std::vector<Player*> players;
 
@@ -80,7 +66,6 @@ void DrawWorld() {
     world.draw(&screen, Rect(0, 0, 320, 240), nullptr);
 
 }
-
 
 void StartGame() {
     score = 0;
