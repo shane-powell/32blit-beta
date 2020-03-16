@@ -362,3 +362,5 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+powder-keg/cmake-build-debug/powder-keg.cbp
+powder-keg/cmake-build-debug/powder-keg
