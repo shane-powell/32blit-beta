@@ -30,6 +30,10 @@ using namespace GameState;
         bool alive = true;
         uint16_t respawnTimer = respawnTime;
         bool isPlayer = false;
+        bool isFiring = false;
+        int16_t xChange = 0;
+        int16_t yChange = 0;
+        Point newPlayerLocation;
 
         void RespawnPlayer() {
             this->location = this->spawnLocation;
@@ -57,25 +61,10 @@ using namespace GameState;
             }
         }
 
-        void DropBomb() {
-            if (this->can_fire && this->location.x % 16 == 0 and this->location.y % 16 == 0) {
-                this->can_fire = false;
-                this->canFireTimeout = this->fire_delay;
-                Projectile newProjectile;
-
-                newProjectile.sprite = bombSprite;
-
-                newProjectile.location.x = this->location.x;
-                newProjectile.location.y = this->location.y;
-
-                GameState::projectiles.push_back(newProjectile);
-            }
-        }
-
         virtual void SetPlayerActions() {
-            int16_t xChange = 0;
-            int16_t yChange = 0;
-            Point newPlayerLocation = this->location;
+            xChange = 0;
+            yChange = 0;
+            newPlayerLocation = this->location;
 
             if (this->canFireTimeout > 0) {
                 this->canFireTimeout--;
@@ -102,7 +91,8 @@ using namespace GameState;
             }
 
             if (buttons & B) {
-                DropBomb();
+                isFiring = true;
+                //DropBomb();
             }
 
             if (xChange > 0) {
@@ -120,74 +110,14 @@ using namespace GameState;
 
             }
 
-            this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
+            //this->ProcessPlayerMovement();
         }
 
         virtual void ProcessCannotMove() {
 
         }
 
-        void ProcessPlayerMovement(int16_t xChange, int16_t yChange, Point newPlayerLocation) {
-            //bool move_ok = true;
-
-            const auto currentTileData = getLocalTileData(newPlayerLocation, sprite_width, tilemap_width);
-
-            if (xChange != 0 || yChange != 0) {
-                if (currentTileData.canMove) {
-                    if (this->currentMovement.movementCount == 0) {
-                        this->currentMovement.movementCount = 16;
-                        this->currentMovement.xMovement = xChange;
-                        this->currentMovement.yMovement = yChange;
-                    }
-
-                    if (yChange > 0 && xChange == 0) {
-                        this->aim = 2;
-                    }
-                    else if (yChange < 0 && xChange == 0) {
-                        this->aim = 8;
-                    }
-                    else if (xChange > 0 && yChange == 0) {
-                        this->aim = 6;
-                    }
-                    else if (xChange < 0 && yChange == 0) {
-                        this->aim = 4;
-                    }
-                    else if (xChange > 0 && yChange > 0) {
-                        this->aim = 3;
-                    }
-                    else if (xChange < 0 && yChange < 0) {
-                        this->aim = 7;
-                    }
-                    else if (xChange > 0 && yChange < 0) {
-                        this->aim = 9;
-                    }
-                    else if (xChange < 0 && yChange > 0) {
-                        this->aim = 1;
-                    }
-                }
-                else {
-                    ProcessCannotMove();
-                }
-
-            }
-
-            if (this->currentMovement.movementCount > 0) {
-                if (this->currentMovement.movementStep == this->currentMovement.movementDelay) {
-                    this->currentMovement.movementCount--;
-
-                    this->location.x += this->currentMovement.xMovement;
-                    this->location.y += this->currentMovement.yMovement;
-
-                    this->currentMovement.movementStep = 0;
-                }
-                else {
-                    this->currentMovement.movementStep++;
-                }
-
-
-            }
-
-        }
+        
     };
 
     enum class AIPatrolPattern {
@@ -272,9 +202,9 @@ using namespace GameState;
                 this->can_fire = true;
             }
 
-            int16_t xChange = 0;
-            int16_t yChange = 0;
-            Point newPlayerLocation = this->location;
+            xChange = 0;
+            yChange = 0;
+            newPlayerLocation = this->location;
             if (this->currentMovement.movementCount <= 0) {
                 switch (this->movementType) {
                 case AIPatrolPattern::AntiClockWise:
@@ -316,7 +246,7 @@ using namespace GameState;
                 }
 
             }
-            this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
+            //this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
         }
     };
 

@@ -9,6 +9,40 @@
 using namespace blit;
 using namespace GameState;
 
+static uint8_t layer_world[] = {
+            48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27,
+            28, 29, 30, 52, 64, 37, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00,
+            00, 00, 00, 00,
+            64, 65, 01, 01, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 01, 01, 37, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 36, 01, 01, 01, 65, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 66, 01, 66, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 66, 01, 38, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 66, 01, 65, 01, 66, 66, 66, 66, 65, 66, 66, 66, 01, 66, 01, 66, 01, 68, 00, 65, 66, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 66, 01, 66, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 66, 66, 66, 66, 66, 66, 66,
+            66, 66, 66, 66,
+            64, 01, 66, 01, 35, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 36, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 01, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 66, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 01, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
+            65, 65, 65, 65,
+            64, 66, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 66, 66, 66, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
+            65, 65, 65, 65,
+            80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00,
+            00, 00, 00, 00,
+            00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+            00, 00, 00, 00,
+    };
+
 TileMap world((uint8_t *) layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
 
 int16_t maxX = 319;
@@ -52,6 +86,138 @@ bool is_Point_in_Rect(const Point &pointToCheck, std::vector<Rect>::value_type b
     }
     return false;
 }
+
+uint16_t getTileFromPoint(const Point& point, uint8_t tile_size, uint8_t tile_map_width) {
+    uint16_t horizontal_location = point.x / tile_size;
+
+    uint16_t vertical_location = (point.y / tile_size) * tile_map_width;
+
+    if (vertical_location % tile_size > 0) {
+        vertical_location += 1;
+    }
+
+    const uint16_t array_location = horizontal_location + vertical_location;
+
+    return array_location;
+}
+
+TileData getLocalTileData(const blit::Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width) {
+    TileData tileData;
+
+    for (auto y = 0; y < sprite_width; y++) {
+        for (auto x = 0; x < sprite_width; x++) {
+            const auto array_location = getTileFromPoint(blit::Point(Point_to_check.x + x, Point_to_check.y + y), tile_size,
+                                                         tile_map_width);
+            const uint8_t tileScanned = layer_world[array_location];
+
+            tileData.id = tileScanned;
+            tileData.index = array_location;
+
+            switch (tileScanned) {
+            case 17:
+            case 33:
+            case 48:
+            case 49:
+            case 50:
+            case 51:
+            case 52:
+            case 64:
+            case 68:
+            case 80:
+            case 81:
+            case 82:
+            case 83:
+            case 84:
+            case 36:
+            case 01:
+                tileData.canMove = false;
+                break;
+            default:
+                break;
+            }
+
+            //if (tile_scanned == 0)
+            //{
+            //    tile_data.canMove = false;
+            //    //return false;
+            //}
+            //else if (tile_scanned == 4)
+            //{
+            //    tile_data.movement_modifier = 0.5;
+            //    tile_data.pixels_in_water += 1;
+            //}
+
+        }
+    }
+
+    if (tileData.pixels_in_water > (sprite_width * sprite_width / 2)) {
+        tileData.in_water = true;
+    }
+
+    return tileData;
+}
+
+void ProcessPlayerMovement(Player* player) {
+            //bool move_ok = true;
+
+            const auto currentTileData = getLocalTileData(player->newPlayerLocation, sprite_width, tilemap_width);
+
+            if (player->xChange != 0 || player->yChange != 0) {
+                if (currentTileData.canMove) {
+                    if (player->currentMovement.movementCount == 0) {
+                        player->currentMovement.movementCount = 16;
+                        player->currentMovement.xMovement = player->xChange;
+                        player->currentMovement.yMovement = player->yChange;
+                    }
+
+                    if (player->yChange > 0 && player->xChange == 0) {
+                        player->aim = 2;
+                    }
+                    else if (player->yChange < 0 && player->xChange == 0) {
+                        player->aim = 8;
+                    }
+                    else if (player->xChange > 0 && player->yChange == 0) {
+                        player->aim = 6;
+                    }
+                    else if (player->xChange < 0 && player->yChange == 0) {
+                        player->aim = 4;
+                    }
+                    else if (player->xChange > 0 && player->yChange > 0) {
+                        player->aim = 3;
+                    }
+                    else if (player->xChange < 0 && player->yChange < 0) {
+                        player->aim = 7;
+                    }
+                    else if (player->xChange > 0 && player->yChange < 0) {
+                        player->aim = 9;
+                    }
+                    else if (player->xChange < 0 && player->yChange > 0) {
+                        player->aim = 1;
+                    }
+                }
+                else {
+                    player->ProcessCannotMove();
+                }
+
+            }
+
+            if (player->currentMovement.movementCount > 0) {
+                if (player->currentMovement.movementStep == player->currentMovement.movementDelay) {
+                    player->currentMovement.movementCount--;
+
+                    player->location.x += player->currentMovement.xMovement;
+                    player->location.y += player->currentMovement.yMovement;
+
+                    player->currentMovement.movementStep = 0;
+                }
+                else {
+                    player->currentMovement.movementStep++;
+                }
+
+
+            }
+
+        }
 
 void DrawWorld() {
     Vec2 wo(64, 40);
@@ -132,6 +298,21 @@ void init() {
     InitPlayers();
 
 }
+
+        void DropBomb(Player* player) {
+            if (player->can_fire && player->location.x % 16 == 0 && player->location.y % 16 == 0) {
+                player->can_fire = false;
+                player->canFireTimeout = player->fire_delay;
+                Projectile newProjectile;
+
+                newProjectile.sprite = bombSprite;
+
+                newProjectile.location.x = player->location.x;
+                newProjectile.location.y = player->location.y;
+
+                GameState::projectiles.push_back(newProjectile);
+            }
+        }
 
 void RenderTileAnimations() {
     auto tile = tileAnimations.begin();
@@ -487,6 +668,13 @@ void UpdatePlayers() {
 
     for (Player *player : players) {
         player->ProcessPlayer();
+        ProcessPlayerMovement(player);
+
+        if(player->isFiring)
+        {
+            DropBomb(player);
+            player->isFiring = false;
+        }
     }
 
     lastButtons = blit::buttons;
