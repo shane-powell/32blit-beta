@@ -47,7 +47,7 @@ using namespace GameState;
             this->currentMovement.yMovement = 0;
         }
 
-        void ProcessPlayer() {
+        void ProcessPlayer(std::map<char, TileData> playerTileScan) {
             if (!this->alive) {
                 if (this->respawnTimer == 0) {
                     RespawnPlayer();
@@ -57,11 +57,11 @@ using namespace GameState;
                 }
             }
             else {
-                this->SetPlayerActions();
+                this->SetPlayerActions(playerTileScan);
             }
         }
 
-        virtual void SetPlayerActions() {
+        virtual void SetPlayerActions(std::map<char, TileData> playerTileScan) {
             xChange = 0;
             yChange = 0;
             newPlayerLocation = this->location;
@@ -287,7 +287,7 @@ using namespace GameState;
         }
 
         //todo only check if no movement is in progress
-        void SetPlayerActions() override {
+        void SetPlayerActions(std::map<char, TileData> playerTileScan) override {
             if (this->canFireTimeout > 0) {
                 this->canFireTimeout--;
             }

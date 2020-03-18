@@ -615,7 +615,15 @@ void UpdatePlayers() {
     uint16_t released = changed & ~blit::buttons;
 
     for (Player *player : players) {
-        player->ProcessPlayer();
+
+        std::map<char, TileData> playerTileScan;
+
+        playerTileScan.insert({'u',getLocalTileData(Point(player->location.x, player->location.y - sprite_width), sprite_width, tilemap_width)});
+        playerTileScan.insert({'d',getLocalTileData(Point(player->location.x, player->location.y + sprite_width), sprite_width, tilemap_width)});
+        playerTileScan.insert({'l',getLocalTileData(Point(player->location.x - sprite_width, player->location.y), sprite_width, tilemap_width)});
+        playerTileScan.insert({'r',getLocalTileData(Point(player->location.x + sprite_width, player->location.y), sprite_width, tilemap_width)});
+
+        player->ProcessPlayer(playerTileScan);
         ProcessPlayerMovement(player);
 
         if(player->isFiring)
