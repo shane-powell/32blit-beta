@@ -71,8 +71,6 @@ struct TileAnimation {
     }
 };
 
-void MovePlayer(Player *player, const TileData &currentTileData);
-
 std::vector<TileAnimation> tileAnimations;
 
 static std::vector<Player*> players;
@@ -163,68 +161,11 @@ void ProcessPlayerMovement(Player* player) {
 
             const auto currentTileData = getLocalTileData(player->newPlayerLocation, sprite_width, tilemap_width);
 
-    MovePlayer(player, currentTileData);
+    player->MovePlayer(currentTileData);
 
 }
 
-void MovePlayer(Player *player, const TileData &currentTileData) {
-    if (player->xChange != 0 || player->yChange != 0) {
-        if (currentTileData.canMove) {
-            if (player->currentMovement.movementCount == 0) {
-                player->currentMovement.movementCount = 16;
-                player->currentMovement.xMovement = player->xChange;
-                player->currentMovement.yMovement = player->yChange;
 
-
-            }
-
-            if (player->yChange > 0 && player->xChange == 0) {
-                player->aim = 2;
-            }
-            else if (player->yChange < 0 && player->xChange == 0) {
-                player->aim = 8;
-            }
-            else if (player->xChange > 0 && player->yChange == 0) {
-                player->aim = 6;
-            }
-            else if (player->xChange < 0 && player->yChange == 0) {
-                player->aim = 4;
-            }
-            else if (player->xChange > 0 && player->yChange > 0) {
-                player->aim = 3;
-            }
-            else if (player->xChange < 0 && player->yChange < 0) {
-                player->aim = 7;
-            }
-            else if (player->xChange > 0 && player->yChange < 0) {
-                player->aim = 9;
-            }
-            else if (player->xChange < 0 && player->yChange > 0) {
-                player->aim = 1;
-            }
-        }
-        else {
-            player->ProcessCannotMove();
-        }
-
-    }
-
-    if (player->currentMovement.movementCount > 0) {
-        if (player->currentMovement.movementStep == player->currentMovement.movementDelay) {
-            player->currentMovement.movementCount--;
-
-            player->location.x += player->currentMovement.xMovement;
-            player->location.y += player->currentMovement.yMovement;
-
-            player->currentMovement.movementStep = 0;
-        }
-        else {
-            player->currentMovement.movementStep++;
-        }
-
-
-    }
-}
 
 void DrawWorld() {
     Vec2 wo(64, 40);

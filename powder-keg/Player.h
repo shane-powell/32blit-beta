@@ -117,11 +117,70 @@ using namespace GameState;
 
         }
 
+        void MovePlayer(const TileData &currentTileData) {
+    if (this->xChange != 0 || this->yChange != 0) {
+        if (currentTileData.canMove) {
+            if (this->currentMovement.movementCount == 0) {
+                this->currentMovement.movementCount = 16;
+                this->currentMovement.xMovement = this->xChange;
+                this->currentMovement.yMovement = this->yChange;
+
+
+            }
+
+            if (this->yChange > 0 && this->xChange == 0) {
+                this->aim = 2;
+            }
+            else if (this->yChange < 0 && this->xChange == 0) {
+                this->aim = 8;
+            }
+            else if (this->xChange > 0 && this->yChange == 0) {
+                this->aim = 6;
+            }
+            else if (this->xChange < 0 && this->yChange == 0) {
+                this->aim = 4;
+            }
+            else if (this->xChange > 0 && this->yChange > 0) {
+                this->aim = 3;
+            }
+            else if (this->xChange < 0 && this->yChange < 0) {
+                this->aim = 7;
+            }
+            else if (this->xChange > 0 && this->yChange < 0) {
+                this->aim = 9;
+            }
+            else if (this->xChange < 0 && this->yChange > 0) {
+                this->aim = 1;
+            }
+        }
+        else {
+            this->ProcessCannotMove();
+        }
+
+    }
+
+    if (this->currentMovement.movementCount > 0) {
+        if (this->currentMovement.movementStep == this->currentMovement.movementDelay) {
+            this->currentMovement.movementCount--;
+
+            this->location.x += this->currentMovement.xMovement;
+            this->location.y += this->currentMovement.yMovement;
+
+            this->currentMovement.movementStep = 0;
+        }
+        else {
+            this->currentMovement.movementStep++;
+        }
+
+
+    }
+}
+
         
     };
 
     enum class AIPatrolPattern {
-        LeftRight, UpDown, ClockWise, AntiClockWise
+        LeftRight, UpDown, ClockWise, AntiClockWise, WallFollowLeft, WallfollowRight
     };
 
     class AIPlayer : public Player {
@@ -173,6 +232,40 @@ using namespace GameState;
                 }
                 break;
             case AIPatrolPattern::ClockWise:
+                switch (this->dir) {
+                case 'l':
+                    this->dir = 'u';
+                    break;
+                case 'd':
+                    this->dir = 'l';
+                    break;
+                case 'r':
+                    this->dir = 'd';
+                    break;
+                case 'u':
+                    this->dir = 'r';
+                    break;
+                default:;
+                }
+                break;
+                case AIPatrolPattern::WallFollowLeft:
+                switch (this->dir) {
+                case 'l':
+                    this->dir = 'd';
+                    break;
+                case 'd':
+                    this->dir = 'r';
+                    break;
+                case 'r':
+                    this->dir = 'u';
+                    break;
+                case 'u':
+                    this->dir = 'l';
+                    break;
+                default:;
+                }
+                break;
+                case AIPatrolPattern::WallfollowRight:
                 switch (this->dir) {
                 case 'l':
                     this->dir = 'u';
@@ -248,6 +341,8 @@ using namespace GameState;
             }
             //this->ProcessPlayerMovement(xChange, yChange, newPlayerLocation);
         }
+
+        
     };
 
 
