@@ -37,32 +37,7 @@ using namespace GameState;
         int16_t yChange = 0;
         Point newPlayerLocation;
 
-void initDirections()
-        {
-            Node* l = new Node();
-            l->data = 'l';
-            l->previousNode = directions;
-
-            Node* u = new Node();
-            u->data = 'u';
-            u->previousNode = l;
-
-            l->nextNode = u;
-
-            Node* r = new Node();
-            r->data = 'r';
-            r->previousNode = u;
-
-            u-> nextNode = r;
-            r->nextNode = directions;
-
-            directions->data = 'd';
-            directions->nextNode = l;
-            directions->previousNode = r;
-        }
-
         Player() {
-            initDirections();
         }
 
         
@@ -218,6 +193,50 @@ void initDirections()
     public:
         AIPatrolPattern movementType = AIPatrolPattern::UpDown;
         std::vector<char> pathToSafePlace;
+
+        void initDirections()
+        {
+            switch (movementType)   
+            {
+            case AIPatrolPattern::ClockWise:
+            case AIPatrolPattern::AntiClockWise:
+            case AIPatrolPattern::WallFollowLeft:
+            case AIPatrolPattern::WallfollowRight:
+                /* code */
+                break;
+            
+            default:
+                break;
+            }
+
+            Node* l = new Node();
+            l->data = 'l';
+            l->previousNode = directions;
+
+            Node* u = new Node();
+            u->data = 'u';
+            u->previousNode = l;
+
+            l->nextNode = u;
+
+            Node* r = new Node();
+            r->data = 'r';
+            r->previousNode = u;
+
+            u-> nextNode = r;
+            r->nextNode = directions;
+
+            directions->data = 'd';
+            directions->nextNode = l;
+            directions->previousNode = r;
+        }
+
+        AIPlayer(AIPatrolPattern pattern)
+        {
+            this->movementType = pattern;
+
+            initDirections();
+        }
 
         virtual void ProcessCannotMove() {
             switch (this->movementType) {

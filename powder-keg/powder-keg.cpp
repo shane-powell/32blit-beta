@@ -194,7 +194,7 @@ void InitPlayers() {
 
     players.push_back(new Player());
 
-    auto player2 = new AIPlayer();
+    auto player2 = new AIPlayer(AIPatrolPattern::ClockWise);
     player2->spawnLocation = Point(288, 16);
     player2->location = player2->spawnLocation;
     player2->isPlayer = false;
@@ -202,10 +202,9 @@ void InitPlayers() {
     player2->spriteUp = ninjaSpriteUp;
     player2->spriteSide = ninjaSpriteSide;
     player2->currentMovement.movementDelay = 1;
-    player2->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player2);
 
-    auto player3 = new AIPlayer();
+    auto player3 = new AIPlayer(AIPatrolPattern::AntiClockWise);
     player3->spawnLocation = Point(16, 208);
     player3->location = player3->spawnLocation;
     player3->isPlayer = false;
@@ -213,10 +212,9 @@ void InitPlayers() {
     player3->spriteUp = p3SpriteUp;
     player3->spriteSide = p3SpriteSide;
     player3->currentMovement.movementDelay = 5;
-    player3->movementType = AIPatrolPattern::AntiClockWise;
     players.push_back(player3);
 
-    auto player4 = new AIPlayer();
+    auto player4 = new AIPlayer(AIPatrolPattern::ClockWise);
     player4->spawnLocation = Point(288, 208);
     player4->location = player4->spawnLocation;
     player4->isPlayer = false;
@@ -224,7 +222,6 @@ void InitPlayers() {
     player4->spriteUp = p4SpriteUp;
     player4->spriteSide = p4SpriteSide;
     player4->currentMovement.movementDelay = 2;
-    player4->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player4);
 
 
