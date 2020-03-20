@@ -6,6 +6,7 @@
 #include "Projectile.h"
 #include "TileData.h"
 #include "SpriteDef.h"
+#include "Node.cpp"
 
 using namespace blit;
 using namespace GameState;
@@ -15,6 +16,8 @@ using namespace GameState;
         virtual ~Player() = default;
 
         const int16_t respawnTime = 200;
+
+        Node* directions;
 
         Rect spriteSide = pirateSpriteSide;
         Rect spriteUp = pirateSpriteUp;
@@ -34,6 +37,37 @@ using namespace GameState;
         int16_t xChange = 0;
         int16_t yChange = 0;
         Point newPlayerLocation;
+
+void initDirections()
+        {
+
+            directions = new Node();
+
+            Node* l = new Node();
+            l->data = 'l';
+            l->previousNode = directions;
+
+            Node* u = new Node();
+            u->data = 'u';
+            u->previousNode = l;
+
+            l->nextNode = u;
+
+            Node* r = new Node();
+            r->data = 'r';
+            r->previousNode = u;
+            r->nextNode = directions;
+
+            directions->data = 'd';
+            directions->nextNode = l;
+            directions->previousNode = r;
+        }
+
+        Player() {
+            initDirections();
+        }
+
+        
 
         void RespawnPlayer() {
             this->location = this->spawnLocation;
@@ -110,7 +144,6 @@ using namespace GameState;
 
             }
 
-            //this->ProcessPlayerMovement();
         }
 
         virtual void ProcessCannotMove() {
@@ -191,7 +224,16 @@ using namespace GameState;
         virtual void ProcessCannotMove() {
             switch (this->movementType) {
             case AIPatrolPattern::AntiClockWise:
-                switch (this->dir) {
+
+                while(directions->data != dir)
+                    {
+                        directions = directions->nextNode;
+                    }
+
+                    directions = directions->previousNode;
+
+/*                 switch (this->dir) {
+
                 case 'l':
                     this->dir = 'd';
                     break;
@@ -205,7 +247,7 @@ using namespace GameState;
                     this->dir = 'l';
                     break;
                 default:;
-                }
+                } */
                 break;
             case AIPatrolPattern::LeftRight:
                 if (this->dir != 'l' && this->dir != 'r') {
@@ -232,7 +274,13 @@ using namespace GameState;
                 }
                 break;
             case AIPatrolPattern::ClockWise:
-                switch (this->dir) {
+            while(directions->data != dir)
+                    {
+                        directions = directions->nextNode;
+                    }
+
+                    directions = directions->previousNode;
+               /*  switch (this->dir) {
                 case 'l':
                     this->dir = 'u';
                     break;
@@ -246,7 +294,7 @@ using namespace GameState;
                     this->dir = 'r';
                     break;
                 default:;
-                }
+                } */
                 break;
                 case AIPatrolPattern::WallFollowLeft:
                 switch (this->dir) {
