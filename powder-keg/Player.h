@@ -17,8 +17,7 @@ using namespace GameState;
 
         const int16_t respawnTime = 200;
 
-        Node* directions;
-
+        Node* directions = new Node();
         Rect spriteSide = pirateSpriteSide;
         Rect spriteUp = pirateSpriteUp;
         Rect spriteDown = pirateSpriteDown;
@@ -40,9 +39,6 @@ using namespace GameState;
 
 void initDirections()
         {
-
-            directions = new Node();
-
             Node* l = new Node();
             l->data = 'l';
             l->previousNode = directions;
@@ -56,6 +52,8 @@ void initDirections()
             Node* r = new Node();
             r->data = 'r';
             r->previousNode = u;
+
+            u-> nextNode = r;
             r->nextNode = directions;
 
             directions->data = 'd';
@@ -231,23 +229,7 @@ void initDirections()
                     }
 
                     directions = directions->previousNode;
-
-/*                 switch (this->dir) {
-
-                case 'l':
-                    this->dir = 'd';
-                    break;
-                case 'd':
-                    this->dir = 'r';
-                    break;
-                case 'r':
-                    this->dir = 'u';
-                    break;
-                case 'u':
-                    this->dir = 'l';
-                    break;
-                default:;
-                } */
+                    this->dir = directions->data;
                 break;
             case AIPatrolPattern::LeftRight:
                 if (this->dir != 'l' && this->dir != 'r') {
@@ -279,22 +261,9 @@ void initDirections()
                         directions = directions->nextNode;
                     }
 
-                    directions = directions->previousNode;
-               /*  switch (this->dir) {
-                case 'l':
-                    this->dir = 'u';
-                    break;
-                case 'd':
-                    this->dir = 'l';
-                    break;
-                case 'r':
-                    this->dir = 'd';
-                    break;
-                case 'u':
-                    this->dir = 'r';
-                    break;
-                default:;
-                } */
+                    directions = directions->nextNode;
+
+                    this->dir = directions->data;
                 break;
                 case AIPatrolPattern::WallFollowLeft:
                 switch (this->dir) {
