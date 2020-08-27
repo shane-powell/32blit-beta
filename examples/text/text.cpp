@@ -3,7 +3,6 @@
 using namespace blit;
 
 bool variable_width = true;
-uint32_t prev_buttons = buttons;
 TextAlign alignment = TextAlign::top_left;
 
 std::string alignment_to_string(TextAlign alignment) {
@@ -65,7 +64,7 @@ void render(uint32_t time) {
     text_rect.x += 160;
 
     // clipping
-    Rect clip(text_rect.x + 30 + 30 * cos(time / 1000.0f), text_rect.y, 60, 80);
+    Rect clip(text_rect.x + 30 + 30 * cosf(time / 1000.0f), text_rect.y, 60, 80);
     screen.pen = Pen(64, 64, 64);
     screen.rectangle(text_rect);
 
@@ -77,7 +76,7 @@ void render(uint32_t time) {
 }
 
 void update(uint32_t time) {
-    if ((prev_buttons & Button::A) && !(buttons & Button::A))
+    if (buttons.released & Button::A)
         variable_width = !variable_width;
 
     alignment = TextAlign::top_left;
@@ -95,6 +94,4 @@ void update(uint32_t time) {
 	else if (!(buttons & Button::DPAD_LEFT)) {
 		alignment = (TextAlign)(alignment | TextAlign::center_h);
 	}
-
-    prev_buttons = buttons;
 }

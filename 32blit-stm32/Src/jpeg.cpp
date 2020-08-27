@@ -3,7 +3,9 @@
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_jpeg.h"
 
+extern "C" {
 #include "JPEG/jpeg_utils.h"
+}
 
 #include "engine/file.hpp"
 #include "graphics/jpeg.hpp"
@@ -13,7 +15,8 @@ static bool jpeg_tables_initialised = false;
 static JPEG_HandleTypeDef jpeg_handle;
 static const int jpeg_max_block_len = 768; // can fit a whole number of all block sizes
 static uint8_t jpeg_dec_block[jpeg_max_block_len];
-static uint8_t *jpeg_in_buf = nullptr, *jpeg_out_buf = nullptr;
+static const uint8_t *jpeg_in_buf = nullptr;
+static uint8_t *jpeg_out_buf = nullptr;
 static uint32_t jpeg_in_len = 0, jpeg_in_off = 0;
 static blit::File *jpeg_in_file = nullptr;
 static uint32_t jpeg_out_block = 0;
@@ -37,9 +40,9 @@ void HAL_JPEG_GetDataCallback(JPEG_HandleTypeDef *hjpeg, uint32_t NbDecodedData)
 
   if(jpeg_in_file) {
     jpeg_in_len = jpeg_in_file->read(jpeg_in_off, 1024, (char *)jpeg_in_buf);
-    HAL_JPEG_ConfigInputBuffer(&jpeg_handle, jpeg_in_buf, jpeg_in_len);
+    HAL_JPEG_ConfigInputBuffer(&jpeg_handle, (uint8_t *)jpeg_in_buf, jpeg_in_len);
   } else if(jpeg_in_off < jpeg_in_len)
-    HAL_JPEG_ConfigInputBuffer(&jpeg_handle, jpeg_in_buf + jpeg_in_off, jpeg_in_len - jpeg_in_off);
+    HAL_JPEG_ConfigInputBuffer(&jpeg_handle, (uint8_t *)jpeg_in_buf + jpeg_in_off, jpeg_in_len - jpeg_in_off);
 }
 
 void HAL_JPEG_DataReadyCallback(JPEG_HandleTypeDef *hjpeg, uint8_t *pDataOut, uint32_t OutDataLength) {
@@ -47,65 +50,63 @@ void HAL_JPEG_DataReadyCallback(JPEG_HandleTypeDef *hjpeg, uint8_t *pDataOut, ui
   jpeg_out_block += jpeg_conv_func(jpeg_dec_block, jpeg_out_buf, jpeg_out_block, OutDataLength, &conv_count);
 }
 
-namespace blit {
 
-  JPEGImage decode_jpeg_buffer(uint8_t *ptr, uint32_t len) {
-    if(!jpeg_tables_initialised) {
-      JPEG_InitColorTables();
-      jpeg_tables_initialised = true;
-    }
-
-    jpeg_in_buf = ptr;
-    jpeg_in_len = len;
-    jpeg_in_off = 0;
-    jpeg_in_file = nullptr;
-    
-    jpeg_out_block = 0;
-
-    jpeg_handle.Instance = JPEG;
-    HAL_JPEG_Init(&jpeg_handle);
-
-    auto status = HAL_JPEG_Decode(&jpeg_handle, ptr, len, jpeg_dec_block, jpeg_max_block_len, 0xFFFFFFFF);
-
-    JPEG_ConfTypeDef conf;
-    HAL_JPEG_GetInfo(&jpeg_handle, &conf);
-
-    HAL_JPEG_DeInit(&jpeg_handle);
-
-    return {blit::Size(conf.ImageWidth, conf.ImageHeight), jpeg_out_buf};
+blit::JPEGImage blit_decode_jpeg_buffer(const uint8_t *ptr, uint32_t len) {
+  if(!jpeg_tables_initialised) {
+    JPEG_InitColorTables();
+    jpeg_tables_initialised = true;
   }
 
-  JPEGImage decode_jpeg_file(std::string filename) {
-    blit::File file(filename);
+  jpeg_in_buf = ptr;
+  jpeg_in_len = len;
+  jpeg_in_off = 0;
+  jpeg_in_file = nullptr;
+  
+  jpeg_out_block = 0;
 
-    if(!file.is_open())
-      return {};
+  jpeg_handle.Instance = JPEG;
+  HAL_JPEG_Init(&jpeg_handle);
 
-    jpeg_in_file = &file;
+  auto status = HAL_JPEG_Decode(&jpeg_handle, (uint8_t *)ptr, len, jpeg_dec_block, jpeg_max_block_len, 0xFFFFFFFF);
 
-    if(!jpeg_tables_initialised) {
-      JPEG_InitColorTables();
-      jpeg_tables_initialised = true;
-    }
+  JPEG_ConfTypeDef conf;
+  HAL_JPEG_GetInfo(&jpeg_handle, &conf);
 
-    jpeg_in_buf = new uint8_t[1024];
-    jpeg_in_len = file.read(0, 1024, (char *)jpeg_in_buf);
-    jpeg_in_off = 0;
-    
-    jpeg_out_block = 0;
+  HAL_JPEG_DeInit(&jpeg_handle);
 
-    jpeg_handle.Instance = JPEG;
-    HAL_JPEG_Init(&jpeg_handle);
+  return {blit::Size(conf.ImageWidth, conf.ImageHeight), jpeg_out_buf};
+}
 
-    auto status = HAL_JPEG_Decode(&jpeg_handle, jpeg_in_buf, jpeg_in_len, jpeg_dec_block, jpeg_max_block_len, 0xFFFFFFFF);
+blit::JPEGImage blit_decode_jpeg_file(std::string filename) {
+  blit::File file(filename);
 
-    JPEG_ConfTypeDef conf;
-    HAL_JPEG_GetInfo(&jpeg_handle, &conf);
+  if(!file.is_open())
+    return {};
 
-    HAL_JPEG_DeInit(&jpeg_handle);
+  jpeg_in_file = &file;
 
-    delete[] jpeg_in_buf;
-
-    return {blit::Size(conf.ImageWidth, conf.ImageHeight), jpeg_out_buf};
+  if(!jpeg_tables_initialised) {
+    JPEG_InitColorTables();
+    jpeg_tables_initialised = true;
   }
+
+  jpeg_in_buf = new uint8_t[1024];
+  jpeg_in_len = file.read(0, 1024, (char *)jpeg_in_buf);
+  jpeg_in_off = 0;
+  
+  jpeg_out_block = 0;
+
+  jpeg_handle.Instance = JPEG;
+  HAL_JPEG_Init(&jpeg_handle);
+
+  auto status = HAL_JPEG_Decode(&jpeg_handle, (uint8_t *)jpeg_in_buf, jpeg_in_len, jpeg_dec_block, jpeg_max_block_len, 0xFFFFFFFF);
+
+  JPEG_ConfTypeDef conf;
+  HAL_JPEG_GetInfo(&jpeg_handle, &conf);
+
+  HAL_JPEG_DeInit(&jpeg_handle);
+
+  delete[] jpeg_in_buf;
+
+  return {blit::Size(conf.ImageWidth, conf.ImageHeight), jpeg_out_buf};
 }
