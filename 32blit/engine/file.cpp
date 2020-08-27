@@ -1,42 +1,104 @@
+#include <algorithm>
+#include <cstring>
+#include <map>
+
 #include "file.hpp"
+#include "api_private.hpp"
 
 namespace blit {
-  void *(*open_file)(std::string file, int mode)          = nullptr;
-  int32_t (*read_file)(void *fh, uint32_t offset, uint32_t length, char* buffer) = nullptr;
-  int32_t (*write_file)(void *fh, uint32_t offset, uint32_t length, const char* buffer) = nullptr;
-  int32_t (*close_file)(void *fh)              = nullptr;
-  uint32_t (*get_file_length)(void *fh)        = nullptr;
+  struct BufferFile {
+    const uint8_t *ptr;
+    uint32_t length;
+  };
 
-  std::vector<FileInfo> (*list_files) (std::string path) = nullptr;
-  bool (*file_exists) (std::string path) = nullptr;
-  bool (*directory_exists) (std::string path) = nullptr;
+  static std::map<std::string, BufferFile> buf_files;
 
-  bool (*create_directory) (std::string path);
+  std::vector<FileInfo> list_files(const std::string &path) {
+    auto ret = api.list_files(path);
 
-  bool File::open(std::string file, int mode) {
+    for(auto &buf_file : buf_files) {
+      auto slash_pos = buf_file.first.find_last_of('/');
+      if(slash_pos == std::string::npos)
+        slash_pos = 0;
+      
+      if(buf_file.first.substr(0, slash_pos) == path) {
+        FileInfo info = {};
+        info.name = buf_file.first.substr(slash_pos == 0 ? 0 : slash_pos + 1);
+        ret.push_back(info);
+      }
+    }
+
+    return ret;
+  }
+
+  bool file_exists(const std::string &path) {
+    return api.file_exists(path) || buf_files.find(path) != buf_files.end();
+  }
+  bool directory_exists(const std::string &path) {
+    return api.directory_exists(path);
+  }
+
+  bool create_directory(const std::string &path) {
+    return api.create_directory(path);
+  }
+
+  bool rename_file(const std::string &old_name, const std::string &new_name) {
+    return api.rename_file(old_name, new_name);
+  }
+
+  bool remove_file(const std::string &path) {
+    return api.remove_file(path);
+  }
+
+  bool File::open(const std::string &file, int mode) {
     close();
 
-    fh = open_file(file, mode);
+    // check for buffer
+    auto it = buf_files.find(file);
+
+    if (mode == OpenMode::read && it != buf_files.end()) {
+      buf = it->second.ptr;
+      buf_len = it->second.length;
+      return true;
+    }
+
+    fh = api.open_file(file, mode);
     return fh != nullptr;
   }
 
   int32_t File::read(uint32_t offset, uint32_t length, char *buffer) {
-    return read_file(fh, offset, length, buffer);
+
+    if (buf) {
+      auto len = std::min(length, buf_len - offset);
+      memcpy(buffer, buf + offset, len);
+      return len;
+    }
+
+    return api.read_file(fh, offset, length, buffer);
   }
 
   int32_t File::write(uint32_t offset, uint32_t length, const char *buffer) {
-    return write_file(fh, offset, length, buffer);
+    return api.write_file(fh, offset, length, buffer);
   }
 
   void File::close() {
+    buf = nullptr;
+
     if(!fh)
       return;
 
-    close_file(fh);
+    api.close_file(fh);
     fh = nullptr;
   }
 
   uint32_t File::get_length() {
-    return get_file_length(fh);
+    if (buf)
+      return buf_len;
+
+    return api.get_file_length(fh);
+  }
+
+  void File::add_buffer_file(std::string path, const uint8_t *ptr, uint32_t len) {
+    buf_files.emplace(path, BufferFile{ptr, len});
   }
 }

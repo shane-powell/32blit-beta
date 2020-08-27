@@ -18,7 +18,7 @@ namespace blit {
    * \param p
    * \param variable
    */
-  void Surface::text(std::string message, const Font &font, const Point &p, bool variable, TextAlign align, Rect clip) {
+  void Surface::text(std::string_view message, const Font &font, const Point &p, bool variable, TextAlign align, Rect clip) {
     text(message, font, Rect(p.x, p.y, 0, 0), variable, align, clip);
   }
 
@@ -30,7 +30,7 @@ namespace blit {
    * \param r
    * \param variable
    */
-  void Surface::text(std::string message, const Font &font, const Rect &r, bool variable, TextAlign align, Rect clip) {
+  void Surface::text(std::string_view message, const Font &font, const Rect &r, bool variable, TextAlign align, Rect clip) {
     Point c(r.x, r.y); // caret position
 
     // default clip rect to rect if passed in
@@ -40,6 +40,9 @@ namespace blit {
     // clamp clip rect to screen
     clip.w = std::min(clip.w, bounds.w - clip.x);
     clip.h = std::min(clip.h, bounds.h - clip.y);
+
+    if(!clip.intersects(r))
+      return;
 
     // check vertical alignment
     if ((align & 0b11) != TextAlign::top) {
@@ -65,7 +68,7 @@ namespace blit {
     const int char_size = font.char_w * height_bytes;
 
     size_t char_off = 0;
-    for (char &chr : message) {
+    for (char chr : message) {
       // draw character
 
       uint8_t chr_idx = chr & 0x7F;
@@ -76,6 +79,9 @@ namespace blit {
       const uint8_t* font_chr = &font.data[chr_idx * char_size];
 
       for (uint8_t y = 0; y < font.char_h; y++) {
+        if (c.y + y < 0)
+          continue;
+
         uint32_t po = offset(Point(c.x, c.y + y));
 
         for (uint8_t x = 0; x < font.char_w; x++) {
@@ -129,7 +135,7 @@ namespace blit {
     return font.char_w_variable[chr_idx];
   }
 
-  Size Surface::measure_text(std::string message, const Font &font, bool variable) {
+  Size Surface::measure_text(std::string_view message, const Font &font, bool variable) {
     const int line_height = font.char_h + font.spacing_y;
 
     Size bounds(0, 0);
@@ -171,7 +177,7 @@ namespace blit {
   }
 }
 
-std::string Surface::wrap_text(std::string message, int32_t width, const Font &font, bool variable, bool words) {
+std::string Surface::wrap_text(std::string_view message, int32_t width, const Font &font, bool variable, bool words) {
   std::string ret;
 
   int current_x = 0;
@@ -196,12 +202,14 @@ std::string Surface::wrap_text(std::string message, int32_t width, const Font &f
     if (current_x > width) {
       if(!words || last_space == std::string::npos) {
         // no space to break at or we're not breaking on words
-        ret += message.substr(copied_off, i - copied_off - 1) + "\n";
+        ret += message.substr(copied_off, i - copied_off - 1);
+        ret += "\n";
         copied_off = i - 1;
         current_x = char_width;
       } else {
         // break at last space
-        ret += message.substr(copied_off, last_space - copied_off) + "\n";
+        ret += message.substr(copied_off, last_space - copied_off);
+        ret += "\n";
         copied_off = last_space + 1; // don't copy the space
         last_space = std::string::npos;
         current_x = measure_text(message.substr(copied_off, i - copied_off + 1), font, variable).w;

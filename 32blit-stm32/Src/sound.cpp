@@ -1,6 +1,7 @@
 #include "stm32h7xx_hal.h"
 
 #include "32blit.hpp"
+#include "engine/api_private.hpp"
 #include "gpio.hpp"
 #include "sound.hpp"
 
@@ -31,7 +32,11 @@ void TIM6_DAC_IRQHandler(void) {
 
 namespace sound {
 
+  AudioChannel channels[CHANNEL_COUNT];
+
   void init() {
+    blit::api.channels = channels;
+
     // setup the 22,010Hz audio timer    
     HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
     __TIM6_CLK_ENABLE();
@@ -39,9 +44,9 @@ namespace sound {
     TIM_MasterConfigTypeDef sMasterConfig = {0};
 
     htim6.Instance = TIM6;
-    htim6.Init.Prescaler = 128;
+    htim6.Init.Prescaler = 310;
     htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim6.Init.Period = 85;
+    htim6.Init.Period = 34;
 
     if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
     {

@@ -23,7 +23,7 @@ void setup_base_path()
   SDL_free(basePathPtr);
 }
 
-void *open_file(std::string name, int mode) {
+void *open_file(const std::string &name, int mode) {
   const char *str_mode;
 
   if(mode == blit::OpenMode::read)
@@ -77,7 +77,7 @@ uint32_t get_file_length(void *fh)
   return SDL_RWtell(file);
 }
 
-std::vector<blit::FileInfo> list_files(std::string path) {
+std::vector<blit::FileInfo> list_files(const std::string &path) {
   std::vector<blit::FileInfo> ret;
 
 #ifdef WIN32
@@ -97,6 +97,7 @@ std::vector<blit::FileInfo> list_files(std::string path) {
       continue;
 
     info.flags = 0;
+    info.size = findData.nFileSizeLow;
 
     if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       info.flags |= blit::FileFlags::directory;
@@ -123,15 +124,15 @@ std::vector<blit::FileInfo> list_files(std::string path) {
     if(info.name == "." || info.name == "..")
       continue;
 
-    info.flags = 0;
+    struct stat stat_buf;
 
-    if(ent->d_type == DT_LNK) {
-      // lookup link target
-      struct stat stat_buf;
-  
-      if(stat((basePath + path + "/" + info.name).c_str(), &stat_buf) >= 0 && S_ISDIR(stat_buf.st_mode))
-        info.flags |= blit::FileFlags::directory;
-    } else if(ent->d_type == DT_DIR)
+    if(stat((basePath + path + "/" + info.name).c_str(), &stat_buf) < 0)
+      continue;
+
+    info.flags = 0;
+    info.size = stat_buf.st_size;
+
+    if(S_ISDIR(stat_buf.st_mode))
       info.flags |= blit::FileFlags::directory;
 
     ret.push_back(info);
@@ -143,30 +144,38 @@ std::vector<blit::FileInfo> list_files(std::string path) {
   return ret;
 }
 
-bool file_exists(std::string path) {
+bool file_exists(const std::string &path) {
 #ifdef WIN32
-	DWORD attribs = GetFileAttributesA(path.c_str());
+	DWORD attribs = GetFileAttributesA((basePath + path).c_str());
 	return (attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY));
 #else
   struct stat stat_buf;
-  return (stat(path.c_str(), &stat_buf) == 0 && S_ISREG(stat_buf.st_mode));
+  return (stat((basePath + path).c_str(), &stat_buf) == 0 && S_ISREG(stat_buf.st_mode));
 #endif
 }
 
-bool directory_exists(std::string path) {
+bool directory_exists(const std::string &path) {
 #ifdef WIN32
-	DWORD attribs = GetFileAttributesA(path.c_str());
+	DWORD attribs = GetFileAttributesA((basePath + path).c_str());
 	return (attribs != INVALID_FILE_ATTRIBUTES && (attribs & FILE_ATTRIBUTE_DIRECTORY));
 #else
   struct stat stat_buf;
-  return (stat(path.c_str(), &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode));
+  return (stat((basePath + path).c_str(), &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode));
 #endif
 }
 
-bool create_directory(std::string path) {
+bool create_directory(const std::string &path) {
 #ifdef WIN32
   return _mkdir((basePath + path).c_str()) == 0 || errno == EEXIST;
 #else
   return mkdir((basePath + path).c_str(), 0755) == 0 || errno == EEXIST;
 #endif
+}
+
+bool rename_file(const std::string &old_name, const std::string &new_name) {
+  return rename((basePath + old_name).c_str(), (basePath + new_name).c_str()) == 0;
+}
+
+bool remove_file(const std::string &path) {
+  return remove((basePath + path).c_str()) == 0;
 }

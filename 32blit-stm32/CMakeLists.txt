@@ -1,4 +1,5 @@
 list(APPEND SOURCES
+	startup_stm32h750xx.s
 	Src/main.c
 	Src/stm32h7xx_it.c
 	Src/stm32h7xx_hal_msp.c
@@ -81,7 +82,6 @@ list(APPEND SOURCES
 	Src/rng.c
 	Src/32blit.c
 	Src/CDCLogging.c
-	startup_stm32h750xx.s
 	Src/CDCDataStream.cpp 
 	Src/CDCCommandStream.cpp 
 	Src/CDCCommandHandler.cpp 
@@ -148,6 +148,7 @@ target_compile_definitions(BlitHalSTM32
 )
 
 target_compile_options(BlitHalSTM32 PUBLIC "$<$<CONFIG:RELEASE>:-Os>")
+set_target_properties(BlitHalSTM32 PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 # 2nd build for external flash
 add_library(BlitHalSTM32Ext OBJECT ${SOURCES})
@@ -169,8 +170,6 @@ target_compile_definitions(BlitHalSTM32Ext
 set(MCU_LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/${MCU_LINKER_SCRIPT}")
 set(MCU_LINKER_SCRIPT "${MCU_LINKER_SCRIPT}" PARENT_SCOPE)
 set(MCU_LINKER_SCRIPT_EXT "${CMAKE_CURRENT_LIST_DIR}/${MCU_LINKER_SCRIPT_EXT}" PARENT_SCOPE)
-
-find_package(PythonInterp 3 REQUIRED)
 
 function(blit_executable_common NAME)
 	target_link_libraries(${NAME} BlitEngine)
@@ -202,6 +201,8 @@ function(blit_executable NAME SOURCES)
 endfunction()
 
 function(blit_executable_int_flash NAME SOURCES)
+	find_package(PythonInterp 3.6 REQUIRED)
+
 	add_executable(${NAME} $<TARGET_OBJECTS:BlitHalSTM32> ${SOURCES} ${ARGN})
 
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.bin ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.dfu
