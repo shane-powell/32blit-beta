@@ -1,6 +1,7 @@
 #include "dungeon-tile.hpp"
 #include "../32blit/engine/engine.hpp"
 #include "../32blit/graphics/font.hpp"
+//#include "assets.hpp"
 //#include <thread>
 
 using namespace blit;
@@ -185,7 +186,7 @@ bool is_Point_in_Rect(const Point& object_origin, std::vector<Rect>::value_type 
 void init() {
     set_screen_mode(ScreenMode::hires);
 
-    screen.sprites = SpriteSheet::load(packed_data);
+    //screen.sprites = SpriteSheet::load(packed_data);
 
     world.sprites = screen.sprites;
 
