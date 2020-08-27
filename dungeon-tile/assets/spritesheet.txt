@@ -1,4 +1,8 @@
 
+This tool has been deprecated in favour of https://github.com/pimoroni/32blit-tools
+Run with --nowarn to hide this message.
+
+
 uint8_t packed_data[] = {
     0x53, 0x50, 0x52, 0x49, 0x54, 0x45, 0x50, 0x4b, // type: spritepk (packed, paletted sprite)
     0xf4, 0x08, // payload size (2292)
@@ -8,7 +12,7 @@ uint8_t packed_data[] = {
     0x05, 0x00, // cols (5)
     0x04, 0x00, // rows (4)
 
-    0x03, // format (paletted)
+    0x02, // format (paletted)
 
     0xf8, // number of palette colours (248)
 //  r     g     b     a
