@@ -1,6 +1,7 @@
 #include "dungeon-tile.hpp"
 #include "../32blit/engine/engine.hpp"
 #include "../32blit/graphics/font.hpp"
+#include "../32blit/graphics/tilemap.hpp"
 //#include "assets.hpp"
 //#include <thread>
 
