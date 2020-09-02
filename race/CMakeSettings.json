@@ -1,0 +1,9 @@
+﻿{
+  // See https://go.microsoft.com/fwlink/?linkid=834763 for more information about this file.
+  "configurations": [
+    {
+      "name": "race",
+      "cacheRoot": "C:\\Users\\Shane\\Documents\\GitHub\\Microsoft\\32blit-beta\\race\\out\\build\\x64-Debug (default)"
+    }
+  ]
+}
