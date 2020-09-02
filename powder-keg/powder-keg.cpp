@@ -5,43 +5,45 @@
 #include "TileData.h"
 #include "GameState.h"
 #include "Player.h"
+#include "assets.hpp"
 
 using namespace blit;
 using namespace GameState;
 
 static uint8_t layer_world[] = {
-            48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27,
-            28, 29, 30, 52, 64, 37, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 66, 66, 66, 68, 00, 00, 00, 00, 00, 00, 00, 00,
-            00, 00, 00, 00,
-            64, 65, 01, 01, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 01, 01, 37, 68, 00, 00, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 36, 01, 01, 01, 65, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 66, 01, 66, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 66, 01, 38, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 66, 01, 65, 01, 66, 66, 66, 66, 65, 66, 66, 66, 01, 66, 01, 66, 01, 68, 00, 65, 66, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 66, 01, 66, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 66, 66, 66, 66, 66, 66, 66,
-            66, 66, 66, 66,
-            64, 01, 66, 01, 35, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 36, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 01, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 66, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 01, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
-            65, 65, 65, 65,
-            64, 66, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 66, 66, 66, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
-            65, 65, 65, 65,
-            80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00,
-            00, 00, 00, 00,
-            00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
-            00, 00, 00, 00,
-    };
+        48, 50, 51, 50, 49, 50, 51, 50, 49, 51, 50, 51, 50, 49, 51, 50, 51, 49, 50, 52, 00, 00, 00, 00, 00, 00, 26, 27,
+        28, 29, 30, 52, 64, 37, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 66, 66, 66, 68, 00, 00, 00, 00,
+        00, 00, 00, 00,
+        00, 00, 00, 00,
+        64, 65, 01, 01, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 01, 01, 01, 37, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 36, 36, 36, 36, 65, 66, 66, 65, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 36, 01, 01, 01, 65, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 66, 01, 66, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 00, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 66, 01, 38, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 66, 01, 65, 01, 66, 66, 66, 66, 65, 66, 66, 66, 01, 66, 01, 66, 01, 68, 00, 65, 66, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 66, 01, 66, 01, 66, 36, 66, 66, 66, 66, 36, 66, 01, 66, 01, 66, 01, 68, 00, 66, 66, 66, 66, 66, 66, 66,
+        66, 66, 66, 66,
+        64, 01, 66, 01, 35, 01, 66, 36, 36, 66, 66, 36, 36, 66, 01, 65, 01, 66, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 36, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 01, 36, 36, 36, 36, 65, 66, 66, 66, 66, 66, 66, 66, 36, 36, 36, 36, 01, 68, 00, 65, 65, 65, 65, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 66, 01, 01, 01, 01, 01, 66, 66, 66, 66, 66, 66, 66, 01, 01, 01, 01, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
+        65, 65, 65, 65,
+        64, 66, 66, 66, 66, 01, 01, 01, 01, 66, 66, 66, 66, 66, 01, 66, 66, 66, 66, 68, 00, 65, 65, 65, 66, 65, 65, 65,
+        65, 65, 65, 65,
+        80, 81, 82, 83, 82, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 83, 81, 82, 84, 00, 00, 00, 00, 00, 00, 00, 00,
+        00, 00, 00, 00,
+        00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
+        00, 00, 00, 00,
+};
 
 TileMap world((uint8_t *) layer_world, nullptr, Size(tilemap_width, tilemap_height), nullptr);
 
@@ -73,7 +75,7 @@ struct TileAnimation {
 
 std::vector<TileAnimation> tileAnimations;
 
-static std::vector<Player*> players;
+static std::vector<Player *> players;
 
 int score = 0;
 
@@ -87,7 +89,7 @@ bool is_Point_in_Rect(const Point &pointToCheck, std::vector<Rect>::value_type b
     return false;
 }
 
-uint16_t getTileFromPoint(const Point& point, uint8_t tile_size, uint8_t tile_map_width) {
+uint16_t getTileFromPoint(const Point &point, uint8_t tile_size, uint8_t tile_map_width) {
     uint16_t horizontal_location = point.x / tile_size;
 
     uint16_t vertical_location = (point.y / tile_size) * tile_map_width;
@@ -101,12 +103,13 @@ uint16_t getTileFromPoint(const Point& point, uint8_t tile_size, uint8_t tile_ma
     return array_location;
 }
 
-TileData getLocalTileData(const blit::Point& Point_to_check, uint8_t tile_size, uint8_t tile_map_width) {
+TileData getLocalTileData(const blit::Point &Point_to_check, uint8_t tile_size, uint8_t tile_map_width) {
     TileData tileData;
 
     for (auto y = 0; y < sprite_width; y++) {
         for (auto x = 0; x < sprite_width; x++) {
-            const auto array_location = getTileFromPoint(blit::Point(Point_to_check.x + x, Point_to_check.y + y), tile_size,
+            const auto array_location = getTileFromPoint(blit::Point(Point_to_check.x + x, Point_to_check.y + y),
+                                                         tile_size,
                                                          tile_map_width);
             const uint8_t tileScanned = layer_world[array_location];
 
@@ -114,26 +117,26 @@ TileData getLocalTileData(const blit::Point& Point_to_check, uint8_t tile_size, 
             tileData.index = array_location;
 
             switch (tileScanned) {
-            case 17:
-            case 33:
-            case 48:
-            case 49:
-            case 50:
-            case 51:
-            case 52:
-            case 64:
-            case 68:
-            case 80:
-            case 81:
-            case 82:
-            case 83:
-            case 84:
-            case 36:
-            case 01:
-                tileData.canMove = false;
-                break;
-            default:
-                break;
+                case 17:
+                case 33:
+                case 48:
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 64:
+                case 68:
+                case 80:
+                case 81:
+                case 82:
+                case 83:
+                case 84:
+                case 36:
+                case 01:
+                    tileData.canMove = false;
+                    break;
+                default:
+                    break;
             }
 
             //if (tile_scanned == 0)
@@ -157,14 +160,13 @@ TileData getLocalTileData(const blit::Point& Point_to_check, uint8_t tile_size, 
     return tileData;
 }
 
-void ProcessPlayerMovement(Player* player) {
+void ProcessPlayerMovement(Player *player) {
 
-            const auto currentTileData = getLocalTileData(player->newPlayerLocation, sprite_width, tilemap_width);
+    const auto currentTileData = getLocalTileData(player->newPlayerLocation, sprite_width, tilemap_width);
 
     player->MovePlayer(currentTileData);
 
 }
-
 
 
 void DrawWorld() {
@@ -194,7 +196,7 @@ void InitPlayers() {
 
     players.push_back(new Player());
 
-    auto player2 = new AIPlayer();
+    auto player2 = new AIPlayer(AIPatrolPattern::ClockWise);
     player2->spawnLocation = Point(288, 16);
     player2->location = player2->spawnLocation;
     player2->isPlayer = false;
@@ -202,10 +204,9 @@ void InitPlayers() {
     player2->spriteUp = ninjaSpriteUp;
     player2->spriteSide = ninjaSpriteSide;
     player2->currentMovement.movementDelay = 1;
-    player2->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player2);
 
-    auto player3 = new AIPlayer();
+    auto player3 = new AIPlayer(AIPatrolPattern::AntiClockWise);
     player3->spawnLocation = Point(16, 208);
     player3->location = player3->spawnLocation;
     player3->isPlayer = false;
@@ -213,10 +214,9 @@ void InitPlayers() {
     player3->spriteUp = p3SpriteUp;
     player3->spriteSide = p3SpriteSide;
     player3->currentMovement.movementDelay = 5;
-    player3->movementType = AIPatrolPattern::AntiClockWise;
     players.push_back(player3);
 
-    auto player4 = new AIPlayer();
+    auto player4 = new AIPlayer(AIPatrolPattern::ClockWise);
     player4->spawnLocation = Point(288, 208);
     player4->location = player4->spawnLocation;
     player4->isPlayer = false;
@@ -224,7 +224,6 @@ void InitPlayers() {
     player4->spriteUp = p4SpriteUp;
     player4->spriteSide = p4SpriteSide;
     player4->currentMovement.movementDelay = 2;
-    player4->movementType = AIPatrolPattern::ClockWise;
     players.push_back(player4);
 
 
@@ -239,7 +238,7 @@ void InitPlayers() {
 void init() {
     set_screen_mode(ScreenMode::hires);
 
-    screen.sprites = SpriteSheet::load(packed_data);
+    screen.sprites = SpriteSheet::load(sprites_data);
 
     world.sprites = screen.sprites;
 
@@ -247,20 +246,20 @@ void init() {
 
 }
 
-        void DropBomb(Player* player) {
-            if (player->can_fire && player->location.x % 16 == 0 && player->location.y % 16 == 0) {
-                player->can_fire = false;
-                player->canFireTimeout = player->fire_delay;
-                Projectile newProjectile;
+void DropBomb(Player *player) {
+    if (player->can_fire && player->location.x % 16 == 0 && player->location.y % 16 == 0) {
+        player->can_fire = false;
+        player->canFireTimeout = player->fire_delay;
+        Projectile newProjectile;
 
-                newProjectile.sprite = bombSprite;
+        newProjectile.sprite = bombSprite;
 
-                newProjectile.location.x = player->location.x;
-                newProjectile.location.y = player->location.y;
+        newProjectile.location.x = player->location.x;
+        newProjectile.location.y = player->location.y;
 
-                GameState::projectiles.push_back(newProjectile);
-            }
-        }
+        GameState::projectiles.push_back(newProjectile);
+    }
+}
 
 void RenderTileAnimations() {
     auto tile = tileAnimations.begin();
@@ -618,16 +617,19 @@ void UpdatePlayers() {
 
         std::map<char, TileData> playerTileScan;
 
-        playerTileScan.insert({'u',getLocalTileData(Point(player->location.x, player->location.y - sprite_width), sprite_width, tilemap_width)});
-        playerTileScan.insert({'d',getLocalTileData(Point(player->location.x, player->location.y + sprite_width), sprite_width, tilemap_width)});
-        playerTileScan.insert({'l',getLocalTileData(Point(player->location.x - sprite_width, player->location.y), sprite_width, tilemap_width)});
-        playerTileScan.insert({'r',getLocalTileData(Point(player->location.x + sprite_width, player->location.y), sprite_width, tilemap_width)});
+        playerTileScan.insert({'u', getLocalTileData(Point(player->location.x, player->location.y - sprite_width),
+                                                     sprite_width, tilemap_width)});
+        playerTileScan.insert({'d', getLocalTileData(Point(player->location.x, player->location.y + sprite_width),
+                                                     sprite_width, tilemap_width)});
+        playerTileScan.insert({'l', getLocalTileData(Point(player->location.x - sprite_width, player->location.y),
+                                                     sprite_width, tilemap_width)});
+        playerTileScan.insert({'r', getLocalTileData(Point(player->location.x + sprite_width, player->location.y),
+                                                     sprite_width, tilemap_width)});
 
         player->ProcessPlayer(playerTileScan);
         ProcessPlayerMovement(player);
 
-        if(player->isFiring)
-        {
+        if (player->isFiring) {
             DropBomb(player);
             player->isFiring = false;
         }
