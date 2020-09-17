@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.8)
+project (cyber-tile)
+include (../32blit.cmake)
+blit_executable (cyber-tile cyber-tile.cpp)
+blit_assets_yaml (cyber-tile assets.yml)
