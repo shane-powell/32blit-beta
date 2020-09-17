@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.8)
 list(APPEND SOURCES
 	startup_stm32h750xx.s
 	Src/main.c

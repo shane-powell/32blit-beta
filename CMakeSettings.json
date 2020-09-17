@@ -16,7 +16,8 @@
           "value": "${workspaceRoot}/vs/sdl",
           "type": "PATH"
         }
-      ]
+      ],
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe"
     },
     {
       "name": "x64-Release",

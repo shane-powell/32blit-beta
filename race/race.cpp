@@ -1,5 +1,7 @@
 #include "race.hpp"
 
+#include "../32blit/engine/api_private.hpp"
+
 using namespace blit;
 
 ///////////////////////////////////////////////////////////////////////////

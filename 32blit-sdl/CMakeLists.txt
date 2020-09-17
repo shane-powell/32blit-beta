@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.8)
 add_library(BlitHalSDL STATIC
 	File.cpp
 	Input.cpp

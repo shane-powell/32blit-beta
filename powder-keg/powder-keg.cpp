@@ -1,4 +1,6 @@
 #include "powder-keg.hpp"
+
+#include "../32blit/graphics/tilemap.hpp"
 #include "Explosion.h"
 #include "Projectile.h"
 #include "TileAnimationFrame.h"
