@@ -113,6 +113,9 @@
       <AdditionalLibraryDirectories>$(OutputPath);..\vs\sdl\lib\$(PlatformTarget)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>32blit.lib;32blit-sdl.lib;SDL2.lib;SDL2main.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>python -m ttblit pack --force --config $(ProjectDir)assets.yml --output $(ProjectDir)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -156,6 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationFrame.h" />
+    <ClInclude Include="assets.hpp" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Frame.h" />
@@ -170,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationFrame.cpp" />
+    <ClCompile Include="assets.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Frame.cpp" />
