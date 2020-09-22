@@ -266,13 +266,13 @@ namespace blit {
     float bottom = sprite.h - (sprite.h - (dr.h * scale_y)) + top - 1;
 
     if (t & SpriteTransform::VERTICAL) {
-      top = sprite.h - 1 - top;
-      bottom = sprite.h - 1 - bottom;
+      top = sprite.h - 0.01f - top;
+      bottom = sprite.h - 0.01f - bottom;
     }
 
     if (t & SpriteTransform::HORIZONTAL) {
-      left = sprite.w - 1 - left;
-      right = sprite.w - 1 - right;
+      left = sprite.w - 0.01f - left;
+      right = sprite.w - 0.01f - right;
     }
 
     float y_step = top < bottom ? scale_y : -scale_y;
