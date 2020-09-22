@@ -81,7 +81,7 @@ list(APPEND SOURCES
 	Src/sys.c
 	Src/tim.c
 	Src/rng.c
-	Src/32blit.c
+	Src/32blit.cpp
 	Src/CDCLogging.c
 	Src/CDCDataStream.cpp 
 	Src/CDCCommandStream.cpp 
@@ -101,7 +101,6 @@ set_source_files_properties(
 	Src/usbd_desc.c
 	Src/usbd_cdc_if.c
 	Src/usbd_storage_if.c
-	Src/32blit.c
 	Src/CDCLogging.c
 	
 	PROPERTIES LANGUAGE CXX
@@ -217,6 +216,7 @@ function(blit_executable_int_flash NAME SOURCES)
 
 	target_include_directories(${NAME} PRIVATE ${HAL_INCLUDE_DIRS})
 	target_compile_definitions(${NAME} PRIVATE ${HAL_DEFINITIONS})
+	target_compile_options(${NAME} PUBLIC "$<$<CONFIG:RELEASE>:-Os>") # always optimise for size if targetting internal flash
 
 	add_custom_command(TARGET ${NAME} POST_BUILD
 		COMMENT "Building ${NAME}.dfu"
