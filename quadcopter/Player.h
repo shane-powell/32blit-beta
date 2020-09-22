@@ -38,6 +38,9 @@ public:
     int16_t yChange = 0;
     Point newPlayerLocation;
     SpriteAnimation animation;
+    int8_t hSpeed = 0;
+    int8_t maxSpeed = 3;
+    int8_t vSpeed = 0;
 
     Player() {
         uint8_t frameLength = 1;
@@ -90,17 +93,36 @@ public:
 
         if (buttons & DPAD_LEFT || joystick.x < -100) {
             xChange -= 1;
-            newPlayerLocation.x -= 1;
+        	if(hSpeed > maxSpeed * -1)
+        	{
+                hSpeed -= 1;
+        	}
+            //newPlayerLocation.x -= 1;
         } else if (buttons & DPAD_RIGHT || joystick.x > 100) {
             xChange += 1;
-            newPlayerLocation.x += 1;
+        	if(hSpeed < maxSpeed)
+        	{
+                hSpeed += 1;
+        	}
+            //newPlayerLocation.x += 1;
         } else if (buttons & DPAD_UP || joystick.y < -100) {
             yChange -= 1;
-            newPlayerLocation.y -= 1;
+            if (vSpeed > maxSpeed * -1)
+            {
+                vSpeed -= 1;
+            }
+            //newPlayerLocation.y -= 1;
         } else if (buttons & DPAD_DOWN || joystick.y > 100) {
             yChange += 1;
-            newPlayerLocation.y += 1;
+            if (vSpeed < maxSpeed)
+            {
+                vSpeed += 1;
+            }
+            //newPlayerLocation.y += 1;
         }
+
+        newPlayerLocation.x += hSpeed;
+        newPlayerLocation.y += vSpeed;
 
         if (buttons & B) {
             isFiring = true;
@@ -119,19 +141,44 @@ public:
 
         }
 
+    	if(xChange == 0 && hSpeed != 0)
+    	{
+    		if(hSpeed > 0)
+    		{
+                hSpeed--;
+    		}
+            else
+            {
+                hSpeed++;
+            }
+    	}
+
+        if (yChange == 0 && vSpeed != 0)
+        {
+            if (vSpeed > 0)
+            {
+                vSpeed--;
+            }
+            else
+            {
+                vSpeed++;
+            }
+        }
     }
 
     virtual void ProcessCannotMove() {
-
+        hSpeed = hSpeed * -1;
+        vSpeed = vSpeed * -1;
     }
 
     void MovePlayer(const TileData &currentTileData) {
-        if (this->xChange != 0 || this->yChange != 0) {
+        if (this->hSpeed != 0 || this->yChange != 0) {
             if (currentTileData.canMove) {
                 if (this->currentMovement.movementCount == 0) {
                     this->currentMovement.movementCount = 1;
-                    this->currentMovement.xMovement = this->xChange;
-                    this->currentMovement.yMovement = this->yChange;
+                    //this->currentMovement.xMovement = this->xChange;
+                    this->currentMovement.xMovement = this->hSpeed;
+                    this->currentMovement.yMovement = this->vSpeed;
 
 
                 }
