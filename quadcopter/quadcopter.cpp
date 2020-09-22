@@ -92,7 +92,7 @@ uint16_t getTileFromPoint(const Point &point, uint8_t tile_size, uint8_t tile_ma
 
 TileData getLocalTileData(const blit::Point &Point_to_check, uint8_t tile_size, uint8_t tile_map_width) {
     TileData tileData;
-
+    
     for (auto y = 0; y < sprite_width; y++) {
         for (auto x = 0; x < sprite_width; x++) {
             const auto array_location = getTileFromPoint(blit::Point(Point_to_check.x + x, Point_to_check.y + y),
@@ -104,6 +104,7 @@ TileData getLocalTileData(const blit::Point &Point_to_check, uint8_t tile_size, 
             tileData.index = array_location;
 
             switch (tileScanned) {
+            case 0:
                 case 17:
                 case 33:
                 case 48:
@@ -137,7 +138,7 @@ TileData getLocalTileData(const blit::Point &Point_to_check, uint8_t tile_size, 
 
 void ProcessPlayerMovement(Player *player) {
 
-    const auto currentTileData = getLocalTileData(player->newPlayerLocation, sprite_width, tilemap_width);
+    const auto currentTileData = getLocalTileData(player->newPlayerLocation, tile_width, tilemap_width);
 
     player->MovePlayer(currentTileData);
 
@@ -324,19 +325,17 @@ void RenderPlayers() {
         
         if ((*p)->alive) {
 
-            auto transform = SpriteTransform::NONE;
+            auto transform = NONE;
         	
             if ((*p)->dir == 'r') {
                 transform = R90;
             } else if ((*p)->dir == 'l') {
                 transform = R270;
-            } 
-             else if ((*p)->dir == 'd') {
+            } else if ((*p)->dir == 'd') {
                 transform = R180;
-
             }
 
-            screen.sprite(currentFrame.sprite, (*p)->location, Point(0, 8), Vec2(2, 2), transform);
+            screen.sprite(currentFrame.sprite, (*p)->location, Point(0, 0), Vec2(2, 2), transform);
 
         }
 
@@ -459,7 +458,7 @@ void CreateChestExplosion(const TileData tileData) {
 }
 
 void CheckExplosionTileData(bool &canMove, const Point &point) {
-    const auto tileData = getLocalTileData(point, sprite_width, tilemap_width);
+    const auto tileData = getLocalTileData(point, tile_width, tilemap_width);
     canMove = tileData.canMove;
 
     if (tileData.id == 1) {
@@ -598,13 +597,13 @@ void UpdatePlayers() {
         std::map<char, TileData> playerTileScan;
 
         playerTileScan.insert({'u', getLocalTileData(Point(player->location.x, player->location.y - sprite_width),
-                                                     sprite_width, tilemap_width)});
+                                                     tile_width, tilemap_width)});
         playerTileScan.insert({'d', getLocalTileData(Point(player->location.x, player->location.y + sprite_width),
-                                                     sprite_width, tilemap_width)});
+                                                     tile_width, tilemap_width)});
         playerTileScan.insert({'l', getLocalTileData(Point(player->location.x - sprite_width, player->location.y),
-                                                     sprite_width, tilemap_width)});
+                                                     tile_width, tilemap_width)});
         playerTileScan.insert({'r', getLocalTileData(Point(player->location.x + sprite_width, player->location.y),
-                                                     sprite_width, tilemap_width)});
+                                                     tile_width, tilemap_width)});
 
         player->ProcessPlayer(playerTileScan);
         ProcessPlayerMovement(player);

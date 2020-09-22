@@ -90,16 +90,16 @@ public:
 
         if (buttons & DPAD_LEFT || joystick.x < -100) {
             xChange -= 1;
-            newPlayerLocation.x -= 16;
+            newPlayerLocation.x -= 1;
         } else if (buttons & DPAD_RIGHT || joystick.x > 100) {
             xChange += 1;
-            newPlayerLocation.x += 16;
+            newPlayerLocation.x += 1;
         } else if (buttons & DPAD_UP || joystick.y < -100) {
             yChange -= 1;
-            newPlayerLocation.y -= 16;
+            newPlayerLocation.y -= 1;
         } else if (buttons & DPAD_DOWN || joystick.y > 100) {
             yChange += 1;
-            newPlayerLocation.y += 16;
+            newPlayerLocation.y += 1;
         }
 
         if (buttons & B) {
@@ -129,7 +129,7 @@ public:
         if (this->xChange != 0 || this->yChange != 0) {
             if (currentTileData.canMove) {
                 if (this->currentMovement.movementCount == 0) {
-                    this->currentMovement.movementCount = 16;
+                    this->currentMovement.movementCount = 1;
                     this->currentMovement.xMovement = this->xChange;
                     this->currentMovement.yMovement = this->yChange;
 
