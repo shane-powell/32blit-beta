@@ -28,7 +28,7 @@ static uint8_t layer_world[] = {
 
 const Rect key_sprite = Rect(0, 2, 1, 1);
 
-const Rect player_sprite = Rect(0, 1, 1, 1);
+const Rect player_sprite = Rect(0, 4, 2, 2);
 
 const Rect player_swim_sprite = Rect(1, 1, 1, 1);
 
@@ -191,7 +191,7 @@ void init() {
 
     world.sprites = screen.sprites;
 
-    initNpcs();
+    //initNpcs();
 
     //std::chrono::milliseconds timespan(5000);
     //std::this_thread::sleep_for(timespan);
@@ -439,8 +439,8 @@ npc->location = newNpcLocation;
 //
 void update(uint32_t time) {
 	
-	updateProjectiles();
-    updateNpcs();
+	//updateProjectiles();
+    //updateNpcs();
 	
     static uint16_t lastButtons = 0;
     uint16_t changed = blit::buttons ^ lastButtons;
@@ -479,71 +479,71 @@ void update(uint32_t time) {
     }
 	if(blit::buttons & blit::Button::B)
 	{
-		if(player.can_fire)
-		{
-            player.can_fire = false;
-            player.canFireTimeout = player.fire_delay;
-            Projectile newProjectile;
-
-            switch(player.aim)
-            {
-            case 1:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = 1;
-                
-                break;
-            case 2:
-                newProjectile.vel_x = 0;
-                newProjectile.vel_y = 1;
-                break;
-            case 3:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = 1;
-                newProjectile.transform = SpriteTransform ::VERTICAL;
-                break;
-            case 4:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = 0;
-                newProjectile.transform = SpriteTransform::R90;
-                break;
-            case 6:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = 0;
-                newProjectile.transform = SpriteTransform::R90;
-                break;
-            case 7:
-                newProjectile.vel_x = -1;
-                newProjectile.vel_y = -1;
-                newProjectile.transform = SpriteTransform::VERTICAL;
-                break;
-            case 8:
-                newProjectile.vel_x = 0;
-                newProjectile.vel_y = -1;
-                break;
-            case 9:
-                newProjectile.vel_x = 1;
-                newProjectile.vel_y = -1;
-                
-                break;
-            default: break;
-            }
-
-            if (newProjectile.vel_x == 0 || newProjectile.vel_y == 0)
-            {
-                newProjectile.sprite = proj_2;
-            }
-            else
-            {
-                newProjectile.sprite = proj_2_d;
-            }
-/*            new_projectile.location.x = player.location. x + sprite_width / 4;
-            new_projectile.location.y = player.location.y + sprite_width / 4;*/
-
-            newProjectile.location.x = player.location.x;
-            newProjectile.location.y = player.location.y;
-
-            projectiles.push_back(newProjectile);
-		}      
+//		if(player.can_fire)
+//		{
+//            player.can_fire = false;
+//            player.canFireTimeout = player.fire_delay;
+//            Projectile newProjectile;
+//
+//            switch(player.aim)
+//            {
+//            case 1:
+//                newProjectile.vel_x = -1;
+//                newProjectile.vel_y = 1;
+//                
+//                break;
+//            case 2:
+//                newProjectile.vel_x = 0;
+//                newProjectile.vel_y = 1;
+//                break;
+//            case 3:
+//                newProjectile.vel_x = 1;
+//                newProjectile.vel_y = 1;
+//                newProjectile.transform = SpriteTransform ::VERTICAL;
+//                break;
+//            case 4:
+//                newProjectile.vel_x = -1;
+//                newProjectile.vel_y = 0;
+//                newProjectile.transform = SpriteTransform::R90;
+//                break;
+//            case 6:
+//                newProjectile.vel_x = 1;
+//                newProjectile.vel_y = 0;
+//                newProjectile.transform = SpriteTransform::R90;
+//                break;
+//            case 7:
+//                newProjectile.vel_x = -1;
+//                newProjectile.vel_y = -1;
+//                newProjectile.transform = SpriteTransform::VERTICAL;
+//                break;
+//            case 8:
+//                newProjectile.vel_x = 0;
+//                newProjectile.vel_y = -1;
+//                break;
+//            case 9:
+//                newProjectile.vel_x = 1;
+//                newProjectile.vel_y = -1;
+//                
+//                break;
+//            default: break;
+//            }
+//
+//            if (newProjectile.vel_x == 0 || newProjectile.vel_y == 0)
+//            {
+//                newProjectile.sprite = proj_2;
+//            }
+//            else
+//            {
+//                newProjectile.sprite = proj_2_d;
+//            }
+///*            new_projectile.location.x = player.location. x + sprite_width / 4;
+//            new_projectile.location.y = player.location.y + sprite_width / 4;*/
+//
+//            newProjectile.location.x = player.location.x;
+//            newProjectile.location.y = player.location.y;
+//
+//            projectiles.push_back(newProjectile);
+//		}      
 	}
 
     bool move_ok = true;

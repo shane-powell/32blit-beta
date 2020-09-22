@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.8)
+set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
+project (quadcopter)
+include (${32BLIT_PATH}/32blit.cmake)
+blit_executable (quadcopter quadcopter.cpp quadcopter.hpp TileData.cpp TileData.h GameState.cpp GameState.h Player.cpp Player.h Node.cpp Node.h)
+blit_assets_yaml (quadcopter assets.yml)
