@@ -24,6 +24,7 @@ public:
     Rect spriteDown = QuadSpriteDown;
     char dir = 'd';
     int8_t aim = 6;
+    Point lastLocation = Point(16, 16);
     Point location = Point(16, 16);
     bool can_fire = true;
     int16_t canFireTimeout = 0;
@@ -39,8 +40,9 @@ public:
     Point newPlayerLocation;
     SpriteAnimation animation;
     float xSpeed = 0.0f;
-    float maxSpeed = 3.0f;
+    float maxSpeed = 1.0f;
     float ySpeed = 0.0f;
+    int8_t cannotMoveCount = 0;
 
     Player() {
         uint8_t frameLength = 1;
@@ -82,7 +84,7 @@ public:
 
     void slow_down_object()
     {
-        const float slow_rate = 0.01;
+        const float slow_rate = 0.001;
     	
 	    if(xChange == 0 && xSpeed != 0.0f)
 	    {
@@ -128,6 +130,9 @@ public:
     }
 
     virtual void SetPlayerActions(std::map<char, TileData> playerTileScan) {
+
+        auto const accelerationRate = 0.01f;
+    	
         xChange = 0;
         yChange = 0;
         newPlayerLocation = this->location;
@@ -139,37 +144,51 @@ public:
         }
 
         if (buttons & DPAD_LEFT || joystick.x < 0.0f) {
-            xChange -= 0.1;
+            xChange -= 1;
         	if(xSpeed > maxSpeed * -1)
         	{
-                xSpeed -= 0.1;
+                xSpeed -= accelerationRate;
         	}
             //newPlayerLocation.x -= 1;
         } else if (buttons & DPAD_RIGHT || joystick.x > 0.0f) {
-            xChange += 0.1;
+            xChange += 1;
         	if(xSpeed < maxSpeed)
         	{
-                xSpeed += 0.1;
+                xSpeed += accelerationRate;
         	}
             //newPlayerLocation.x += 1;
         } if (buttons & DPAD_UP || joystick.y < 0.0f) {
-            yChange -= 0.1;
+            yChange -= 1;
             if (ySpeed > maxSpeed * -1)
             {
-                ySpeed -= 0.1;
+                ySpeed -= accelerationRate;
             }
             //newPlayerLocation.y -= 1;
         } else if (buttons & DPAD_DOWN || joystick.y > 0.0f) {
-            yChange += 0.1;
+            yChange += 1;
             if (ySpeed < maxSpeed)
             {
-                ySpeed += 0.1;
+                ySpeed += accelerationRate;
             }
             //newPlayerLocation.y += 1;
         }
 
+        xSpeed += fmod(this->currentMovement.xMovement, 1);
+        ySpeed += fmod(this->currentMovement.yMovement, 1);
+
         newPlayerLocation.x += xSpeed;
         newPlayerLocation.y += ySpeed;
+
+    	
+
+
+
+
+        this->currentMovement.xMovement = this->xSpeed;
+        this->currentMovement.yMovement = this->ySpeed;
+
+
+
 
         if (buttons & B) {
             isFiring = true;
@@ -187,26 +206,62 @@ public:
             this->dir = 'd';
 
         }
-
-    	slow_down_object();
+    	
+        if(xChange == 0 && yChange == 0)
+        {
+            slow_down_object();
+        	
+            xSpeed = (int)xSpeed;
+            ySpeed = (int)ySpeed;
+        }
     }
 
     virtual void ProcessCannotMove() {
-        xSpeed = xSpeed * -1;
-        ySpeed = ySpeed * -1;
+
+        cannotMoveCount ++;
+    	
+        if (xSpeed >= 1 || xSpeed <= -0.1)
+        {
+            xSpeed = (xSpeed * -1) / 2;
+        }
+        /*else
+            xSpeed = 0;*/
+
+        if (ySpeed >= 1 || ySpeed <= -0.1)
+        {
+            ySpeed = (ySpeed * -1) / 2;
+        }
+        //else
+        //    ySpeed = 0;
+        //
+
+    	if(lastLocation.x == location.x && lastLocation.y == location.y && cannotMoveCount > 1)
+    	{
+            xSpeed = 0;
+            ySpeed = 0;
+    	}
     }
 
     void MovePlayer(const TileData &currentTileData) {
         if (this->xSpeed != 0 || this->ySpeed != 0) {
             if (currentTileData.canMove) {
-                if (this->currentMovement.movementCount == 0) {
-                    this->currentMovement.movementCount = 1;
-                    //this->currentMovement.xMovement = this->xChange;
-                    this->currentMovement.xMovement = this->xSpeed;
-                    this->currentMovement.yMovement = this->ySpeed;
+                //if (this->currentMovement.movementCount == 0) {
+                //    this->currentMovement.movementCount = 1;
+                //   
 
 
-                }
+
+                //}
+
+                /*this->location.x += this->currentMovement.xMovement;
+                this->location.y += this->currentMovement.yMovement;*/
+
+                this->location.x = this->newPlayerLocation.x;
+                this->location.y = this->newPlayerLocation.y;
+
+                lastLocation = location;
+                cannotMoveCount = 0;
+
 
                 if (this->yChange > 0 && this->xChange == 0) {
                     this->aim = 2;
@@ -231,7 +286,7 @@ public:
 
         }
 
-        if (this->currentMovement.movementCount > 0) {
+       /* if (this->currentMovement.movementCount > 0) {
             if (this->currentMovement.movementStep == this->currentMovement.movementDelay) {
                 this->currentMovement.movementCount--;
 
@@ -244,7 +299,7 @@ public:
             }
 
 
-        }
+        }*/
     }
 
 

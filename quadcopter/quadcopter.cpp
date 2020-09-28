@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "assets.hpp"
 
+
 using namespace blit;
 using namespace GameState;
 
@@ -137,7 +138,6 @@ TileData getLocalTileData(const blit::Point &Point_to_check, uint8_t tile_size, 
 }
 
 void ProcessPlayerMovement(Player *player) {
-
     const auto currentTileData = getLocalTileData(player->newPlayerLocation, tile_width, tilemap_width);
 
     player->MovePlayer(currentTileData);
