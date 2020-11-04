@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="quadcopter"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\32blit\;CMake Files\..\32blit-sdl\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\SDL2\;CMake Files\cmake-build-debug\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="quadcopter">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/quadcopter" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 quadcopter"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="quadcopter/fast">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/quadcopter" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 quadcopter/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="BlitEngine">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/libBlitEngine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 BlitEngine"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="BlitEngine/fast">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/libBlitEngine.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 BlitEngine/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="BlitHalSDL">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/libBlitHalSDL.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DWINDOW_TITLE=&quot;CMake!&quot;"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 BlitHalSDL"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="BlitHalSDL/fast">
+				<Option output="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/libBlitHalSDL.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DWINDOW_TITLE=&quot;CMake!&quot;"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/home/kenjara85/github/32blit-beta/32blit"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 BlitHalSDL/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/32blit-sdl/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Audio.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Audio.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/File.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/File.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Input.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Input.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/JPEG.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/JPEG.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Main.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Renderer.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/Renderer.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/System.cpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit-sdl/System.hpp">
+			<Option target="BlitHalSDL"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/audio/audio.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/audio/audio.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/api.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/api.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/engine.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/engine.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/file.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/file.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/input.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/input.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/output.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/output.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/particle.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/particle.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/profiler.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/profiler.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/running_average.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/running_average.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/timer.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/timer.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/tweening.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/tweening.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/version.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/engine/version.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/blend.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/blend.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/color.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/color.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/filter.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/font.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/font.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/jpeg.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/jpeg.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/mask.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/mode7.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/mode7.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/primitive.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/sprite.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/sprite.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/surface.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/surface.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/text.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/tilemap.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/graphics/tilemap.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/math/geometry.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/math/geometry.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/math/interpolation.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/math/interpolation.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/map.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/map.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/mat3.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/mat3.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/mat4.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/mat4.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/vec2.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/vec2.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/vec3.cpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/32blit/types/vec3.hpp">
+			<Option target="BlitEngine"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/GameState.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/GameState.h">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/Node.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/Node.h">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/Player.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/Player.h">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/TileData.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/TileData.h">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/assets.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/assets.hpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/assets.hpp.rule">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/quadcopter.cpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/quadcopter.hpp">
+			<Option target="quadcopter"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/assets.yml">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/../32blit.cmake">
+			<Option virtualFolder="CMake Files\..\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/../32blit/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\32blit\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/../32blit/version_defs.hpp.in">
+			<Option virtualFolder="CMake Files\..\32blit\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/../32blit-sdl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\..\32blit-sdl\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/../../../../../usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\SDL2\"/>
+		</Unit>
+		<Unit filename="/home/kenjara85/github/32blit-beta/quadcopter/cmake-build-debug/assets.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
