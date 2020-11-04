@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.8)
+project (blitboing)
+set(32BLIT_PATH "../" CACHE PATH "Path to 32blit.cmake")
+include (${32BLIT_PATH}/32blit.cmake)
+blit_executable (blitboing blitboing.cpp blitboing.hpp)
+blit_assets_yaml (blitboing assets.yml)
