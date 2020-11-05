@@ -8,27 +8,27 @@ int32_t maxY = 230;
 int32_t minY = 0;
 
 int32_t PLAYER_SPEED = 6;
-int32_t MAX_AI_SPEED = 6;
+int32_t MAX_AI_SPEED = 10;
 
 int8_t spriteSize = 8;
 
-std::tuple<int, int> Normalised(int x, int y)
+std::tuple<float, float> Normalised(int x, int y)
 {
     auto length = hypot(x, y);
 
-    return std::tuple<int, int>(x / length, y / length);
+    return std::tuple<float, float>(x / length, y / length);
 }
 
-int16_t Sign (int16_t x)
-{
-	if (x < 0)
-	{
-        return -1;
-	}
-   
-    return 1;
-    
-}
+//int16_t Sign (int16_t x)
+//{
+//	if (x < 0)
+//	{
+//        return -1;
+//	}
+//   
+//    return 1;
+//    
+//}
 
 bool IsRectIntersecting(Rect rect1,Rect rect2) {
     if (rect1.x + rect1.w > rect2.x &&
@@ -158,8 +158,8 @@ public:
 class Ball : public Actor
 {  
 public:
-    float dX = 0;
-    float dY = 0;
+    float dX = 0.0f;
+    float dY = 0.0f;
 
     Ball()
     {
@@ -178,7 +178,7 @@ public:
         this->spriteLocation = Rect(0, 48 / 8, size.w / 8, size.h / 8);
     }
 	
-    int16_t speed = 5;
+    int16_t speed = 1;
 
     void Update(std::vector<Bat> bats)
     {
@@ -186,8 +186,10 @@ public:
         {
             auto original_x = loc.x;
 
-            loc.x += this->dX;
-            loc.y += this->dY;
+            auto prevBallBounds = Rect(loc, size);
+        	
+            loc.x += round(this->dX);
+            loc.y += round(this->dY);
 
         	// todo collision detection
 
@@ -195,7 +197,7 @@ public:
         	
             for (auto bat : bats)
             {
-                if(IsRectIntersecting(Rect(bat.GetLocation(), bat.GetSize()), ballBounds))
+                if(IsRectIntersecting(Rect(bat.GetLocation(), bat.GetSize()), ballBounds) && !IsRectIntersecting(Rect(bat.GetLocation(), bat.GetSize()), prevBallBounds))
                 {
                     auto newDirX = 1;
 
@@ -205,29 +207,49 @@ public:
                     }
 
                     //auto differenceY = loc.y - bat.GetLocation().y;
-                    auto differenceY = loc.y - (bat.GetLocation().y + (bat.GetSize().h / 2));
+                    auto differenceY = (loc.y + (this->size.h / 2))  - (bat.GetLocation().y + (bat.GetSize().h / 2));
 
                     dX = -dX;
 
-                    dY += differenceY / bat.GetSize().h;
-                	
+                    // dY += static_cast<float>(differenceY) / static_cast<float>(bat.GetSize().h);
+
+                    auto diff = (differenceY) % (bat.GetSize().h);
+
+                	if(diff == 0)
+                	{
+                        diff = static_cast<float>(differenceY) / static_cast<float>(bat.GetSize().h);
+                	}
+
+                    dY += diff;
+                	                	
                     dY = std::min(std::max(dY, (float)-1), (float)1);
 
                     auto norm = Normalised(dX, dY);
 
-                    dX = std::get<0>(norm);
-                    dY = std::get<1>(norm);
+                    auto normX = std::get<0>(norm);
+
+                    if (normX >= 1.0f || normX <= -1.0f)
+                    {
+                        dX = normX;
+                    }
                 	
-                    this->speed += 1;
+                    dY = std::get<1>(norm);
+
+
+
+                	if(speed <= 10)
+                	{
+                        this->speed += 1;
+                	}
 
                 	// todo bat glow AI and sounds
                 }                    	
             }
 
-        	if (this->loc.y < 0 || this->loc.y >= maxY)
+        	if (this->loc.y <= 0 || this->loc.y >= maxY)
         	{
                 this->dY = -this->dY;
-                this->loc.y += this->loc.y;
+                this->loc.y += this->dY;
 
         		// todo sounds
         	}
@@ -381,16 +403,32 @@ void render(uint32_t time) {
 // amount if milliseconds elapsed since the start of your game
 //
 void update(uint32_t time) {
+
+    static uint16_t lastButtons = 0;
+    uint16_t changed = blit::buttons ^ lastButtons;
+    uint16_t pressed = changed & blit::buttons;
+    uint16_t released = changed & ~blit::buttons;
+	
 	switch(state)
 	{
     case Menu:
-        game = Game();
-        state = Play;
+        if(buttons & Button::A)
+        {
+            game = Game();
+            state = Play;
+        }
         break;
     case Play:
+        if (buttons & Button::A)
+        {
+            game = Game();
+            state = Play;
+        }
         game.Update();
         break;
     case GameOver:
         break;
 	}
+
+    lastButtons = blit::buttons;
 }
