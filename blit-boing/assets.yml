@@ -1,4 +1,6 @@
 assets.cpp:
     assets/spritesheet.png:
         name: sprites_data
+    assets/background.png:
+        name: background_data
    

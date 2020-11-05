@@ -2,13 +2,15 @@
 #include "assets.hpp"
 using namespace blit;
 
-int16_t maxX = 320;
-int16_t minX = 0;
-int16_t maxY = 230;
-int16_t minY = 0;
+int32_t maxX = 320;
+int32_t minX = 0;
+int32_t maxY = 230;
+int32_t minY = 0;
 
 int32_t PLAYER_SPEED = 6;
 int32_t MAX_AI_SPEED = 6;
+
+int8_t spriteSize = 8;
 
 std::tuple<int, int> Normalised(int x, int y)
 {
@@ -43,16 +45,22 @@ public:
     virtual ~Actor() = default;
     Point loc = Point(16, 16);
     Size size;
+    Rect spriteLocation;
 	
     Actor() {
 
     }
 
-    Size GetSize()
+    virtual Size GetSize()
     {
         return this->size;
     }
 
+	virtual Rect GetSpriteLocation()
+    {
+        return this->spriteLocation;
+    }
+    
     Point GetLocation()
     {
         return this->loc;
@@ -71,34 +79,39 @@ public:
     }
 };
 
-class Bat : Actor
+class Bat : public Actor
 {
 public:
     int8_t timer = 0;
     uint8_t score = 0;
     int8_t player;
+    bool isAi = false;
 	
-    Bat(int8_t playerIn)
+    Bat(int8_t playerIn, bool isAiIn)
     {
+        this->isAi = isAiIn;
         this->player = playerIn;
 	    if(player == 1)
 	    {
+            this->size = Size(16, 48);
             loc.x = 0;
+            spriteLocation.w = size.w / 8;
+            spriteLocation.h = size.h / 8;
+            spriteLocation.x = 0;
+            spriteLocation.y = 0;
 	    }
         else
         {
+            this->size = Size(16, 48);
             loc.x = maxX - size.w;
+            spriteLocation.w = size.w / 8;
+            spriteLocation.h = size.h / 8;
+            spriteLocation.x = 0;
+            spriteLocation.y = 0;
         }
-    }
 
-    Size GetSize()
-    {
-        return this->size;
-    }
-
-    Point GetLocation()
-    {
-        return this->loc;
+        this->size.h = 48;
+        this->size.w = 16;
     }
 	
     void Update(Point ballLocation, int8_t aiOffset, Size ballSize)
@@ -110,7 +123,7 @@ public:
 
         int yMovement;
     	
-    	if(player == 0)
+    	if(this->isAi)
     	{
             yMovement = this->Ai(ballLocation, aiOffset, ballSize);
     	}
@@ -119,6 +132,9 @@ public:
 	        
         }
 
+        this->loc.y = std::min(maxY, std::max(0, loc.y + yMovement));
+
+    	
     	// todo frames
     }
 
@@ -139,11 +155,11 @@ public:
     }
 };
 
-class Ball : Actor
+class Ball : public Actor
 {  
 public:
-    int dX = 0;
-    int dY = 0;
+    float dX = 0;
+    float dY = 0;
 
     Ball()
     {
@@ -157,17 +173,9 @@ public:
         this->loc.y = maxY / 2;
 
     	// update size
-        this->size = Size(3, 3);
-    }
+        this->size = Size(16, 16);
 
-    Point GetLocation()
-    {
-        return this->loc;
-    }
-
-	Size GetSize()
-    {
-        return this->size;
+        this->spriteLocation = Rect(0, 48 / 8, size.w / 8, size.h / 8);
     }
 	
     int16_t speed = 5;
@@ -196,13 +204,14 @@ public:
                         newDirX = -1;
                     }
 
-                    auto differenceY = loc.y = bat.GetLocation().y;
+                    //auto differenceY = loc.y - bat.GetLocation().y;
+                    auto differenceY = loc.y - (bat.GetLocation().y + (bat.GetSize().h / 2));
 
                     dX = -dX;
 
-                    dY += differenceY / 128;
+                    dY += differenceY / bat.GetSize().h;
                 	
-                    dY = std::min(std::max(dY, -1), 1);
+                    dY = std::min(std::max(dY, (float)-1), (float)1);
 
                     auto norm = Normalised(dX, dY);
 
@@ -211,7 +220,7 @@ public:
                 	
                     this->speed += 1;
 
-                	// todo bat glow AI and sounfs
+                	// todo bat glow AI and sounds
                 }                    	
             }
 
@@ -246,14 +255,22 @@ public:
     Game()
     {
         ball = Ball(-1);
+
+        Bat batLeft = Bat(1, true);
+
+        bats.emplace_back(batLeft);
+
+        Bat batRight = Bat(2, true);
+
+        bats.emplace_back(batRight);
+
     }
 	
 	void Update()
 	{
         ball.Update(bats);
 
-        for (auto bat : bats)
-        {
+        for (Bat &bat : bats) {
             bat.Update(ball.GetLocation(), aiOffset, ball.GetSize());
         }
 
@@ -278,7 +295,7 @@ enum GameState {
 };
 
 GameState state = Menu;
-SpriteSheet* surf;
+SpriteSheet* backGroundSurface;
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -295,9 +312,9 @@ void init() {
         screen.sprites = nullptr;
     }
 
-    screen.sprites = SpriteSheet::load(sprites_data);
+   screen.sprites = SpriteSheet::load(sprites_data);
 	  
-   surf = SpriteSheet::load(sprites_data);
+   backGroundSurface = SpriteSheet::load(background_data);
 }
 
 void DrawMenu()
@@ -307,7 +324,14 @@ void DrawMenu()
 
 void DrawGame()
 {
-    screen.sprite(Rect(Point(0, 12), game.ball.GetSize()), game.ball.GetLocation(), 0);
+    screen.stretch_blit(backGroundSurface, Rect(0, 0, 128, 96), Rect(0, 0, 320, 240));
+	
+    screen.sprite(game.ball.GetSpriteLocation(), game.ball.GetLocation(), 0);
+
+    for (auto bat : game.bats)
+    {
+        screen.sprite(bat.GetSpriteLocation(), bat.GetLocation(), 0);
+    }
 }
 
 void DrawGameOver()
@@ -334,12 +358,7 @@ void render(uint32_t time) {
     screen.rectangle(Rect(0, 0, 320, 14));
     screen.pen = Pen(0, 0, 0);
     screen.text("Hello 32blit!", minimal_font, Point(5, 4));*/
-
-    
    
-
-    screen.stretch_blit(surf, Rect(0, 0, 128, 96), Rect(0,0,320, 240));
-
     switch (state)
     {
     case Menu:
