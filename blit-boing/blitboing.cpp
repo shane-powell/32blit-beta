@@ -10,6 +10,8 @@ int32_t minY = 0;
 int32_t PLAYER_SPEED = 6;
 int32_t MAX_AI_SPEED = 10;
 
+uint8_t MAX_BALL_SPEED = 1;
+
 int8_t spriteSize = 8;
 
 std::tuple<float, float> Normalised(float x, float y)
@@ -93,8 +95,8 @@ public:
         this->player = playerIn;
 	    if(player == 1)
 	    {
-            this->size = Size(16, 48);
-            loc.x = 0;
+            this->size = Size(8, 48);
+            loc.x = size.w;
             spriteLocation.w = size.w / 8;
             spriteLocation.h = size.h / 8;
             spriteLocation.x = 0;
@@ -102,16 +104,13 @@ public:
 	    }
         else
         {
-            this->size = Size(16, 48);
-            loc.x = maxX - size.w;
+            this->size = Size(8, 48);
+            loc.x = maxX - (size.w * 2);
             spriteLocation.w = size.w / 8;
             spriteLocation.h = size.h / 8;
             spriteLocation.x = 0;
             spriteLocation.y = 0;
         }
-
-        this->size.h = 48;
-        this->size.w = 16;
     }
 	
     void Update(Point ballLocation, int8_t aiOffset, Size ballSize)
@@ -173,9 +172,9 @@ public:
         this->loc.y = maxY / 2;
 
     	// update size
-        this->size = Size(16, 16);
+        this->size = Size(8, 8);
 
-        this->spriteLocation = Rect(0, 48 / 8, size.w / 8, size.h / 8);
+        this->spriteLocation = Rect(0, 64 / 8, size.w / 8, size.h / 8);
     }
 	
     int16_t speed = 1;
@@ -188,8 +187,8 @@ public:
 
             auto prevBallBounds = Rect(loc, size);
         	
-            loc.x += round(this->dX);
-            loc.y += round(this->dY);
+            loc.x += static_cast<int>(round(this->dX));
+            loc.y += static_cast<int>(round(this->dY));
 
         	// todo collision detection
 
@@ -237,7 +236,7 @@ public:
 
 
 
-                	if(speed <= 10)
+                	if(speed < MAX_BALL_SPEED)
                 	{
                         this->speed += 1;
                 	}
@@ -249,7 +248,7 @@ public:
         	if (this->loc.y <= 0 || this->loc.y >= maxY)
         	{
                 this->dY = -this->dY;
-                this->loc.y += round(this->dY);
+                this->loc.y += static_cast<int>(round(this->dY));
 
         		// todo sounds
         	}
@@ -276,6 +275,7 @@ public:
 
     Game()
     {
+    	
         ball = Ball(-1);
 
         Bat batLeft = Bat(1, true);
