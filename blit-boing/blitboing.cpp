@@ -12,7 +12,7 @@ int32_t MAX_AI_SPEED = 10;
 
 int8_t spriteSize = 8;
 
-std::tuple<float, float> Normalised(int x, int y)
+std::tuple<float, float> Normalised(float x, float y)
 {
     auto length = hypot(x, y);
 
@@ -217,7 +217,7 @@ public:
 
                 	if(diff == 0)
                 	{
-                        diff = static_cast<float>(differenceY) / static_cast<float>(bat.GetSize().h);
+                        diff = differenceY /bat.GetSize().h;
                 	}
 
                     dY += diff;
@@ -249,7 +249,7 @@ public:
         	if (this->loc.y <= 0 || this->loc.y >= maxY)
         	{
                 this->dY = -this->dY;
-                this->loc.y += this->dY;
+                this->loc.y += round(this->dY);
 
         		// todo sounds
         	}
