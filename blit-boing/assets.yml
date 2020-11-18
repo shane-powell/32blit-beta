@@ -3,4 +3,10 @@ assets.cpp:
         name: sprites_data
     assets/background.png:
         name: background_data
+    assets/menu0.png:
+        name: menu0
+    assets/menu1.png:
+        name: menu1
+    assets/over.png:
+        name: over
    
