@@ -8,9 +8,9 @@ int32_t maxY = 230;
 int32_t minY = 0;
 
 int32_t PLAYER_SPEED = 6;
-int32_t MAX_AI_SPEED = 10;
+int32_t MAX_AI_SPEED = 8;
 
-uint8_t MAX_BALL_SPEED = 1;
+uint8_t MAX_BALL_SPEED = 10;
 
 int8_t spriteSize = 8;
 
@@ -163,16 +163,35 @@ public:
     {
         auto xDistance = abs((ballLocation.x + (ballSize.w /2)) - this->loc.x);
 
-        auto targetY1 = maxY / 2;
+    	// Only follow the ball if close
+    	if(xDistance < maxX / 2)
+    	{
+            auto targetY1 = maxY / 2;
 
-        auto targetY2 = (ballLocation.y + (ballSize.h / 2)) + aiOffset;
+            auto targetY2 = (ballLocation.y + (ballSize.h / 2)) + aiOffset;
 
-        auto weight1 = std::min(1, xDistance / maxX / 2);
-        auto weight2 = 1 - weight1;
+            auto weight1 = std::min(1, xDistance / maxX / 2);
+            auto weight2 = 1 - weight1;
 
-        auto targetY = (weight1 * targetY1) + (weight2 * targetY2);
+            auto targetY = (weight1 * targetY1) + (weight2 * targetY2);
 
-        return std::min(MAX_AI_SPEED, std::max(-MAX_AI_SPEED, targetY - this->loc.y));
+            return std::min(MAX_AI_SPEED, std::max(-MAX_AI_SPEED, targetY - this->loc.y));
+    	}
+        // Head to center
+        else
+        {
+	        if((this->loc.y + this->size.h / 2) < maxY / 2)
+	        {
+                return MAX_AI_SPEED;
+	        }
+            else if((this->loc.y + this->size.h / 2) > maxY / 2)
+            {
+                return MAX_AI_SPEED * -1;
+            }
+
+        }
+
+        return 0;
     }
 };
 
@@ -395,14 +414,6 @@ void render(uint32_t time) {
 
     // clear the screen -- screen is a reference to the frame buffer and can be used to draw all things with the 32blit
     screen.clear();
-
-    // draw some text at the top of the screen
-    /*screen.alpha = 255;
-    screen.mask = nullptr;
-    screen.pen = Pen(255, 255, 255);
-    screen.rectangle(Rect(0, 0, 320, 14));
-    screen.pen = Pen(0, 0, 0);
-    screen.text("Hello 32blit!", minimal_font, Point(5, 4));*/
    
     switch (state)
     {
