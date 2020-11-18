@@ -10,7 +10,9 @@ int32_t minY = 0;
 int32_t PLAYER_SPEED = 6;
 int32_t MAX_AI_SPEED = 8;
 
-uint8_t MAX_BALL_SPEED = 10;
+uint8_t MAX_BALL_SPEED = 8;
+
+uint8_t BAT_GLOW_TIME = 45;
 
 int8_t spriteSize = 8;
 
@@ -88,6 +90,8 @@ public:
 	uint8_t score = 0;
 	int8_t player;
 	bool isAi = false;
+	Rect mainSprite;
+	Rect hitSprite;
 
 	Bat(int8_t playerIn, bool isAiIn)
 	{
@@ -97,19 +101,29 @@ public:
 		{
 			this->size = Size(8, 48);
 			loc.x = size.w;
-			spriteLocation.w = size.w / 8;
-			spriteLocation.h = size.h / 8;
-			spriteLocation.x = 0;
-			spriteLocation.y = 0;
+			mainSprite.w = size.w / 8;
+			mainSprite.h = size.h / 8;
+			mainSprite.x = 0;
+			mainSprite.y = 0;
+
+			hitSprite.w = 1;
+			hitSprite.h = 7;
+			hitSprite.x = 2;
+			hitSprite.y = 0;
 		}
 		else
 		{
 			this->size = Size(8, 48);
 			loc.x = maxX - (size.w * 2);
-			spriteLocation.w = size.w / 8;
-			spriteLocation.h = size.h / 8;
-			spriteLocation.x = 0;
-			spriteLocation.y = 0;
+			mainSprite.w = size.w / 8;
+			mainSprite.h = size.h / 8;
+			mainSprite.x = 1;
+			mainSprite.y = 0;
+
+			hitSprite.w = 1;
+			hitSprite.h = 7;
+			hitSprite.x = 3;
+			hitSprite.y = 0;
 		}
 	}
 
@@ -117,7 +131,12 @@ public:
 	{
 		if (timer >= 0)
 		{
+			spriteLocation = hitSprite;
 			timer--;
+		}
+		else
+		{
+			spriteLocation = mainSprite;
 		}
 
 		int yMovement;
@@ -226,12 +245,12 @@ public:
 
 	}
 
-	Ball(int dxIn) : Actor()
+	Ball(int dxIn, int dYin) : Actor()
 	{
-		this->dX = dxIn;
+		this->dX = (float)dxIn;
 		this->loc.x = maxX / 2;
 		this->loc.y = maxY / 2;
-
+		this->dY = (float)dYin;
 		// update size
 		this->size = Size(8, 8);
 
@@ -323,6 +342,23 @@ public:
 	}
 };
 
+Ball CreateBall()
+{
+	auto dirX = blit::random() % 2;
+	if (dirX == 0)
+	{
+		dirX = -1;
+	}
+
+	auto dirY = blit::random() % 3;
+
+	if (dirY == 2)
+	{
+		dirY = -1;
+	}
+
+	return Ball(dirX, dirY);
+}
 
 int8_t noPlayers = 1;
 uint8_t maxScore = 5;
@@ -358,7 +394,7 @@ public:
 	Game(int8_t noPlayers)
 	{
 
-		ball = Ball(-1);
+		ball = CreateBall();
 
 		Bat batLeft = Bat(1, false);
 
@@ -384,11 +420,13 @@ public:
 		{
 			if(ball.loc.x < maxX / 2)
 			{
-				bats[0].score++;
+				bats[1].score++;
+				bats[1].timer = BAT_GLOW_TIME;
 			}
 			else
 			{
-				bats[1].score++;
+				bats[0].score++;
+				bats[0].timer = BAT_GLOW_TIME;
 			}
 
 			for (Bat& bat : bats) {
@@ -397,8 +435,20 @@ public:
 					state = GameOver;
 				}
 			}
+			auto dirX = blit::random() % 2;
+			if(dirX == 0)
+			{
+				dirX = -1;
+			}
+
+			auto dirY = blit::random() % 3;
+
+			if(dirY == 2)
+			{
+				dirY = -1;
+			}
 			
-			ball = Ball(-1);
+			ball = CreateBall();
 		}
 	}
 
