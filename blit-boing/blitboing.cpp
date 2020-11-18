@@ -128,13 +128,35 @@ public:
     	}
         else
         {
-	        
+	        if (player == 1)
+	        {
+               yMovement = PlayerUpdate(DPAD_UP, DPAD_DOWN);
+	        }
+            else
+            {
+              yMovement = PlayerUpdate(X, B);
+            }
         }
 
         this->loc.y = std::min(maxY, std::max(0, loc.y + yMovement));
 
     	
     	// todo frames
+    }
+
+	int32_t PlayerUpdate(Button upButton, Button downButton)
+    {
+    	
+	    if(buttons & downButton)
+	    {
+            return PLAYER_SPEED;
+	    }
+        else if (buttons & upButton)
+        {
+           return PLAYER_SPEED * -1;
+        }
+
+        return 0;
     }
 
     int32_t Ai(Point ballLocation, int8_t aiOffset, Size ballSize)
@@ -181,6 +203,7 @@ public:
 
     void Update(std::vector<Bat> bats)
     {
+    	
         for (int i = 0; i < speed; i++)
         {
             auto original_x = loc.x;
@@ -278,7 +301,7 @@ public:
     	
         ball = Ball(-1);
 
-        Bat batLeft = Bat(1, true);
+        Bat batLeft = Bat(1, false);
 
         bats.emplace_back(batLeft);
 
