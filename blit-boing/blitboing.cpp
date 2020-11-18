@@ -131,6 +131,11 @@ public:
 			if (player == 1)
 			{
 				yMovement = PlayerUpdate(DPAD_UP, DPAD_DOWN);
+
+				if(yMovement == 0)
+				{
+				yMovement =	PlayerUpdate(joystick.y);
+				}
 			}
 			else
 			{
@@ -152,6 +157,21 @@ public:
 			return PLAYER_SPEED;
 		}
 		else if (buttons & upButton)
+		{
+			return PLAYER_SPEED * -1;
+		}
+
+		return 0;
+	}
+
+	int32_t PlayerUpdate(float y)
+	{
+
+		if (y < 0)
+		{
+			return PLAYER_SPEED;
+		}
+		else if (y > 0)
 		{
 			return PLAYER_SPEED * -1;
 		}
@@ -492,11 +512,11 @@ void update(uint32_t time) {
 			game = Game(noPlayers);
 			state = Play;
 		}
-		else if (buttons & Button::DPAD_UP)
+		else if (buttons & Button::DPAD_UP || joystick.y < 0)
 		{
 			noPlayers = 1;
 		}
-		else if (buttons & Button::DPAD_DOWN)
+		else if (buttons & Button::DPAD_DOWN || joystick.y > 0)
 		{
 			noPlayers = 2;
 		}
@@ -512,8 +532,7 @@ void update(uint32_t time) {
 	case GameOver:
 		if (buttons & Button::A)
 		{
-			game = Game(noPlayers);
-			state = Play;
+			state = Menu;
 		}
 		break;
 	}
