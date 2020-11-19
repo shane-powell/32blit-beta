@@ -129,7 +129,7 @@ public:
 
 	void Update(Point ballLocation, int8_t aiOffset, Size ballSize)
 	{
-		if (timer >= 0)
+		if (timer > 0)
 		{
 			spriteLocation = hitSprite;
 			timer--;
@@ -259,9 +259,10 @@ public:
 
 	int16_t speed = 1;
 
-	void Update(std::vector<Bat> bats)
+	bool Update(std::vector<Bat>& bats)
 	{
-
+		bool hit = false;
+		
 		for (int i = 0; i < speed; i++)
 		{
 			auto original_x = loc.x;
@@ -274,11 +275,17 @@ public:
 			// todo collision detection
 
 			auto ballBounds = Rect(loc, size);
-
-			for (auto bat : bats)
+			
+			for (auto& bat : bats)
 			{
 				if (IsRectIntersecting(Rect(bat.GetLocation(), bat.GetSize()), ballBounds) && !IsRectIntersecting(Rect(bat.GetLocation(), bat.GetSize()), prevBallBounds))
 				{
+					hit = true;
+					if(bat.timer == 0)
+					{
+						bat.timer = BAT_GLOW_TIME;
+					}
+					
 					auto newDirX = 1;
 
 					if (bat.GetLocation().x > maxX / 2)
@@ -322,7 +329,7 @@ public:
 						this->speed += 1;
 					}
 
-					// todo bat glow AI and sounds
+					// todo bat glow AI and sounds				
 				}
 			}
 
@@ -334,6 +341,8 @@ public:
 				// todo sounds
 			}
 		}
+
+		return hit;
 	}
 
 	bool Out()
@@ -386,6 +395,8 @@ public:
 
 	int8_t aiOffset = 0;
 
+	int8_t vibrationTimer = 0;
+
 	Game()
 	{
 
@@ -408,7 +419,22 @@ public:
 
 	void Update()
 	{
-		ball.Update(bats);
+		if(vibrationTimer > 0)
+		{
+			blit::vibration = 1;
+			vibrationTimer--;
+		}
+		else
+		{
+			blit::vibration = 0;
+		}
+
+		const auto hit = ball.Update(bats);
+
+		if(hit == true)
+		{
+			vibrationTimer = BAT_GLOW_TIME / 2;
+		}
 
 		for (Bat& bat : bats) {
 			bat.Update(ball.GetLocation(), aiOffset, ball.GetSize());
@@ -418,6 +444,8 @@ public:
 
 		if (ball.Out())
 		{
+			vibrationTimer = BAT_GLOW_TIME;
+			
 			if(ball.loc.x < maxX / 2)
 			{
 				bats[1].score++;
