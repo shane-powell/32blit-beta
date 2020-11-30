@@ -1,8 +1,15 @@
-# Visual Studio 2019
+# Visual Studio 2019 <!-- omit in toc -->
 
 You can use Visual Studio 2019 to examine the samples (compile them and run them in an SDL window) or to build your own apps for the 32blit API.
 
 See [Building & Running On 32Blit](32blit.md) if you want to compile examples/projects to run on 32Blit.
+
+- [Requirements](#requirements)
+- [Option 1: Use the solution file](#option-1-use-the-solution-file)
+  - [Get started with your own game](#get-started-with-your-own-game)
+- [Option 2: Use Visual Studio's built-in CMake support](#option-2-use-visual-studios-built-in-cmake-support)
+  - [Building your own game](#building-with-your-own-game)
+- [Troubleshooting](#troubleshooting)
 
 ## Requirements
 
@@ -39,6 +46,24 @@ This has the advantage of being closer to the build for the device.
 3. Build!
 
 To find the built files use `Project` > `CMake Cache` > `Open in Explorer`.
+
+### Building your own game
+
+1. Open Visual Studio
+
+2. `File` > `Open` > `Folder` and open the folder containing your game.
+
+3. `Project` > `CMake Settings`.
+
+4. Scroll down to the CMake variables and wait for the list to load.
+
+5. Press the "Browse..." button next to `32BLIT_PATH`.
+
+6. Browse to the folder containing the 32blit repo.
+
+7. Save. It should configure successfully.
+
+8. Build!
 
 [More info about using CMake with Visual Studio](https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=vs-2019)
 

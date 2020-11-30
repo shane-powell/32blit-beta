@@ -13,8 +13,15 @@
 #include "../types/vec3.hpp"
 
 namespace blit {
+
+  using AllocateCallback = uint8_t *(*)(size_t);
+
+  constexpr uint32_t api_version = 0;
+
   #pragma pack(push, 4)
   struct API {
+    uint32_t version = api_version;
+
     ButtonState buttons;
     float hack_left;
     float hack_right;
@@ -29,6 +36,7 @@ namespace blit {
     void (*set_screen_palette)  (const Pen *colours, int num_cols);
     uint32_t (*now)();
     uint32_t (*random)();
+    void (*exit)(bool is_error);
 
     // serial debug
     void (*debug)(std::string message);
@@ -53,8 +61,8 @@ namespace blit {
     uint32_t (*get_max_us_timer)();
 
     // jepg
-    JPEGImage (*decode_jpeg_buffer)(const uint8_t *ptr, uint32_t len);
-    JPEGImage (*decode_jpeg_file)(std::string filename);
+    JPEGImage (*decode_jpeg_buffer)(const uint8_t *ptr, uint32_t len, AllocateCallback alloc);
+    JPEGImage (*decode_jpeg_file)(std::string filename, AllocateCallback alloc);
 
   };
   #pragma pack(pop)

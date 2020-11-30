@@ -16,7 +16,7 @@ namespace blit {
   /**
    * Lists files on the SD card (device), the game directory (SDL) or in memory.
    *
-   * \param path Path to list files at, relative the the root of the SD card or game directory (SDL).
+   * \param path Path to list files at, relative to the root of the SD card or game directory (SDL).
    * 
    * \return Vector of files/directories
    */
@@ -25,12 +25,20 @@ namespace blit {
 
     for(auto &buf_file : buf_files) {
       auto slash_pos = buf_file.first.find_last_of('/');
-      if(slash_pos == std::string::npos)
-        slash_pos = 0;
       
-      if(buf_file.first.substr(0, slash_pos) == path) {
+      bool match = false;
+      if(slash_pos == std::string::npos) // file in root
+        match = path.empty() || path == "/";
+      else {
+        if(!path.empty() && path.back() == '/') // path has trailing slash
+          match = buf_file.first.substr(0, slash_pos + 1) == path;
+        else
+          match = buf_file.first.substr(0, slash_pos) == path;
+      }
+
+      if(match) {
         FileInfo info = {};
-        info.name = buf_file.first.substr(slash_pos == 0 ? 0 : slash_pos + 1);
+        info.name = buf_file.first.substr(slash_pos == std::string::npos ? 0 : slash_pos + 1);
         ret.push_back(info);
       }
     }
@@ -41,7 +49,7 @@ namespace blit {
   /**
    * Check if the specified path exists and is a file
    *
-   * \param path Path to check existence of, relative the the root of the SD card (device) or game directory (SDL).
+   * \param path Path to check existence of, relative to the root of the SD card (device) or game directory (SDL).
    * 
    * \return true if file exists
    */
@@ -52,7 +60,7 @@ namespace blit {
   /**
    * Check if the specified path exists and is a directory
    *
-   * \param path Path to check existence of, relative the the root of the SD card (device) or game directory (SDL).
+   * \param path Path to check existence of, relative to the root of the SD card (device) or game directory (SDL).
    * 
    * \return true if directory exists
    */
@@ -63,7 +71,7 @@ namespace blit {
   /**
    * Create a directory
    *
-   * \param path Path to create, relative the the root of the SD card (device) or game directory (SDL).
+   * \param path Path to create, relative to the root of the SD card (device) or game directory (SDL).
    * 
    * \return true if directory created successfully
    */
@@ -74,7 +82,7 @@ namespace blit {
   /**
    * Rename a file/directory
    *
-   * \param old_name Path to rename, relative the the root of the SD card (device) or game directory (SDL).
+   * \param old_name Path to rename, relative to the root of the SD card (device) or game directory (SDL).
    * \param new_name New name
    * 
    * \return true if file renamed successfully
@@ -86,12 +94,20 @@ namespace blit {
   /**
    * Remove a file
    *
-   * \param path Path to remove, relative the the root of the SD card (device) or game directory (SDL).
+   * \param path Path to remove, relative to the root of the SD card (device) or game directory (SDL).
    * 
    * \return true if file removed successfully
    */
   bool remove_file(const std::string &path) {
     return api.remove_file(path);
+  }
+
+  bool File::open(const uint8_t *buf, uint32_t buf_len) {
+    close();
+
+    this->buf = buf;
+    this->buf_len = buf_len;
+    return true;
   }
 
   /**

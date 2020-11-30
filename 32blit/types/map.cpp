@@ -35,7 +35,7 @@ namespace blit {
     uint16_t mipmap_index = floorf(mipmap);
     uint8_t blend = (mipmap - floorf(mipmap)) * 255;
 
-    mipmap_index = mipmap_index >= (int)sprites->mipmaps.size() ? sprites->mipmaps.size() - 1 : mipmap_index;
+    mipmap_index = mipmap_index >= sprites->mipmaps.size() ? uint16_t(sprites->mipmaps.size() - 1) : mipmap_index;
     mipmap_index = mipmap_index < 0 ? 0 : mipmap_index;
 
     dest->alpha = 255;
@@ -47,7 +47,7 @@ namespace blit {
     }
   }
 
-  void MapLayer::texture_span(Surface *dest, Point s, uint16_t c, Surface *sprites, Vec2 swc, Vec2 ewc, uint8_t mipmap_index = 0) {
+  void MapLayer::texture_span(Surface *dest, Point s, uint16_t c, Surface *sprites, Vec2 swc, Vec2 ewc, uint8_t mipmap_index) {
     BlitBlendFunc bbf = dest->bbf;
 
     int world_size = map->bounds.w * 8;

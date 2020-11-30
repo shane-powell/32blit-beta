@@ -26,6 +26,11 @@ else()
 			PATHS ~/Library/Frameworks /Library/Frameworks
 		)
 	endif()
+	
+	# fallback guess for SDL location on Windows
+	if(WIN32 AND NOT SDL2_DIR AND 32BLIT_PATH)
+		set(SDL2_DIR "${32BLIT_PATH}/vs/sdl")
+	endif()
 
 	if(NOT SDL2_LIBRARIES OR NOT SDL2_INCLUDE_DIRS)
 		find_package(SDL2 REQUIRED)
@@ -86,9 +91,13 @@ if(SDL2_IMAGE_DLL)
 	install(FILES ${SDL2_IMAGE_DLL} DESTINATION bin)
 endif()
 
+if(NOT 32BLIT_SDL_TITLE)
+	set(32BLIT_SDL_TITLE CMake!)
+endif()
+
 target_compile_definitions(BlitHalSDL
 	PRIVATE
-		-DWINDOW_TITLE=\"CMake!\"
+		-DWINDOW_TITLE=\"${32BLIT_SDL_TITLE}\"
 )
 
 if(DEFINED VIDEO_CAPTURE AND VIDEO_CAPTURE)
@@ -118,10 +127,11 @@ if(DEFINED VIDEO_CAPTURE AND VIDEO_CAPTURE)
 endif()
 
 function(blit_executable NAME SOURCES)
-	add_executable(${NAME} ${SOURCES} ${ARGN})
+	add_executable(${NAME} MACOSX_BUNDLE ${SOURCES} ${ARGN})
 
 	install(TARGETS ${NAME}
 		RUNTIME DESTINATION bin
+		BUNDLE DESTINATION bin
 	)
 
 	if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -138,8 +148,33 @@ function(blit_executable NAME SOURCES)
 			LINK_FLAGS "-s ENVIRONMENT=web -s SDL2_IMAGE_FORMATS=['jpg']"
 		)
 	endif()
+
+	if(APPLE AND SDL2_LIBRARIES MATCHES "\.framework$")
+	    # install the SDL frameworks
+		install(DIRECTORY ${SDL2_LIBRARIES} DESTINATION "bin/$<TARGET_FILE_NAME:${NAME}>.app/Contents/Frameworks")
+		install(DIRECTORY ${SDL2_IMAGE_LIBRARY} DESTINATION "bin/$<TARGET_FILE_NAME:${NAME}>.app/Contents/Frameworks")
+	endif()
 endfunction()
 
 function(blit_executable_int_flash NAME SOURCES)
 	blit_executable(${NAME} ${SOURCES} ${ARGN})
+endfunction()
+
+function(blit_metadata TARGET FILE)
+	# cause cmake to reconfigure whenever the asset list changes
+	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
+
+	# parse the metadata to variables
+	execute_process(COMMAND ${PYTHON_EXECUTABLE} -m ttblit cmake --config ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} --cmake ${CMAKE_CURRENT_BINARY_DIR}/metadata.cmake)
+	include(${CMAKE_CURRENT_BINARY_DIR}/metadata.cmake)
+
+	if(APPLE)
+		set_target_properties(${TARGET} PROPERTIES
+			OUTPUT_NAME ${METADATA_TITLE}
+			MACOSX_BUNDLE_BUNDLE_NAME ${METADATA_TITLE}
+			MACOSX_BUNDLE_SHORT_VERSION_STRING ${METADATA_VERSION}
+			MACOSX_BUNDLE_LONG_VERSION_STRING ${METADATA_VERSION}
+			MACOSX_BUNDLE_COPYRIGHT "${METADATA_AUTHOR}"
+		)
+	endif()
 endfunction()

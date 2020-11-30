@@ -1,8 +1,12 @@
 /*! \file sprite.cpp
     \brief Functions for drawing sprites.
 */
+#include <cstring>
+
 #include "surface.hpp"
 #include "sprite.hpp"
+
+#include "../engine/file.hpp"
 
 using namespace blit;
 
@@ -20,16 +24,43 @@ namespace blit {
     cols = bounds.w / 8;
   }
 
+  SpriteSheet::SpriteSheet(uint8_t *data, PixelFormat format, File &image) : Surface(data, format, image) {  
+    rows = bounds.h / 8;
+    cols = bounds.w / 8;
+  }
+
   SpriteSheet *SpriteSheet::load(const uint8_t *data, uint8_t *buffer) {
     return load((packed_image *)data, buffer);
   }
 
   SpriteSheet *SpriteSheet::load(const packed_image *image, uint8_t *buffer) {
+    if(memcmp(image->type, "SPRITEPK", 8) != 0 && memcmp(image->type, "SPRITERW", 8) != 0)
+      return nullptr;
+
+    if(image->format > (uint8_t)PixelFormat::M)
+      return nullptr;
+
     if (buffer == nullptr) {
       buffer = new uint8_t[pixel_format_stride[image->format] * image->width * image->height];
     }
     
     return new SpriteSheet(buffer, (PixelFormat)image->format, image);
+  }
+
+  SpriteSheet *SpriteSheet::load(const std::string& filename, uint8_t* buffer) {
+    File file;
+
+    if (!file.open(filename, OpenMode::read))
+      return nullptr;
+
+    packed_image image;
+    file.read(0, sizeof(packed_image), (char *)&image);
+
+    if (buffer == nullptr) {
+      buffer = new uint8_t[pixel_format_stride[image.format] * image.width * image.height];
+    }
+
+    return new SpriteSheet(buffer, (PixelFormat)image.format, file);
   }
 
   /**

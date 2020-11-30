@@ -4,27 +4,54 @@
 #include "quadspi.h"
 #include "CDCCommandStream.h"
 #include "USBManager.h"
+#include "usbd_cdc_if.h"
 #include "file.hpp"
+#include "executable.hpp"
+#include "metadata.hpp"
 
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
+#include <list>
+
 using namespace blit;
 
-enum State {stFlashFile, stSaveFile, stFlashCDC, stLS, stMassStorage};
+enum State {stFlashFile, stSaveFile, stFlashCDC, stMassStorage};
 
 constexpr uint32_t qspi_flash_sector_size = 64 * 1024;
+constexpr uint32_t qspi_flash_size = 32768 * 1024;
+constexpr uint32_t qspi_flash_address = 0x90000000;
 
+bool sd_detected = true;
 Vec2 file_list_scroll_offset(20.0f, 0.0f);
+float directory_list_scroll_offset = 0.0f;
 
 extern CDCCommandStream g_commandStream;
 
 FlashLoader flashLoader;
+CDCEraseHandler cdc_erase_handler;
 
 extern USBManager g_usbManager;
 
-std::vector<blit::FileInfo> files;
-int32_t max_width_size = 0;
+struct GameInfo {
+  std::string title;
+  uint32_t size;
+
+  std::string filename; // if on SD
+  uint32_t offset; // in in flash
+};
+
+struct DirectoryInfo {
+  std::string name;
+  int x, w;
+};
+
+std::vector<GameInfo> game_list;
+std::list<DirectoryInfo> directory_list;
+std::list<DirectoryInfo>::iterator current_directory;
+
+bool display_flash = true;
+
 SortBy file_sort = SortBy::name;
 
 uint8_t buffer[PAGE_SIZE];
@@ -34,13 +61,18 @@ State		state = stFlashFile;
 
 FIL file;
 
-// error dialog
-int selected_dialog_option = 0;
 
-bool flash_from_sd_to_qspi_flash(const char *filename);
+BlitGameMetadata selected_game_metadata;
+
+void scan_flash();
+uint32_t flash_from_sd_to_qspi_flash(const char *filename);
+
+int calc_num_blocks(uint32_t size) {
+  return (size - 1) / qspi_flash_sector_size + 1;
+}
 
 void erase_qspi_flash(uint32_t start_sector, uint32_t size_bytes) {
-  uint32_t sector_count = (size_bytes / qspi_flash_sector_size) + 1;
+  uint32_t sector_count = calc_num_blocks(size_bytes);
 
   progress.show("Erasing flash sectors...", sector_count);
 
@@ -53,26 +85,71 @@ void erase_qspi_flash(uint32_t start_sector, uint32_t size_bytes) {
   progress.hide();
 }
 
+// insertion sort
+template <class Iterator, class Compare>
+void insertion_sort(Iterator first, Iterator last, Compare comp) {
+  if(last - first < 2)
+    return;
+
+  for(auto it = first + 1; it != last; ++it) {
+    auto temp = it;
+
+    while(temp != first && comp(*temp, *(temp - 1))) {
+      std::swap(*temp, *(temp - 1));
+      --temp;
+    }
+  }
+}
+
 void sort_file_list() {
-    using Iterator = std::vector<FileInfo>::iterator;
-    using Compare = bool(const FileInfo &, const FileInfo &);
+    using Iterator = std::vector<GameInfo>::iterator;
+    using Compare = bool(const GameInfo &, const GameInfo &);
 
     if (file_sort == SortBy::name) {
       // Sort by filename
-      std::sort<Iterator, Compare>(files.begin(), files.end(), [](const auto &a, const auto &b) { return a.name < b.name; });
+      insertion_sort<Iterator, Compare>(game_list.begin(), game_list.end(), [](const auto &a, const auto &b) { return a.title < b.title; });
     }
 
     if (file_sort == SortBy::size) {
       // Sort by filesize
-      std::sort<Iterator, Compare>(files.begin(), files.end(), [](const auto &a, const auto &b) { return a.size < b.size; });
+      insertion_sort<Iterator, Compare>(game_list.begin(), game_list.end(), [](const auto &a, const auto &b) { return a.size < b.size; });
     }
 }
 
-void load_file_list() {
-  files.clear();
-  max_width_size = 0;
+void load_directory_list(std::string directory) {
+  directory_list.clear();
 
-  for(auto &file : ::list_files("/")) {
+  for(auto &folder : ::list_files(directory)) {
+    if(folder.flags & blit::FileFlags::directory) {
+      if(folder.name.compare("System Volume Information") == 0 || folder.name[0] == '.') continue;
+      directory_list.push_back({folder.name, 0, 0});
+    }
+  }
+
+  directory_list.sort([](const auto &a, const auto &b) { return a.name > b.name; });
+
+  directory_list.push_front({"/", 0, 0});
+  directory_list.push_front({"FLASH", 0, 0});
+
+  // measure positions
+  int x = 0;
+  for(auto &dir : directory_list) {
+    dir.x = x;
+    dir.w = screen.measure_text(dir.name == "/" ? "ROOT" : dir.name, minimal_font).w;
+
+    x += dir.w + 10;
+  }
+}
+
+void load_file_list(std::string directory) {
+  if(directory == "FLASH") {
+    scan_flash();
+    return;
+  }
+
+  game_list.clear();
+
+  for(auto &file : ::list_files(directory)) {
     if(file.flags & blit::FileFlags::directory)
       continue;
 
@@ -80,16 +157,92 @@ void load_file_list() {
       continue;
 
     if(file.name.compare(file.name.length() - 4, 4, ".bin") == 0 || file.name.compare(file.name.length() - 4, 4, ".BIN") == 0) {
-      files.push_back(file);
-      max_width_size = std::max(max_width_size, screen.measure_text(std::to_string(file.size), minimal_font).w);
+
+      GameInfo game;
+      game.title = file.name.substr(0, file.name.length() - 4);
+      game.filename = directory == "/" ? file.name : directory + "/" + file.name;
+      game.size = file.size;
+      
+      // check for metadata
+      BlitGameMetadata meta;
+      if(parse_file_metadata(file.name, meta))
+        game.title = meta.title;
+
+      game_list.push_back(game);
     }
   }
 
   sort_file_list();
+}
 
-  if(persist.selected_menu_item > files.size()) {
-    persist.selected_menu_item = files.size() - 1;
+// returns true is there is a valid header here
+bool read_flash_game_header(uint32_t offset, BlitGameHeader &header) {
+  if(qspi_read_buffer(offset, reinterpret_cast<uint8_t *>(&header), sizeof(header)) != QSPI_OK)
+    return false;
+
+  if(header.magic != blit_game_magic)
+    return false;
+
+  // make sure end/size is sensible
+  if(header.end <= qspi_flash_address)
+    return false;
+
+  return true;
+}
+
+void scan_flash() {
+  game_list.clear();
+
+  for(uint32_t offset = 0; offset < qspi_flash_size;) {
+    BlitGameHeader header;
+
+    if(!read_flash_game_header(offset, header)) {
+      offset += qspi_flash_sector_size;
+      continue;
+    }
+
+    GameInfo game;
+    game.offset = offset;
+    game.size = header.end - qspi_flash_address;
+    game.title = "game @" + std::to_string(game.offset / qspi_flash_sector_size);
+
+    // check for valid metadata
+    BlitGameMetadata meta;
+    if(parse_flash_metadata(offset, meta)) {
+      game.title = meta.title;
+      game.size += meta.length + 10;
+    }
+
+    game_list.push_back(game);
+
+    offset += calc_num_blocks(game.size) * qspi_flash_sector_size;
   }
+  sort_file_list();
+}
+
+void load_current_game_metadata() {
+  bool loaded = false;
+
+  if(!game_list.empty()) {
+    auto &game = game_list[persist.selected_menu_item];
+
+    if(game.filename.empty())
+      loaded = parse_flash_metadata(game.offset, selected_game_metadata, true);
+    else
+      loaded = parse_file_metadata(game.filename, selected_game_metadata, true);
+  }
+
+  // no valid metadata, reset
+  if(!loaded) {
+    selected_game_metadata.free_surfaces();
+    selected_game_metadata = BlitGameMetadata();
+  }
+}
+
+void launch_game(uint32_t address) {
+  selected_game_metadata.free_surfaces();
+
+  blit_switch_execution(address);
 }
 
 void mass_storage_overlay(uint32_t time)
@@ -101,7 +254,7 @@ void mass_storage_overlay(uint32_t time)
 
   screen.pen = Pen(255, 255, 255);
   char buffer[128];
-  sprintf(buffer, "Mass Storage mode (%s)", g_usbManager.GetStateName());
+  snprintf(buffer, 128, "Mass Storage mode (%s)", g_usbManager.GetStateName());
   screen.text(buffer, minimal_font, Rect(Point(0), screen.bounds), true, TextAlign::center_center);
 
   if(uActivityAnim)
@@ -118,9 +271,26 @@ void mass_storage_overlay(uint32_t time)
   }
 }
 
+void init_lists() {
+  load_directory_list("/");
+  current_directory = directory_list.begin();
+
+  load_file_list(current_directory->name);
+
+  auto total_items = game_list.size();
+  if(persist.selected_menu_item >= total_items)
+    persist.selected_menu_item = total_items - 1;
+
+  load_current_game_metadata();
+}
+
 void init() {
-  blit::set_screen_mode(ScreenMode::hires);
-  load_file_list();
+  set_screen_mode(ScreenMode::hires);
+  screen.clear();
+
+  screen.sprites = SpriteSheet::load(sprites);
+
+  init_lists();
 
   // register PROG
   g_commandStream.AddCommandHandler(CDCCommandHandler::CDCFourCCMake<'P', 'R', 'O', 'G'>::value, &flashLoader);
@@ -130,6 +300,23 @@ void init() {
 
   // register LS
   g_commandStream.AddCommandHandler(CDCCommandHandler::CDCFourCCMake<'_', '_', 'L', 'S'>::value, &flashLoader);
+
+  g_commandStream.AddCommandHandler(CDCCommandHandler::CDCFourCCMake<'E', 'R', 'S', 'E'>::value, &cdc_erase_handler);
+
+  // auto-launch
+  if(persist.reset_target == prtGame)
+    launch_game(persist.last_game_offset);
+
+  // error reset handling
+  if(persist.reset_error) {
+    dialog.show("Oops!", "Restart game?", [](bool yes){
+
+      if(yes)
+        launch_game(persist.last_game_offset);
+
+      persist.reset_error = false;
+    });
+  }
 }
 
 void render(uint32_t time) {
@@ -139,77 +326,99 @@ void render(uint32_t time) {
   screen.pen = Pen(0, 0, 0, 100);
   screen.rectangle(Rect(10, 0, 100, 240));
 
-  // list files on SD card
-  if(!files.empty()) {
-    int y = 115 - file_list_scroll_offset.y;
-    // adjust alignment rect for vertical spacing
-    const int text_align_height = ROW_HEIGHT + minimal_font.spacing_y;
+  // adjust alignment rect for vertical spacing
+  const int text_align_height = ROW_HEIGHT + minimal_font.spacing_y;
+
+  // list folders
+  if(!directory_list.empty()) {
+    screen.clip = Rect(120, 5, 190, text_align_height);
+
+    for(auto &directory : directory_list) {
+      if(directory.name == current_directory->name)
+        screen.pen = Pen(235, 245, 255);
+      else
+        screen.pen = Pen(80, 100, 120);
+
+      int x = 120 + 95 + directory.x - directory_list_scroll_offset;
+      screen.text(directory.name == "/" ? "ROOT" : directory.name, minimal_font, Rect(x, 5, 190, text_align_height), true, TextAlign::center_v);
+    }
+
+    screen.clip = Rect(Point(0, 0), screen.bounds);
+  }
+
+  int y = 115 - file_list_scroll_offset.y;
+  uint32_t i = 0;
+
+  // list games
+  if(!game_list.empty()) {
     const int size_x = 115;
-    
-    uint32_t i = 0;
-    for(auto &file : files) {
+
+    for(auto &file : game_list) {
       if(i++ == persist.selected_menu_item)
         screen.pen = Pen(235, 245, 255);
       else
         screen.pen = Pen(80, 100, 120);
 
-      screen.text(file.name, minimal_font, Rect(file_list_scroll_offset.x, y, 100 - 20, text_align_height), true, TextAlign::center_v);
-      screen.line(Point(size_x - 4, y), Point(size_x - 4, y + ROW_HEIGHT));
-      screen.text(std::to_string(file.size), minimal_font, Rect(size_x, y, max_width_size, text_align_height), true, TextAlign::center_right);
+      screen.text(file.title, minimal_font, Rect(file_list_scroll_offset.x, y, 100 - 20, text_align_height), true, TextAlign::center_v);
       y += ROW_HEIGHT;
     }
+
+    // action icons
+    // delete
+    screen.sprite(2, Point(120, 20));
+    screen.sprite(0, Point(130, 20));
+
+    // run
+    screen.sprite(1, Point(120, 32));
+    screen.sprite(0, Point(130, 32), SpriteTransform::R90);
+
+    // game info
+    if(selected_game_metadata.splash)
+      screen.blit(selected_game_metadata.splash, Rect(Point(0, 0), selected_game_metadata.splash->bounds), Point(172, 20));
+
+    screen.pen = Pen(235, 245, 255);
+    screen.text(selected_game_metadata.title, minimal_font, Point(172, 124));
+
+    Rect desc_rect(172, 138, 128, 64);
+
+    screen.pen = Pen(80, 100, 120);
+    std::string wrapped_desc = screen.wrap_text(selected_game_metadata.description, desc_rect.w, minimal_font);
+    screen.text(wrapped_desc, minimal_font, desc_rect);
+
+    screen.text(selected_game_metadata.author, minimal_font, Point(172, 208));
+
+    int num_blocks = calc_num_blocks(game_list[persist.selected_menu_item].size);
+    char buf[20];
+    snprintf(buf, 20, "%i block%s", num_blocks, num_blocks == 1 ? "" : "s");
+    screen.text(buf, minimal_font, Point(172, 216));
+
   }
   else {
-    screen.text("No Files Found.", minimal_font, ROW(0));
+    screen.pen = Pen(235, 245, 255);
+
+    if(current_directory->name != "FLASH" && !blit_sd_detected())
+      screen.text("No SD Card\nDetected.", minimal_font, Point(60, screen.bounds.h / 2), true, TextAlign::center_center);
+    else
+      screen.text("No Games Found.", minimal_font, Point(60, screen.bounds.h / 2), true, TextAlign::center_center);
   }
 
+  // overlays
   if(state == stMassStorage)
     mass_storage_overlay(time);
 
-  // error dialog overlay
-  if(persist.reset_error) {
-    screen.pen = Pen(0, 0, 0, 200);
-    screen.clear();
-
-    screen.pen = Pen(255, 255, 255);
-
-    screen.text("Oops!\n\nRestart game?", minimal_font, Point(screen.bounds.w / 2, screen.bounds.h / 2), true, TextAlign::center_center);
-
-    screen.pen = selected_dialog_option == 0 ? Pen(235, 245, 255) : Pen(80, 100, 120);
-    screen.text("No", minimal_font, Point(screen.bounds.w / 3, screen.bounds.h - 80), true, TextAlign::center_center);
-
-    screen.pen = selected_dialog_option == 1 ? Pen(235, 245, 255) : Pen(80, 100, 120);
-    screen.text("Yes", minimal_font, Point(screen.bounds.w / 3 * 2, screen.bounds.h - 80), true, TextAlign::center_center);
-  }
-
   progress.draw();
+  dialog.draw();
 }
 
-void update(uint32_t time)
-{
-  if(persist.reset_error) {
-    // only two options
-    if(buttons.pressed & Button::DPAD_RIGHT)
-      selected_dialog_option ^= 1;
-    else if(buttons.pressed & Button::DPAD_LEFT)
-      selected_dialog_option ^= 1;
+void update(uint32_t time) {
 
-    if(buttons.released & Button::A) {
-      if(selected_dialog_option == 1) // yes
-        blit_switch_execution(0);
-      else
-        persist.reset_target = prtFirmware;
+  if(blit_sd_mounted() != sd_detected) {
+    init_lists();
+    sd_detected = blit_sd_mounted();
+  }
 
-      persist.reset_error = false;
-    }
-
+  if(dialog.update())
     return;
-  }
-
-  if(state == stLS) {
-    load_file_list();
-    state = stFlashFile;
-  }
 
   bool button_home = buttons.pressed & Button::HOME;
   
@@ -238,41 +447,93 @@ void update(uint32_t time)
 
     }
 
+    auto total_items = game_list.size();
+
+    auto old_menu_item = persist.selected_menu_item;
+
     if(button_up)
     {
       if(persist.selected_menu_item > 0) {
         persist.selected_menu_item--;
       } else {
-        persist.selected_menu_item = files.size() - 1;
+        persist.selected_menu_item = total_items - 1;
       }
     }
 
     if(button_down)
     {
-      if(persist.selected_menu_item < (files.size() - 1)) {
+      if(persist.selected_menu_item < (total_items - 1)) {
         persist.selected_menu_item++;
       } else {
         persist.selected_menu_item = 0;
       }
     }
 
-    // scroll list towards selected item  
-    file_list_scroll_offset.y += ((persist.selected_menu_item * 10) - file_list_scroll_offset.y) / 5.0f;
+    // switch between flash and SD lists
+    if(buttons.pressed & Button::DPAD_LEFT) {
+      if(current_directory == directory_list.begin())
+        current_directory = --directory_list.end();
+      else
+        --current_directory;
+    }
 
-    if(button_a)
-    {
-      if(flash_from_sd_to_qspi_flash(files[persist.selected_menu_item].name.c_str())) {
-        blit_switch_execution(0);
+    if(buttons.pressed & Button::DPAD_RIGHT) {
+      current_directory++;
+      if(current_directory == directory_list.end()) {
+        current_directory = directory_list.begin();
       }
     }
 
+    if(buttons.pressed & (Button::DPAD_LEFT | Button::DPAD_RIGHT)) {
+      load_file_list(current_directory->name);
+
+      persist.selected_menu_item = 0;
+      load_current_game_metadata();
+    }
+
+    // scroll list towards selected item  
+    file_list_scroll_offset.y += ((persist.selected_menu_item * 10) - file_list_scroll_offset.y) / 5.0f;
+
+    directory_list_scroll_offset += (current_directory->x + current_directory->w / 2 - directory_list_scroll_offset) / 5.0f;
+
+    // load metadata for selected item
+    if(persist.selected_menu_item != old_menu_item)
+      load_current_game_metadata();
+
+    if(button_a)
+    {
+      uint32_t offset;
+      auto &game = game_list[persist.selected_menu_item];
+
+      if(game.filename.empty())
+        offset = game_list[persist.selected_menu_item].offset; // flash
+      else
+        offset = flash_from_sd_to_qspi_flash(game.filename.c_str()); // sd
+
+      if(offset != 0xFFFFFFFF)
+        launch_game(offset);
+    }
+
+    // delete current game
     if (button_x) {
-      file_sort = SortBy::name;
-      sort_file_list();
+      auto &game = game_list[persist.selected_menu_item];
+
+      dialog.show("Confirm", "Really delete " + game.title + "?", [](bool yes){
+        if(yes) {
+          auto &game = game_list[persist.selected_menu_item];
+          if(game.filename.empty())
+            erase_qspi_flash(game.offset / qspi_flash_sector_size, game.size);
+          else
+            ::remove_file(game.filename);
+
+          load_file_list(current_directory->name);
+          load_current_game_metadata();
+        }
+      });
     }
 
     if (button_y) {
-      file_sort = SortBy::size;
+      file_sort = file_sort == SortBy::name ? SortBy::size : SortBy::name;
       sort_file_list();
     }
   }
@@ -288,14 +549,29 @@ void update(uint32_t time)
     {
       // Switch back to CDC
       g_usbManager.SetType(USBManager::usbtCDC);
-      load_file_list();
+      load_file_list(current_directory->name);
       state = stFlashFile;
     }
   }
 }
 
+// returns address to flash file to
+uint32_t get_flash_offset_for_file(BlitGameHeader &bin_header) {
+
+  // temporary load address for working on multiple app support without PIC being ready
+  // in future this will probably be more of a "find free space" function
+  if(bin_header.magic == blit_game_magic) {
+    auto expected_addr = bin_header.start;
+
+    // this should be sector aligned to not break things later...
+    return expected_addr - qspi_flash_address;
+  }
+
+  return 0;
+}
+
 // Flash(): Flash a file from the SDCard to external flash
-bool flash_from_sd_to_qspi_flash(const char *filename)
+uint32_t flash_from_sd_to_qspi_flash(const char *filename)
 {
   FIL file;
   FRESULT res = f_open(&file, filename, FA_READ);
@@ -304,6 +580,7 @@ bool flash_from_sd_to_qspi_flash(const char *filename)
 
   // get file length
   FSIZE_t bytes_total = f_size(&file);
+  UINT bytes_read = 0;
   FSIZE_t bytes_flashed = 0;
   size_t offset = 0;
 
@@ -313,15 +590,25 @@ bool flash_from_sd_to_qspi_flash(const char *filename)
     return false;
   }
 
+  // check header
+  BlitGameHeader header;
+  if(f_read(&file, (void *)&header, sizeof(header), &bytes_read) != FR_OK) {
+    f_close(&file);
+    return false;
+  }
+  f_lseek(&file, 0);
+
+  uint32_t flash_offset = get_flash_offset_for_file(header);
+  offset = flash_offset;
+
   // erase the sectors needed to write the image
-  erase_qspi_flash(0, bytes_total);
+  erase_qspi_flash(flash_offset / qspi_flash_sector_size, bytes_total);
 
   progress.show("Copying from SD card to flash...", bytes_total);
 
   while(bytes_flashed < bytes_total)
   {
     // limited ram so a bit at a time
-    UINT bytes_read = 0;
     res = f_read(&file, (void *)buffer, BUFFER_SIZE, &bytes_read);
 
     if(res != FR_OK)
@@ -351,7 +638,84 @@ bool flash_from_sd_to_qspi_flash(const char *filename)
 
   progress.hide();
 
-  return bytes_flashed == bytes_total;
+  return bytes_flashed == bytes_total ? flash_offset : 0xFFFFFFFF;
+}
+
+
+void cdc_flash_list() {
+  // scan through flash and send offset, size and metadata
+  for(uint32_t offset = 0; offset < qspi_flash_size;) {
+    BlitGameHeader header;
+
+    if(!read_flash_game_header(offset, header)) {
+      offset += qspi_flash_sector_size;
+      continue;
+    }
+
+    uint32_t size = header.end - qspi_flash_address;
+
+    // metadata header
+    uint8_t buf[10];
+    if(qspi_read_buffer(offset + size, buf, 10) != QSPI_OK)
+      break;
+
+    while(CDC_Transmit_HS((uint8_t *)&offset, 4) == USBD_BUSY){}
+    while(CDC_Transmit_HS((uint8_t *)&size, 4) == USBD_BUSY){}
+
+    uint16_t metadata_len = 0;
+
+    if(memcmp(buf, "BLITMETA", 8) == 0)
+      metadata_len = *reinterpret_cast<uint16_t *>(buf + 8);
+
+    while(CDC_Transmit_HS((uint8_t *)"BLITMETA", 8) == USBD_BUSY){}
+    while(CDC_Transmit_HS((uint8_t *)&metadata_len, 2) == USBD_BUSY){}
+
+    // send metadata
+    uint32_t metadata_offset = offset + size + 10;
+    while(metadata_len) {
+      int chunk_size = std::min(256, (int)metadata_len);
+      uint8_t metadata_buf[256];
+
+      if(qspi_read_buffer(metadata_offset, metadata_buf, chunk_size) != QSPI_OK)
+        break;
+
+      while(CDC_Transmit_HS(metadata_buf, chunk_size) == USBD_BUSY){}
+
+      metadata_offset += chunk_size;
+      metadata_len -= chunk_size;
+    }
+
+    offset += calc_num_blocks(size) * qspi_flash_sector_size;
+  }
+
+  // end marker
+  uint32_t end = 0xFFFFFFFF;
+  while(CDC_Transmit_HS((uint8_t *)&end, 4) == USBD_BUSY){}
+}
+
+// erase command handler
+CDCCommandHandler::StreamResult CDCEraseHandler::StreamData(CDCDataStream &dataStream) {
+  uint32_t offset;
+  if(!dataStream.Get(offset))
+    return srNeedData;
+
+  // reject unaligned
+  if(offset & (qspi_flash_sector_size - 1))
+    return srFinish;
+
+  // attempt to get size, falling back to a single sector
+  int erase_size = 1;
+  BlitGameHeader header;
+  if(read_flash_game_header(offset, header))
+    erase_size = calc_num_blocks(header.end - qspi_flash_address); // TODO: this does not include metadata, may result in some leftover junk
+
+  erase_qspi_flash(offset / qspi_flash_sector_size, erase_size * qspi_flash_sector_size);
+
+  // rescan
+  if(current_directory->name == "FLASH")
+    scan_flash();
+
+  return srFinish;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -382,8 +746,8 @@ bool FlashLoader::StreamInit(CDCFourCC uCommand)
     break;
 
     case CDCCommandHandler::CDCFourCCMake<'_', '_', 'L', 'S'>::value:
-      state = stLS;
       bNeedStream = false;
+      cdc_flash_list();
     break;
 
   }
@@ -490,8 +854,6 @@ CDCCommandHandler::StreamResult FlashLoader::StreamData(CDCDataStream &dataStrea
                   break;
 
                   case stFlashCDC:
-                    erase_qspi_flash(0, m_uFilelen);
-                    progress.show("Saving " + std::string(m_sFilename) +  " to flash...", m_uFilelen);
                   break;
 
                   default:
@@ -547,7 +909,21 @@ CDCCommandHandler::StreamResult FlashLoader::StreamData(CDCDataStream &dataStrea
                   if(bEOS)
                   {
                     f_close(&file);
-                    load_file_list();
+
+                    // switch to dir
+                    auto name_str = std::string_view(m_sFilename);
+                    auto slash = name_str.find_last_of('/');
+                    auto dir = slash == std::string::npos ? "/" : name_str.substr(0, name_str.find_last_of('/'));
+
+                    for(current_directory = directory_list.begin(); current_directory != directory_list.end(); ++current_directory) {
+                      if(current_directory->name == dir) break;
+                    }
+
+                    if(current_directory == directory_list.end()) // couldn't find it
+                      current_directory = directory_list.begin();
+                    else
+                      load_file_list(current_directory->name);
+
                     state = stFlashFile;
                     if(result != srError)
                       result = srFinish;
@@ -558,9 +934,18 @@ CDCCommandHandler::StreamResult FlashLoader::StreamData(CDCDataStream &dataStrea
 
                 case stFlashCDC:
                 {
+                  uint32_t uPage = (m_uParseIndex / PAGE_SIZE);
+                  // first page, check header
+                  if(uPage == 0) {
+                    flash_start_offset = get_flash_offset_for_file(*reinterpret_cast<BlitGameHeader *>(buffer));
+
+                    // erase
+                    erase_qspi_flash(flash_start_offset / qspi_flash_sector_size, m_uFilelen);
+                    progress.show("Saving " + std::string(m_sFilename) +  " to flash...", m_uFilelen);
+                  }
+
                   // save data
-                  volatile uint32_t uPage = (m_uParseIndex / PAGE_SIZE);
-                  if(!FlashData(uPage*PAGE_SIZE, buffer, uWriteLen))
+                  if(!FlashData(flash_start_offset + uPage*PAGE_SIZE, buffer, uWriteLen))
                   {
                     printf("Failed to write to flash\n\r");
                     result = srError;
@@ -572,7 +957,7 @@ CDCCommandHandler::StreamResult FlashLoader::StreamData(CDCDataStream &dataStrea
                     if(result != srError)
                     {
                       result = srFinish;
-                      blit_switch_execution(0);
+                      launch_game(flash_start_offset);
                     }
                     else
                       state = stFlashFile;

@@ -68,6 +68,7 @@
 extern CDCCommandStream g_commandStream;
 CDCResetHandler g_resetHandler;
 CDCInfoHandler g_infoHandler;
+bool is_beta_unit = false;
 
 
 
@@ -119,6 +120,8 @@ int main(void)
   gpio::init();
   sound::init();
 
+  is_beta_unit = HAL_GPIO_ReadPin(VERSION_GPIO_Port, VERSION_Pin);
+
   //MX_GPIO_Init();
 
   MX_DMA_Init();
@@ -138,22 +141,26 @@ int main(void)
   MX_SPI4_Init();
   //MX_TIM6_Init();
   MX_TIM15_Init();
+  MX_TIM16_Init();
   MX_FATFS_Init();  
   MX_RNG_Init();
   MX_USB_DEVICE_Init();
   MX_JPEG_Init();
   /* USER CODE BEGIN 2 */
 
-  blit_init();
   //NVIC_SetPriority(SysTick_IRQn, 0x0);
 
 #if (INITIALISE_QSPI==1)
   qspi_init();
-  if((persist.reset_target == prtGame) && HAL_GPIO_ReadPin(BUTTON_MENU_GPIO_Port,  BUTTON_MENU_Pin) && !persist.reset_error)
-    blit_switch_execution(0); // TODO: store offset for last used game
 #endif
 
+  blit_init();
 
+#if (INITIALISE_QSPI==1)
+  // don't switch to game if it crashed, or menu is held
+  if(persist.reset_target == prtGame && (!HAL_GPIO_ReadPin(BUTTON_MENU_GPIO_Port,  BUTTON_MENU_Pin) || persist.reset_error))
+    persist.reset_target = prtFirmware;
+#endif
 
   // add CDC handler to reset device on receiving "_RST" and "SWIT"
 	g_commandStream.AddCommandHandler(CDCCommandHandler::CDCFourCCMake<'_', 'R', 'S', 'T'>::value, &g_resetHandler);
