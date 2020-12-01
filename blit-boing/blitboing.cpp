@@ -10,11 +10,16 @@ int32_t minY = 0;
 int32_t PLAYER_SPEED = 6;
 int32_t MAX_AI_SPEED = 8;
 
-uint8_t MAX_BALL_SPEED = 8;
+uint8_t MAX_BALL_SPEED = 4;
 
 uint8_t BAT_GLOW_TIME = 45;
 
 int8_t spriteSize = 8;
+
+float DEFLECTION_MIN = 0.0;
+float DEFLECTION_MAX = 1.0;
+float BAT_HIT_MIN = 0.0;
+float BAT_HIT_MAX = 24.0;
 
 std::tuple<float, float> Normalised(float x, float y)
 {
@@ -23,16 +28,6 @@ std::tuple<float, float> Normalised(float x, float y)
 	return std::tuple<float, float>(x / length, y / length);
 }
 
-//int16_t Sign (int16_t x)
-//{
-//	if (x < 0)
-//	{
-//        return -1;
-//	}
-//   
-//    return 1;
-//    
-//}
 
 bool IsRectIntersecting(Rect rect1, Rect rect2) {
 	if (rect1.x + rect1.w > rect2.x &&
@@ -240,6 +235,9 @@ public:
 	float dX = 0.0f;
 	float dY = 0.0f;
 
+	float xFloat = 0.0f;
+	float yFloat = 0.0f;
+	
 	Ball()
 	{
 
@@ -251,6 +249,10 @@ public:
 		this->loc.x = maxX / 2;
 		this->loc.y = maxY / 2;
 		this->dY = (float)dYin;
+
+		this->xFloat = loc.x;
+		this->yFloat = loc.y;
+		
 		// update size
 		this->size = Size(8, 8);
 
@@ -269,10 +271,11 @@ public:
 
 			auto prevBallBounds = Rect(loc, size);
 
-			loc.x += static_cast<int>(round(this->dX));
-			loc.y += static_cast<int>(round(this->dY));
-
-			// todo collision detection
+			xFloat += this->dX;
+			yFloat += this->dY;
+			
+			loc.x = static_cast<int>(round(this->xFloat));
+			loc.y = static_cast<int>(round(this->yFloat));
 
 			auto ballBounds = Rect(loc, size);
 			
@@ -285,44 +288,26 @@ public:
 					{
 						bat.timer = BAT_GLOW_TIME;
 					}
-					
-					auto newDirX = 1;
-
-					if (bat.GetLocation().x > maxX / 2)
-					{
-						newDirX = -1;
-					}
-
-					//auto differenceY = loc.y - bat.GetLocation().y;
+								
 					auto differenceY = (loc.y + (this->size.h / 2)) - (bat.GetLocation().y + (bat.GetSize().h / 2));
-
+					
 					dX = -dX;
 
-					// dY += static_cast<float>(differenceY) / static_cast<float>(bat.GetSize().h);
+					dY = 0;
 
-					auto diff = (differenceY) % (bat.GetSize().h);
+					int yMultiplier = 1;
 
-					if (diff == 0)
+					if (differenceY < 0)
 					{
-						diff = differenceY / bat.GetSize().h;
+						differenceY = differenceY * -1;
+						yMultiplier = -1;
 					}
 
-					dY += diff;
+					float slope = (DEFLECTION_MAX - DEFLECTION_MIN) / (BAT_HIT_MAX - BAT_HIT_MIN);
 
-					dY = std::min(std::max(dY, (float)-1), (float)1);
+					dY = DEFLECTION_MIN + slope * (static_cast<float>(differenceY) - BAT_HIT_MIN);
 
-					auto norm = Normalised(dX, dY);
-
-					auto normX = std::get<0>(norm);
-
-					if (normX >= 1.0f || normX <= -1.0f)
-					{
-						dX = normX;
-					}
-
-					dY = std::get<1>(norm);
-
-
+					dY = dY * yMultiplier;
 
 					if (speed < MAX_BALL_SPEED)
 					{
@@ -499,7 +484,7 @@ void init() {
 		screen.sprites->data = nullptr;
 		screen.sprites = nullptr;
 	}
-
+	
 	screen.sprites = SpriteSheet::load(sprites_data);
 
 	backGroundSurface = SpriteSheet::load(background_data);
