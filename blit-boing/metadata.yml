@@ -1,0 +1,8 @@
+title: Blit Boing!
+description: Pong for blit!
+author: Shane Powell (Kenjara)
+splash:
+  file: splash.png
+icon:
+  file: icon.png
+version: v1.0.0
