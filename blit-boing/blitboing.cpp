@@ -10,7 +10,7 @@ int32_t minY = 0;
 int32_t PLAYER_SPEED = 6;
 int32_t MAX_AI_SPEED = 8;
 
-uint8_t MAX_BALL_SPEED = 4;
+float MAX_BALL_SPEED = 4;
 
 uint8_t BAT_GLOW_TIME = 45;
 
@@ -245,10 +245,10 @@ public:
 
 	Ball(int dxIn, int dYin) : Actor()
 	{
-		this->dX = (float)dxIn;
+		this->dX = static_cast<float>(dxIn);
 		this->loc.x = maxX / 2;
 		this->loc.y = maxY / 2;
-		this->dY = (float)dYin;
+		this->dY = static_cast<float>(dYin);
 
 		this->xFloat = loc.x;
 		this->yFloat = loc.y;
@@ -259,13 +259,13 @@ public:
 		this->spriteLocation = Rect(0, 64 / 8, size.w / 8, size.h / 8);
 	}
 
-	int16_t speed = 1;
+	float speed = 1;
 
 	bool Update(std::vector<Bat>& bats)
 	{
 		bool hit = false;
 		
-		for (int i = 0; i < speed; i++)
+		for (int i = 0; i < floor(speed); i++)
 		{
 			auto original_x = loc.x;
 
@@ -307,11 +307,11 @@ public:
 
 					dY = DEFLECTION_MIN + slope * (static_cast<float>(differenceY) - BAT_HIT_MIN);
 
-					dY = dY * yMultiplier;
+					dY = dY * static_cast<float>(yMultiplier);
 
 					if (speed < MAX_BALL_SPEED)
 					{
-						this->speed += 1;
+						this->speed += 0.1;
 					}
 
 					// todo bat glow AI and sounds				
