@@ -1,0 +1,12 @@
+<map id="blit::API" name="blit::API">
+<area shape="rect" id="node1" title=" " alt="" coords="503,227,575,253"/>
+<area shape="rect" id="node2" href="$structblit_1_1Surface.html" title=" " alt="" coords="206,121,306,148"/>
+<area shape="rect" id="node3" href="$structblit_1_1Pen.html" title=" " alt="" coords="8,21,83,48"/>
+<area shape="rect" id="node4" href="$structblit_1_1Rect.html" title=" " alt="" coords="5,101,85,128"/>
+<area shape="rect" id="node5" href="$structblit_1_1Size.html" title=" " alt="" coords="6,172,85,199"/>
+<area shape="rect" id="node6" href="$structblit_1_1JPEGImage.html" title=" " alt="" coords="195,176,317,203"/>
+<area shape="rect" id="node7" href="$structblit_1_1Vec2.html" title=" " alt="" coords="215,227,297,253"/>
+<area shape="rect" id="node8" href="$structblit_1_1Vec3.html" title=" " alt="" coords="215,277,297,304"/>
+<area shape="rect" id="node9" href="$structblit_1_1AudioChannel.html" title=" " alt="" coords="185,328,327,355"/>
+<area shape="rect" id="node10" href="$structblit_1_1ButtonState.html" title=" " alt="" coords="192,379,320,405"/>
+</map>
